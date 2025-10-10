@@ -19,7 +19,6 @@ O ambiente é gerenciado com **Poetry**, que cuida das dependências, build e em
 |------------|------------------------|
 | Linguagem | [Python 3.11+](https://www.python.org/) |
 | Framework Web | [FastAPI](https://fastapi.tiangolo.com/) |
-| Servidor ASGI | [Uvicorn](https://www.uvicorn.org/) |
 | Gerenciamento de Dependências / Build | [Poetry](https://python-poetry.org/) |
 | Testes | [pytest](https://docs.pytest.org/) + [httpx](https://www.python-httpx.org/) |
 | Análise de Código | [ruff](https://docs.astral.sh/ruff/), [black](https://black.readthedocs.io/), [mypy](https://mypy-lang.org/) |
