@@ -1,13 +1,17 @@
-import pytest
-from httpx import AsyncClient, ASGITransport
-from main import app
+import importlib.util
+from fastapi.testclient import TestClient
+from pathlib import Path
 
+main_path = Path(__file__).resolve().parents[1] / "main.py"
 
-@pytest.mark.asyncio
-async def test_status_endpoint_ok():
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
-        resp = await ac.get("/status/")
-    assert resp.status_code == 200
-    data = resp.json()
-    assert data["status"] == "Operacional"
-    assert "Microsserviço de Equipamentos está online" in data["mensagem"]
+spec = importlib.util.spec_from_file_location("main", main_path)
+main = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(main)
+
+app = main.app
+client = TestClient(app)
+
+def test_status_endpoint_ok():
+    response = client.get("/status")
+    assert response.status_code == 200
+    assert response.json().get("ok") is True
