@@ -2,7 +2,6 @@ import importlib.util
 from pathlib import Path
 from fastapi.testclient import TestClient
 
-# carrega o main.py do serviço, apesar do hífen no nome da pasta
 main_path = Path(__file__).resolve().parents[1] / "main.py"
 spec = importlib.util.spec_from_file_location("main", main_path)
 main = importlib.util.module_from_spec(spec)
