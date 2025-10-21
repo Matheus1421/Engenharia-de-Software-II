@@ -1,6 +1,6 @@
 FROM python:3.11-slim
 
-ENV POETRY_VERSION=1.7.1 \
+ENV POETRY_VERSION=1.8.0 \
     POETRY_VIRTUALENVS_CREATE=false \
     PIP_NO_CACHE_DIR=1 \
     PATH="/root/.local/bin:$PATH"
