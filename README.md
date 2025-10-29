@@ -14,7 +14,7 @@ O objetivo é implementar uma **arquitetura de microsserviços** voltada para o 
 ├── servico-aluguel/          # Microsserviço responsável por aluguel de bicicletas e gestão de ciclistas/funcionários
 ├── servico-equipamento/      # Microsserviço responsável por bicicletas, totens e trancas
 ├── servico-externo/          # Microsserviço responsável por integrações externas (e-mail, cobrança)
-└── README.md                 # Este arquivo
+├── README.md                 # Este arquivo
 └── sonar-project.properties  # Arquivo de Configuração do Sonar
 ```
 
