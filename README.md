@@ -10,10 +10,12 @@ O objetivo é implementar uma **arquitetura de microsserviços** voltada para o 
 
 ```text
 /
-├── servico-aluguel/        # Microsserviço responsável por aluguel de bicicletas e gestão de ciclistas/funcionários
-├── servico-equipamento/    # Microsserviço responsável por bicicletas, totens e trancas
-├── servico-externo/        # Microsserviço responsável por integrações externas (e-mail, cobrança)
-└── README.md               # Este arquivo
+├── servico-aluguel/          # YAML com fluxos de trabalho automatizados
+├── servico-aluguel/          # Microsserviço responsável por aluguel de bicicletas e gestão de ciclistas/funcionários
+├── servico-equipamento/      # Microsserviço responsável por bicicletas, totens e trancas
+├── servico-externo/          # Microsserviço responsável por integrações externas (e-mail, cobrança)
+└── README.md                 # Este arquivo
+└── sonar-project.properties  # Arquivo de Configuração do Sonar
 ```
 
 Cada pasta de microsserviço contém sua própria estrutura de código, testes e documentação, permitindo **desenvolvimento e implantação independentes**, tudo explicado no README da própria pasta.
@@ -61,7 +63,7 @@ Responsável por **integrações externas**, como envio de e-mails e cobranças.
 | **Testes** | pytest |
 | **Gerenciador de Dependências** | Poetry |
 | **Revisão Contínua de Código** | SonarCloud / Codacy |
-| **Deploy** |-|
+| **Deploy** |Render |
 | **Controle de Versão** | GitHub |
 
 ---
