@@ -90,4 +90,4 @@ uvicorn main:app --reload
 | **Matheus Marques** | Tech Lead |
 | **Alexandre Vidal** | Dev - Aluguel|
 | **Camilo Lima** | Dev - Externo |
-| **Alexandre Vidal** | Dev - Equipamento |
+| **Leó Braga** | Dev - Equipamento |
