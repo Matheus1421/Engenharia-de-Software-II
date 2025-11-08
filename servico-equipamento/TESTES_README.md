@@ -16,9 +16,12 @@ Este documento descreve a estrutura de testes unitários implementada para o mic
 ```
 tests/
 ├── conftest.py                    # Configurações globais do pytest
-├── test_status_endpoint.py        # Testes do endpoint de status
-└── test_bicicleta_endpoints.py    # Testes dos endpoints de bicicletas (33 testes)
+├── test_status_endpoint.py        # Testes do endpoint de status (1 teste)
+├── test_bicicleta_endpoints.py    # Testes dos endpoints de bicicletas (33 testes)
+└── test_totem_endpoints.py        # Testes dos endpoints de totens (36 testes)
 ```
+
+**Total: 70 testes unitários** ✅
 
 ## 🧪 Testes de Bicicletas
 
@@ -193,9 +196,9 @@ mock_repo_instance.get_all.assert_called_once()
 
 ## 🎯 Próximas Etapas
 
-1. ✅ **Testes de Bicicletas** - CONCLUÍDO (100% cobertura)
-2. ⏳ **Testes de Totens** - Em implementação
-3. ⏳ **Testes de Trancas** - Pendente
+1. ✅ **Testes de Bicicletas** - CONCLUÍDO (100% cobertura - 33 testes)
+2. ✅ **Testes de Totens** - CONCLUÍDO (100% cobertura - 36 testes)
+3. ⏳ **Testes de Trancas** - Pendente (~40 testes estimados)
 4. ⏳ **Testes de Repositórios** - Pendente
 5. ⏳ **Testes de Integração** - Pendente
 
