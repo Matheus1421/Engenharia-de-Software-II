@@ -3,6 +3,7 @@ from routers.status import router as status_router
 from routers.admin import router as admin_router
 from routers.bicicleta import router as bicicleta_router
 from routers.totem import router as totem_router
+from routers.tranca import router as tranca_router
 from database.database import get_db
 from database.init_data import init_db
 
@@ -32,6 +33,8 @@ app.include_router(admin_router)
 app.include_router(bicicleta_router)
 # Registra os endpoints de totems
 app.include_router(totem_router)
+# Registra os endpoints de trancas
+app.include_router(tranca_router)
 
 # Health-check simples (opcional)
 @app.get("/health")
