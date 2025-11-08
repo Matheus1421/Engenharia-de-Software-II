@@ -1,5 +1,8 @@
 from fastapi import FastAPI
 from routers.status import router as status_router
+from routers.admin import router as admin_router
+from database.database import get_db
+from database.init_data import init_db
 
 app = FastAPI(
     title="Serviço de Equipamentos",
@@ -8,8 +11,21 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
+# Inicializa o banco de dados na primeira execução
+@app.on_event("startup")
+def startup_event():
+    """Inicializa o banco de dados com dados padrão se estiver vazio"""
+    db = get_db()
+    # Verifica se o banco está vazio
+    bicicletas_table = db.get_table('bicicletas')
+    if len(bicicletas_table.all()) == 0:
+        init_db(db)
+        print("✓ Banco de dados inicializado com dados padrão")
+
 # Registra o endpoint de status
 app.include_router(status_router)
+# Registra o endpoint de admin
+app.include_router(admin_router)
 
 # Health-check simples (opcional)
 @app.get("/health")
