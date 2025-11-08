@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from routers.status import router as status_router
 from routers.admin import router as admin_router
+from routers.bicicleta import router as bicicleta_router
 from database.database import get_db
 from database.init_data import init_db
 
@@ -26,6 +27,8 @@ def startup_event():
 app.include_router(status_router)
 # Registra o endpoint de admin
 app.include_router(admin_router)
+# Registra os endpoints de bicicletas
+app.include_router(bicicleta_router)
 
 # Health-check simples (opcional)
 @app.get("/health")
