@@ -4,13 +4,22 @@ Este módulo centraliza a conexão e inicialização do banco de dados.
 """
 
 from tinydb import TinyDB, Query
+from tinydb.storages import JSONStorage
 from pathlib import Path
 import os
+import json
 
 
 # Define o caminho do banco de dados
 DB_DIR = Path(__file__).parent
 DB_FILE = DB_DIR / "equipamentos.json"
+
+
+class UTF8JSONStorage(JSONStorage):
+    """Storage personalizado que força UTF-8 encoding"""
+    
+    def __init__(self, path, create_dirs=False, encoding='utf-8', access_mode='r+', **kwargs):
+        super().__init__(path, create_dirs=create_dirs, encoding=encoding, access_mode=access_mode, **kwargs)
 
 
 class Database:
@@ -30,8 +39,13 @@ class Database:
             # Cria o diretório se não existir
             DB_DIR.mkdir(exist_ok=True)
             
-            # Inicializa o banco de dados
-            self._db = TinyDB(DB_FILE, indent=4, ensure_ascii=False)
+            # Inicializa o banco de dados com storage UTF-8
+            self._db = TinyDB(
+                DB_FILE,
+                indent=4,
+                ensure_ascii=False,
+                storage=UTF8JSONStorage
+            )
     
     @property
     def db(self) -> TinyDB:

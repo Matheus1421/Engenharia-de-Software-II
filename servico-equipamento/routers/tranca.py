@@ -20,17 +20,25 @@ router = APIRouter(prefix="/tranca", tags=["Equipamento"])
 
 
 # Modelos para requests específicos
+from pydantic import Field
+
 class IntegrarNaRedeRequest(BaseModel):
-    idTotem: int
-    idTranca: int
-    idFuncionario: int
+    id_totem: int = Field(..., alias='idTotem')
+    id_tranca: int = Field(..., alias='idTranca')
+    id_funcionario: int = Field(..., alias='idFuncionario')
+
+    class Config:
+        populate_by_name = True
 
 
 class RetirarDaRedeRequest(BaseModel):
-    idTotem: int
-    idTranca: int
-    idFuncionario: int
-    statusAcaoReparador: str  # 'APOSENTADA' ou 'EM_REPARO'
+    id_totem: int = Field(..., alias='idTotem')
+    id_tranca: int = Field(..., alias='idTranca')
+    id_funcionario: int = Field(..., alias='idFuncionario')
+    status_acao_reparador: str = Field(..., alias='statusAcaoReparador')  # 'APOSENTADA' ou 'EM_REPARO'
+
+    class Config:
+        populate_by_name = True
 
 
 class TrancarRequest(BaseModel):
@@ -97,13 +105,13 @@ def cadastrar_tranca(tranca: NovaTranca):
         )
 
 
-@router.get("/{idTranca}", summary="Obter tranca", response_model=Tranca)
-def obter_tranca(idTranca: int):
+@router.get("/{id_tranca}", summary="Obter tranca", response_model=Tranca)
+def obter_tranca(id_tranca: int):
     """
     Obtém os dados de uma tranca específica.
     
     Args:
-        idTranca: ID da tranca
+        id_tranca: ID da tranca
         
     Returns:
         Dados da tranca
@@ -113,27 +121,27 @@ def obter_tranca(idTranca: int):
     """
     db = get_db()
     tranca_repo = TrancaRepository(db)
-    tranca = tranca_repo.get_by_id(idTranca)
+    tranca = tranca_repo.get_by_id(id_tranca)
     
     if not tranca:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={
                 "codigo": "TRANCA_NAO_ENCONTRADA",
-                "mensagem": f"Tranca com ID {idTranca} não encontrada"
+                "mensagem": f"Tranca com ID {id_tranca} não encontrada"
             }
         )
     
     return tranca
 
 
-@router.put("/{idTranca}", summary="Editar tranca", response_model=Tranca)
-def editar_tranca(idTranca: int, tranca: NovaTranca):
+@router.put("/{id_tranca}", summary="Editar tranca", response_model=Tranca)
+def editar_tranca(id_tranca: int, tranca: NovaTranca):
     """
     Atualiza os dados de uma tranca existente.
     
     Args:
-        idTranca: ID da tranca
+        id_tranca: ID da tranca
         tranca: Novos dados da tranca
         
     Returns:
@@ -148,18 +156,18 @@ def editar_tranca(idTranca: int, tranca: NovaTranca):
         tranca_repo = TrancaRepository(db)
         
         # Verifica se existe
-        if not tranca_repo.get_by_id(idTranca):
+        if not tranca_repo.get_by_id(id_tranca):
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail={
                     "codigo": "TRANCA_NAO_ENCONTRADA",
-                    "mensagem": f"Tranca com ID {idTranca} não encontrada"
+                    "mensagem": f"Tranca com ID {id_tranca} não encontrada"
                 }
             )
         
         # Valida se o número não está sendo usado por outra tranca
         todas = tranca_repo.get_all()
-        if any(t.numero == tranca.numero and t.id != idTranca for t in todas):
+        if any(t.numero == tranca.numero and t.id != id_tranca for t in todas):
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail=[{
@@ -168,7 +176,7 @@ def editar_tranca(idTranca: int, tranca: NovaTranca):
                 }]
             )
         
-        tranca_atualizada = tranca_repo.update(idTranca, tranca)
+        tranca_atualizada = tranca_repo.update(id_tranca, tranca)
         return tranca_atualizada
         
     except HTTPException:
@@ -183,13 +191,13 @@ def editar_tranca(idTranca: int, tranca: NovaTranca):
         )
 
 
-@router.delete("/{idTranca}", summary="Remover tranca", status_code=status.HTTP_200_OK)
-def remover_tranca(idTranca: int):
+@router.delete("/{id_tranca}", summary="Remover tranca", status_code=status.HTTP_200_OK)
+def remover_tranca(id_tranca: int):
     """
     Remove uma tranca do sistema.
     
     Args:
-        idTranca: ID da tranca
+        id_tranca: ID da tranca
         
     Returns:
         Mensagem de sucesso
@@ -201,25 +209,25 @@ def remover_tranca(idTranca: int):
     db = get_db()
     tranca_repo = TrancaRepository(db)
     
-    if not tranca_repo.delete(idTranca):
+    if not tranca_repo.delete(id_tranca):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={
                 "codigo": "TRANCA_NAO_ENCONTRADA",
-                "mensagem": f"Tranca com ID {idTranca} não encontrada"
+                "mensagem": f"Tranca com ID {id_tranca} não encontrada"
             }
         )
     
     return {"mensagem": "Tranca removida com sucesso"}
 
 
-@router.get("/{idTranca}/bicicleta", summary="Obter bicicleta na tranca", response_model=Bicicleta)
-def obter_bicicleta_na_tranca(idTranca: int):
+@router.get("/{id_tranca}/bicicleta", summary="Obter bicicleta na tranca", response_model=Bicicleta)
+def obter_bicicleta_na_tranca(id_tranca: int):
     """
     Obtém a bicicleta associada a uma tranca.
     
     Args:
-        idTranca: ID da tranca
+        id_tranca: ID da tranca
         
     Returns:
         Bicicleta na tranca
@@ -229,7 +237,7 @@ def obter_bicicleta_na_tranca(idTranca: int):
         HTTPException 422: ID da tranca inválido
     """
     # Valida ID
-    if idTranca <= 0:
+    if id_tranca <= 0:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail={
@@ -243,13 +251,13 @@ def obter_bicicleta_na_tranca(idTranca: int):
     bicicleta_repo = BicicletaRepository(db)
     
     # Busca tranca
-    tranca = tranca_repo.get_by_id(idTranca)
+    tranca = tranca_repo.get_by_id(id_tranca)
     if not tranca:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={
                 "codigo": "TRANCA_NAO_ENCONTRADA",
-                "mensagem": f"Tranca com ID {idTranca} não encontrada"
+                "mensagem": f"Tranca com ID {id_tranca} não encontrada"
             }
         )
     
@@ -259,7 +267,7 @@ def obter_bicicleta_na_tranca(idTranca: int):
             status_code=status.HTTP_404_NOT_FOUND,
             detail={
                 "codigo": "BICICLETA_NAO_ENCONTRADA",
-                "mensagem": f"Não há bicicleta na tranca {idTranca}"
+                "mensagem": f"Não há bicicleta na tranca {id_tranca}"
             }
         )
     
@@ -277,14 +285,14 @@ def obter_bicicleta_na_tranca(idTranca: int):
     return bicicleta
 
 
-@router.post("/{idTranca}/trancar", summary="Trancar tranca", response_model=Tranca)
-def trancar(idTranca: int, request: TrancarRequest = TrancarRequest()):
+@router.post("/{id_tranca}/trancar", summary="Trancar tranca", response_model=Tranca)
+def trancar(id_tranca: int, request: TrancarRequest = TrancarRequest()):
     """
     Realiza o trancamento da tranca.
     Se receber ID da bicicleta, associa a bicicleta à tranca.
     
     Args:
-        idTranca: ID da tranca
+        id_tranca: ID da tranca
         request: Dados do trancamento (opcional: idBicicleta)
         
     Returns:
@@ -299,13 +307,13 @@ def trancar(idTranca: int, request: TrancarRequest = TrancarRequest()):
     bicicleta_repo = BicicletaRepository(db)
     
     # Busca tranca
-    tranca = tranca_repo.get_by_id(idTranca)
+    tranca = tranca_repo.get_by_id(id_tranca)
     if not tranca:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={
                 "codigo": "TRANCA_NAO_ENCONTRADA",
-                "mensagem": f"Tranca com ID {idTranca} não encontrada"
+                "mensagem": f"Tranca com ID {id_tranca} não encontrada"
             }
         )
     
@@ -315,7 +323,7 @@ def trancar(idTranca: int, request: TrancarRequest = TrancarRequest()):
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=[{
                 "codigo": "TRANCA_JA_TRANCADA",
-                "mensagem": f"A tranca {idTranca} já está trancada"
+                "mensagem": f"A tranca {id_tranca} já está trancada"
             }]
         )
     
@@ -332,25 +340,25 @@ def trancar(idTranca: int, request: TrancarRequest = TrancarRequest()):
             )
         
         # Associa bicicleta à tranca
-        tranca_repo.associar_bicicleta(idTranca, request.bicicleta)
+        tranca_repo.associar_bicicleta(id_tranca, request.bicicleta)
         
         # Atualiza status da bicicleta para DISPONIVEL
         bicicleta_repo.update_status(request.bicicleta, StatusBicicleta.DISPONIVEL)
     
     # Atualiza status da tranca para OCUPADA
-    tranca_atualizada = tranca_repo.update_status(idTranca, StatusTranca.OCUPADA)
+    tranca_atualizada = tranca_repo.update_status(id_tranca, StatusTranca.OCUPADA)
     
     return tranca_atualizada
 
 
-@router.post("/{idTranca}/destrancar", summary="Destrancar tranca", response_model=Tranca)
-def destrancar(idTranca: int, request: DestrancarRequest = DestrancarRequest()):
+@router.post("/{id_tranca}/destrancar", summary="Destrancar tranca", response_model=Tranca)
+def destrancar(id_tranca: int, request: DestrancarRequest = DestrancarRequest()):
     """
     Realiza o destrancamento da tranca.
     Se receber ID da bicicleta, desassocia a bicicleta da tranca.
     
     Args:
-        idTranca: ID da tranca
+        id_tranca: ID da tranca
         request: Dados do destrancamento (opcional: idBicicleta)
         
     Returns:
@@ -365,13 +373,13 @@ def destrancar(idTranca: int, request: DestrancarRequest = DestrancarRequest()):
     bicicleta_repo = BicicletaRepository(db)
     
     # Busca tranca
-    tranca = tranca_repo.get_by_id(idTranca)
+    tranca = tranca_repo.get_by_id(id_tranca)
     if not tranca:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={
                 "codigo": "TRANCA_NAO_ENCONTRADA",
-                "mensagem": f"Tranca com ID {idTranca} não encontrada"
+                "mensagem": f"Tranca com ID {id_tranca} não encontrada"
             }
         )
     
@@ -393,29 +401,29 @@ def destrancar(idTranca: int, request: DestrancarRequest = DestrancarRequest()):
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail=[{
                     "codigo": "BICICLETA_NAO_ESTA_NA_TRANCA",
-                    "mensagem": f"A bicicleta {request.bicicleta} não está na tranca {idTranca}"
+                    "mensagem": f"A bicicleta {request.bicicleta} não está na tranca {id_tranca}"
                 }]
             )
         
         # Desassocia bicicleta da tranca
-        tranca_repo.associar_bicicleta(idTranca, None)
+        tranca_repo.associar_bicicleta(id_tranca, None)
         
         # Atualiza status da bicicleta para EM_USO
         bicicleta_repo.update_status(request.bicicleta, StatusBicicleta.EM_USO)
     
     # Atualiza status da tranca para LIVRE
-    tranca_atualizada = tranca_repo.update_status(idTranca, StatusTranca.LIVRE)
+    tranca_atualizada = tranca_repo.update_status(id_tranca, StatusTranca.LIVRE)
     
     return tranca_atualizada
 
 
-@router.post("/{idTranca}/status/{acao}", summary="Alterar status da tranca", response_model=Tranca)
-def alterar_status_tranca(idTranca: int, acao: str):
+@router.post("/{id_tranca}/status/{acao}", summary="Alterar status da tranca", response_model=Tranca)
+def alterar_status_tranca(id_tranca: int, acao: str):
     """
     Altera o status de uma tranca (TRANCAR ou DESTRANCAR).
     
     Args:
-        idTranca: ID da tranca
+        id_tranca: ID da tranca
         acao: Ação a ser realizada (TRANCAR ou DESTRANCAR)
         
     Returns:
@@ -429,13 +437,13 @@ def alterar_status_tranca(idTranca: int, acao: str):
     tranca_repo = TrancaRepository(db)
     
     # Verifica se a tranca existe
-    tranca = tranca_repo.get_by_id(idTranca)
+    tranca = tranca_repo.get_by_id(id_tranca)
     if not tranca:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={
                 "codigo": "TRANCA_NAO_ENCONTRADA",
-                "mensagem": f"Tranca com ID {idTranca} não encontrada"
+                "mensagem": f"Tranca com ID {id_tranca} não encontrada"
             }
         )
     
@@ -458,14 +466,14 @@ def alterar_status_tranca(idTranca: int, acao: str):
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail=[{
                     "codigo": "TRANCA_JA_TRANCADA",
-                    "mensagem": f"A tranca {idTranca} já está trancada"
+                    "mensagem": f"A tranca {id_tranca} já está trancada"
                 }]
             )
         novo_status = StatusTranca.OCUPADA
     else:  # DESTRANCAR
         novo_status = StatusTranca.LIVRE
     
-    tranca_atualizada = tranca_repo.update_status(idTranca, novo_status)
+    tranca_atualizada = tranca_repo.update_status(id_tranca, novo_status)
     return tranca_atualizada
 
 
@@ -477,7 +485,7 @@ def integrar_tranca_na_rede(request: IntegrarNaRedeRequest):
     A tranca deve estar com status NOVA ou EM_REPARO.
     
     Args:
-        request: Dados da integração (idTotem, idTranca, idFuncionario)
+        request: Dados da integração (idTotem, id_tranca, idFuncionario)
         
     Returns:
         Mensagem de sucesso
@@ -491,24 +499,24 @@ def integrar_tranca_na_rede(request: IntegrarNaRedeRequest):
     totem_repo = TotemRepository(db)
     
     # Busca tranca
-    tranca = tranca_repo.get_by_id(request.idTranca)
+    tranca = tranca_repo.get_by_id(request.id_tranca)
     if not tranca:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={
                 "codigo": "TRANCA_NAO_ENCONTRADA",
-                "mensagem": f"Tranca com ID {request.idTranca} não encontrada"
+                "mensagem": f"Tranca com ID {request.id_tranca} não encontrada"
             }
         )
     
     # Busca totem
-    totem = totem_repo.get_by_id(request.idTotem)
+    totem = totem_repo.get_by_id(request.id_totem)
     if not totem:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={
                 "codigo": "TOTEM_NAO_ENCONTRADO",
-                "mensagem": f"Totem com ID {request.idTotem} não encontrado"
+                "mensagem": f"Totem com ID {request.id_totem} não encontrado"
             }
         )
     
@@ -524,16 +532,16 @@ def integrar_tranca_na_rede(request: IntegrarNaRedeRequest):
     
     # Integra na rede
     # 1. Associa tranca ao totem
-    tranca_repo.associar_totem(request.idTranca, request.idTotem)
+    tranca_repo.associar_totem(request.id_tranca, request.id_totem)
     
     # 2. Atualiza status da tranca para LIVRE
-    tranca_repo.update_status(request.idTranca, StatusTranca.LIVRE)
+    tranca_repo.update_status(request.id_tranca, StatusTranca.LIVRE)
     
     return {
         "mensagem": "Tranca integrada na rede com sucesso",
-        "idTranca": request.idTranca,
-        "idTotem": request.idTotem,
-        "idFuncionario": request.idFuncionario
+        "idTranca": request.id_tranca,
+        "idTotem": request.id_totem,
+        "idFuncionario": request.id_funcionario
     }
 
 
@@ -543,7 +551,7 @@ def retirar_tranca_da_rede(request: RetirarDaRedeRequest):
     Retira uma tranca para reparo ou aposentadoria.
     
     Args:
-        request: Dados da retirada (idTotem, idTranca, idFuncionario, statusAcaoReparador)
+        request: Dados da retirada (idTotem, id_tranca, idFuncionario, statusAcaoReparador)
         
     Returns:
         Mensagem de sucesso
@@ -557,40 +565,40 @@ def retirar_tranca_da_rede(request: RetirarDaRedeRequest):
     totem_repo = TotemRepository(db)
     
     # Busca tranca
-    tranca = tranca_repo.get_by_id(request.idTranca)
+    tranca = tranca_repo.get_by_id(request.id_tranca)
     if not tranca:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={
                 "codigo": "TRANCA_NAO_ENCONTRADA",
-                "mensagem": f"Tranca com ID {request.idTranca} não encontrada"
+                "mensagem": f"Tranca com ID {request.id_tranca} não encontrada"
             }
         )
     
     # Busca totem
-    totem = totem_repo.get_by_id(request.idTotem)
+    totem = totem_repo.get_by_id(request.id_totem)
     if not totem:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={
                 "codigo": "TOTEM_NAO_ENCONTRADO",
-                "mensagem": f"Totem com ID {request.idTotem} não encontrado"
+                "mensagem": f"Totem com ID {request.id_totem} não encontrado"
             }
         )
     
     # Verifica se a tranca está no totem
-    totem_id_tranca = tranca_repo.get_totem_id(request.idTranca)
-    if totem_id_tranca != request.idTotem:
+    totem_id_tranca = tranca_repo.get_totem_id(request.id_tranca)
+    if totem_id_tranca != request.id_totem:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=[{
                 "codigo": "TRANCA_NAO_ESTA_NO_TOTEM",
-                "mensagem": f"A tranca {request.idTranca} não está no totem {request.idTotem}"
+                "mensagem": f"A tranca {request.id_tranca} não está no totem {request.id_totem}"
             }]
         )
     
     # Valida o status de destino
-    status_destino_upper = request.statusAcaoReparador.upper()
+    status_destino_upper = request.status_acao_reparador.upper()
     if status_destino_upper not in ["APOSENTADA", "EM_REPARO"]:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -603,15 +611,15 @@ def retirar_tranca_da_rede(request: RetirarDaRedeRequest):
     # Retira da rede
     # 1. Atualiza status da tranca
     novo_status = StatusTranca.APOSENTADA if status_destino_upper == "APOSENTADA" else StatusTranca.EM_REPARO
-    tranca_repo.update_status(request.idTranca, novo_status)
+    tranca_repo.update_status(request.id_tranca, novo_status)
     
     # 2. Desassocia tranca do totem
-    tranca_repo.desassociar_totem(request.idTranca)
+    tranca_repo.desassociar_totem(request.id_tranca)
     
     return {
         "mensagem": "Tranca retirada da rede com sucesso",
-        "idTranca": request.idTranca,
-        "idTotem": request.idTotem,
+        "id_tranca": request.id_tranca,
+        "idTotem": request.id_totem,
         "novoStatus": novo_status.value,
-        "idFuncionario": request.idFuncionario
+        "idFuncionario": request.id_funcionario
     }

@@ -74,13 +74,13 @@ def cadastrar_totem(totem: NovoTotem):
         )
 
 
-@router.put("/{idTotem}", summary="Editar totem", response_model=Totem)
-def editar_totem(idTotem: int, totem: NovoTotem):
+@router.put("/{id_totem}", summary="Editar totem", response_model=Totem)
+def editar_totem(id_totem: int, totem: NovoTotem):
     """
     Atualiza os dados de um totem existente.
     
     Args:
-        idTotem: ID do totem
+        id_totem: ID do totem
         totem: Novos dados do totem
         
     Returns:
@@ -95,12 +95,12 @@ def editar_totem(idTotem: int, totem: NovoTotem):
         totem_repo = TotemRepository(db)
         
         # Verifica se existe
-        if not totem_repo.get_by_id(idTotem):
+        if not totem_repo.get_by_id(id_totem):
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail={
                     "codigo": "TOTEM_NAO_ENCONTRADO",
-                    "mensagem": f"Totem com ID {idTotem} não encontrado"
+                    "mensagem": f"Totem com ID {id_totem} não encontrado"
                 }
             )
         
@@ -114,7 +114,7 @@ def editar_totem(idTotem: int, totem: NovoTotem):
                 }]
             )
         
-        totem_atualizado = totem_repo.update(idTotem, totem)
+        totem_atualizado = totem_repo.update(id_totem, totem)
         return totem_atualizado
         
     except HTTPException:
@@ -129,13 +129,13 @@ def editar_totem(idTotem: int, totem: NovoTotem):
         )
 
 
-@router.delete("/{idTotem}", summary="Remover totem", status_code=status.HTTP_200_OK)
-def remover_totem(idTotem: int):
+@router.delete("/{id_totem}", summary="Remover totem", status_code=status.HTTP_200_OK)
+def remover_totem(id_totem: int):
     """
     Remove um totem do sistema.
     
     Args:
-        idTotem: ID do totem
+        id_totem: ID do totem
         
     Returns:
         Mensagem de sucesso
@@ -147,28 +147,28 @@ def remover_totem(idTotem: int):
     totem_repo = TotemRepository(db)
     
     # Verifica se o totem existe
-    if not totem_repo.get_by_id(idTotem):
+    if not totem_repo.get_by_id(id_totem):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={
                 "codigo": "TOTEM_NAO_ENCONTRADO",
-                "mensagem": f"Totem com ID {idTotem} não encontrado"
+                "mensagem": f"Totem com ID {id_totem} não encontrado"
             }
         )
     
     # Remove o totem (o repositório já remove as associações com trancas)
-    totem_repo.delete(idTotem)
+    totem_repo.delete(id_totem)
     
     return {"mensagem": "Totem removido com sucesso"}
 
 
-@router.get("/{idTotem}/trancas", summary="Listar trancas de um totem", response_model=List[Tranca])
-def listar_trancas_do_totem(idTotem: int):
+@router.get("/{id_totem}/trancas", summary="Listar trancas de um totem", response_model=List[Tranca])
+def listar_trancas_do_totem(id_totem: int):
     """
     Lista todas as trancas associadas a um totem.
     
     Args:
-        idTotem: ID do totem
+        id_totem: ID do totem
         
     Returns:
         Lista de trancas do totem
@@ -178,7 +178,7 @@ def listar_trancas_do_totem(idTotem: int):
         HTTPException 422: ID do totem inválido
     """
     # Valida o ID
-    if idTotem <= 0:
+    if id_totem <= 0:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=[{
@@ -192,17 +192,17 @@ def listar_trancas_do_totem(idTotem: int):
     tranca_repo = TrancaRepository(db)
     
     # Verifica se o totem existe
-    if not totem_repo.get_by_id(idTotem):
+    if not totem_repo.get_by_id(id_totem):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={
                 "codigo": "TOTEM_NAO_ENCONTRADO",
-                "mensagem": f"Totem com ID {idTotem} não encontrado"
+                "mensagem": f"Totem com ID {id_totem} não encontrado"
             }
         )
     
     # Busca os IDs das trancas associadas ao totem
-    trancas_ids = totem_repo.get_trancas_ids(idTotem)
+    trancas_ids = totem_repo.get_trancas_ids(id_totem)
     
     # Busca os dados completos de cada tranca
     trancas = []
@@ -214,13 +214,13 @@ def listar_trancas_do_totem(idTotem: int):
     return trancas
 
 
-@router.get("/{idTotem}/bicicletas", summary="Listar bicicletas de um totem", response_model=List[Bicicleta])
-def listar_bicicletas_do_totem(idTotem: int):
+@router.get("/{id_totem}/bicicletas", summary="Listar bicicletas de um totem", response_model=List[Bicicleta])
+def listar_bicicletas_do_totem(id_totem: int):
     """
     Lista todas as bicicletas associadas às trancas de um totem.
     
     Args:
-        idTotem: ID do totem
+        id_totem: ID do totem
         
     Returns:
         Lista de bicicletas no totem
@@ -230,7 +230,7 @@ def listar_bicicletas_do_totem(idTotem: int):
         HTTPException 422: ID do totem inválido
     """
     # Valida o ID
-    if idTotem <= 0:
+    if id_totem <= 0:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=[{
@@ -245,17 +245,17 @@ def listar_bicicletas_do_totem(idTotem: int):
     bicicleta_repo = BicicletaRepository(db)
     
     # Verifica se o totem existe
-    if not totem_repo.get_by_id(idTotem):
+    if not totem_repo.get_by_id(id_totem):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={
                 "codigo": "TOTEM_NAO_ENCONTRADO",
-                "mensagem": f"Totem com ID {idTotem} não encontrado"
+                "mensagem": f"Totem com ID {id_totem} não encontrado"
             }
         )
     
     # Busca os IDs das trancas associadas ao totem
-    trancas_ids = totem_repo.get_trancas_ids(idTotem)
+    trancas_ids = totem_repo.get_trancas_ids(id_totem)
     
     # Busca as bicicletas associadas a cada tranca
     bicicletas = []

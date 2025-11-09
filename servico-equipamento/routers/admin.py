@@ -6,7 +6,7 @@ from fastapi import APIRouter, Response, status
 from database.database import get_db
 from database.init_data import init_db
 
-router = APIRouter(tags=["admin"])
+router = APIRouter(tags=["Equipamento"])
 
 
 @router.get("/restaurarBanco", summary="Restaurar dados iniciais do banco de dados")

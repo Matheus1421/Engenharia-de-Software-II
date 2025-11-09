@@ -6,6 +6,10 @@ from models.bicicleta_model import StatusBicicleta
 from models.tranca_model import StatusTranca
 
 
+# Constante para localização padrão
+DEFAULT_LOCALIZACAO = "-22.9068, -43.1729"
+
+
 # Dados iniciais para bicicletas
 BICICLETAS_INICIAIS = [
     {
@@ -40,7 +44,7 @@ TRANCAS_INICIAIS = [
     {
         "id": 1,
         "numero": 1,
-        "localizacao": "-22.9068, -43.1729",
+        "localizacao": DEFAULT_LOCALIZACAO,
         "anoDeFabricacao": "2023",
         "modelo": "Tranca Smart v1",
         "status": StatusTranca.LIVRE.value,
@@ -49,7 +53,7 @@ TRANCAS_INICIAIS = [
     {
         "id": 2,
         "numero": 2,
-        "localizacao": "-22.9068, -43.1729",
+        "localizacao": DEFAULT_LOCALIZACAO,
         "anoDeFabricacao": "2023",
         "modelo": "Tranca Smart v1",
         "status": StatusTranca.LIVRE.value,
@@ -58,7 +62,7 @@ TRANCAS_INICIAIS = [
     {
         "id": 3,
         "numero": 3,
-        "localizacao": "-22.9068, -43.1729",
+        "localizacao": DEFAULT_LOCALIZACAO,
         "anoDeFabricacao": "2024",
         "modelo": "Tranca Smart v2",
         "status": StatusTranca.NOVA.value,
@@ -71,7 +75,7 @@ TRANCAS_INICIAIS = [
 TOTEMS_INICIAIS = [
     {
         "id": 1,
-        "localizacao": "-22.9068, -43.1729",
+        "localizacao": DEFAULT_LOCALIZACAO,
         "descricao": "Totem da Praça Central - Centro"
     },
     {

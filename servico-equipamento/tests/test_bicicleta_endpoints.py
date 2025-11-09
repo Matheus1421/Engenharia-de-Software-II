@@ -79,7 +79,7 @@ def tranca_ocupada_com_bicicleta():
 
 def test_listar_bicicletas_sucesso():
     """Testa listagem de todas as bicicletas - sucesso"""
-    with patch('routers.bicicleta.get_db') as mock_get_db, \
+    with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo:
         
         # Setup
@@ -104,7 +104,7 @@ def test_listar_bicicletas_sucesso():
 
 def test_listar_bicicletas_lista_vazia():
     """Testa listagem quando não há bicicletas cadastradas"""
-    with patch('routers.bicicleta.get_db') as mock_get_db, \
+    with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo:
         
         mock_repo_instance = Mock()
@@ -121,7 +121,7 @@ def test_listar_bicicletas_lista_vazia():
 
 def test_cadastrar_bicicleta_sucesso(nova_bicicleta_valida):
     """Testa cadastro de nova bicicleta - sucesso"""
-    with patch('routers.bicicleta.get_db') as mock_get_db, \
+    with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo:
         
         mock_repo_instance = Mock()
@@ -147,7 +147,7 @@ def test_cadastrar_bicicleta_sucesso(nova_bicicleta_valida):
 
 def test_cadastrar_bicicleta_numero_duplicado():
     """Testa erro ao cadastrar bicicleta com número duplicado"""
-    with patch('routers.bicicleta.get_db') as mock_get_db, \
+    with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo:
         
         mock_repo_instance = Mock()
@@ -199,7 +199,7 @@ def test_cadastrar_bicicleta_campos_faltando():
 
 def test_obter_bicicleta_sucesso(bicicleta_exemplo):
     """Testa obtenção de bicicleta por ID - sucesso"""
-    with patch('routers.bicicleta.get_db') as mock_get_db, \
+    with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo:
         
         mock_repo_instance = Mock()
@@ -217,7 +217,7 @@ def test_obter_bicicleta_sucesso(bicicleta_exemplo):
 
 def test_obter_bicicleta_nao_encontrada():
     """Testa erro ao buscar bicicleta inexistente"""
-    with patch('routers.bicicleta.get_db') as mock_get_db, \
+    with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo:
         
         mock_repo_instance = Mock()
@@ -234,7 +234,7 @@ def test_obter_bicicleta_nao_encontrada():
 
 def test_editar_bicicleta_sucesso(bicicleta_exemplo):
     """Testa edição de bicicleta - sucesso"""
-    with patch('routers.bicicleta.get_db') as mock_get_db, \
+    with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo:
         
         mock_repo_instance = Mock()
@@ -268,7 +268,7 @@ def test_editar_bicicleta_sucesso(bicicleta_exemplo):
 
 def test_editar_bicicleta_nao_encontrada():
     """Testa erro ao editar bicicleta inexistente"""
-    with patch('routers.bicicleta.get_db') as mock_get_db, \
+    with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo:
         
         mock_repo_instance = Mock()
@@ -290,7 +290,7 @@ def test_editar_bicicleta_nao_encontrada():
 
 def test_editar_bicicleta_numero_duplicado(bicicleta_exemplo):
     """Testa erro ao editar bicicleta com número já usado por outra"""
-    with patch('routers.bicicleta.get_db') as mock_get_db, \
+    with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo:
         
         mock_repo_instance = Mock()
@@ -318,7 +318,7 @@ def test_editar_bicicleta_numero_duplicado(bicicleta_exemplo):
 
 def test_remover_bicicleta_sucesso():
     """Testa remoção de bicicleta - sucesso"""
-    with patch('routers.bicicleta.get_db') as mock_get_db, \
+    with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo:
         
         mock_repo_instance = Mock()
@@ -334,7 +334,7 @@ def test_remover_bicicleta_sucesso():
 
 def test_remover_bicicleta_nao_encontrada():
     """Testa erro ao remover bicicleta inexistente"""
-    with patch('routers.bicicleta.get_db') as mock_get_db, \
+    with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo:
         
         mock_repo_instance = Mock()
@@ -351,7 +351,7 @@ def test_remover_bicicleta_nao_encontrada():
 
 def test_alterar_status_bicicleta_sucesso(bicicleta_exemplo):
     """Testa alteração de status da bicicleta - sucesso"""
-    with patch('routers.bicicleta.get_db') as mock_get_db, \
+    with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo:
         
         mock_repo_instance = Mock()
@@ -380,7 +380,7 @@ def test_alterar_status_bicicleta_todos_status_validos(bicicleta_exemplo):
     status_validos = ["DISPONIVEL", "EM_USO", "NOVA", "APOSENTADA", "REPARO_SOLICITADO", "EM_REPARO"]
     
     for status in status_validos:
-        with patch('routers.bicicleta.get_db') as mock_get_db, \
+        with patch('routers.bicicleta.get_db'), \
              patch('routers.bicicleta.BicicletaRepository') as mock_repo:
             
             mock_repo_instance = Mock()
@@ -405,7 +405,7 @@ def test_alterar_status_bicicleta_todos_status_validos(bicicleta_exemplo):
 
 def test_alterar_status_bicicleta_status_invalido(bicicleta_exemplo):
     """Testa erro ao usar status inválido"""
-    with patch('routers.bicicleta.get_db') as mock_get_db, \
+    with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo:
         
         mock_repo_instance = Mock()
@@ -420,7 +420,7 @@ def test_alterar_status_bicicleta_status_invalido(bicicleta_exemplo):
 
 def test_alterar_status_bicicleta_nao_encontrada():
     """Testa erro ao alterar status de bicicleta inexistente"""
-    with patch('routers.bicicleta.get_db') as mock_get_db, \
+    with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo:
         
         mock_repo_instance = Mock()
@@ -435,7 +435,7 @@ def test_alterar_status_bicicleta_nao_encontrada():
 
 def test_alterar_status_case_insensitive(bicicleta_exemplo):
     """Testa que o status aceita minúsculas e converte para maiúsculas"""
-    with patch('routers.bicicleta.get_db') as mock_get_db, \
+    with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo:
         
         mock_repo_instance = Mock()
@@ -462,7 +462,7 @@ def test_alterar_status_case_insensitive(bicicleta_exemplo):
 
 def test_integrar_bicicleta_na_rede_sucesso_status_nova(tranca_livre):
     """Testa integração de bicicleta NOVA na rede - sucesso"""
-    with patch('routers.bicicleta.get_db') as mock_get_db, \
+    with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo_bici, \
          patch('routers.bicicleta.TrancaRepository') as mock_repo_tranca:
         
@@ -499,7 +499,7 @@ def test_integrar_bicicleta_na_rede_sucesso_status_nova(tranca_livre):
 
 def test_integrar_bicicleta_na_rede_sucesso_status_em_reparo(tranca_livre):
     """Testa integração de bicicleta EM_REPARO na rede - sucesso"""
-    with patch('routers.bicicleta.get_db') as mock_get_db, \
+    with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo_bici, \
          patch('routers.bicicleta.TrancaRepository') as mock_repo_tranca:
         
@@ -528,9 +528,9 @@ def test_integrar_bicicleta_na_rede_sucesso_status_em_reparo(tranca_livre):
 
 def test_integrar_bicicleta_nao_encontrada(tranca_livre):
     """Testa erro ao integrar bicicleta inexistente"""
-    with patch('routers.bicicleta.get_db') as mock_get_db, \
+    with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo_bici, \
-         patch('routers.bicicleta.TrancaRepository') as mock_repo_tranca:
+         patch('routers.bicicleta.TrancaRepository'):
         
         mock_repo_bici_instance = Mock()
         mock_repo_bici.return_value = mock_repo_bici_instance
@@ -550,7 +550,7 @@ def test_integrar_bicicleta_nao_encontrada(tranca_livre):
 
 def test_integrar_tranca_nao_encontrada():
     """Testa erro ao integrar com tranca inexistente"""
-    with patch('routers.bicicleta.get_db') as mock_get_db, \
+    with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo_bici, \
          patch('routers.bicicleta.TrancaRepository') as mock_repo_tranca:
         
@@ -579,7 +579,7 @@ def test_integrar_tranca_nao_encontrada():
 
 def test_integrar_bicicleta_status_invalido(tranca_livre):
     """Testa erro ao integrar bicicleta com status inválido"""
-    with patch('routers.bicicleta.get_db') as mock_get_db, \
+    with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo_bici, \
          patch('routers.bicicleta.TrancaRepository') as mock_repo_tranca:
         
@@ -609,7 +609,7 @@ def test_integrar_bicicleta_status_invalido(tranca_livre):
 
 def test_integrar_tranca_ocupada():
     """Testa erro ao integrar em tranca ocupada"""
-    with patch('routers.bicicleta.get_db') as mock_get_db, \
+    with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo_bici, \
          patch('routers.bicicleta.TrancaRepository') as mock_repo_tranca:
         
@@ -645,7 +645,7 @@ def test_integrar_tranca_ocupada():
 
 def test_retirar_bicicleta_da_rede_para_reparo(tranca_ocupada_com_bicicleta):
     """Testa retirada de bicicleta da rede para reparo - sucesso"""
-    with patch('routers.bicicleta.get_db') as mock_get_db, \
+    with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo_bici, \
          patch('routers.bicicleta.TrancaRepository') as mock_repo_tranca:
         
@@ -681,7 +681,7 @@ def test_retirar_bicicleta_da_rede_para_reparo(tranca_ocupada_com_bicicleta):
 
 def test_retirar_bicicleta_da_rede_para_aposentar(tranca_ocupada_com_bicicleta):
     """Testa retirada de bicicleta da rede para aposentadoria - sucesso"""
-    with patch('routers.bicicleta.get_db') as mock_get_db, \
+    with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo_bici, \
          patch('routers.bicicleta.TrancaRepository') as mock_repo_tranca:
         
@@ -712,7 +712,7 @@ def test_retirar_bicicleta_da_rede_para_aposentar(tranca_ocupada_com_bicicleta):
 
 def test_retirar_bicicleta_nao_encontrada():
     """Testa erro ao retirar bicicleta inexistente"""
-    with patch('routers.bicicleta.get_db') as mock_get_db, \
+    with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo_bici:
         
         mock_repo_bici_instance = Mock()
@@ -734,7 +734,7 @@ def test_retirar_bicicleta_nao_encontrada():
 
 def test_retirar_tranca_nao_encontrada():
     """Testa erro ao retirar de tranca inexistente"""
-    with patch('routers.bicicleta.get_db') as mock_get_db, \
+    with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo_bici, \
          patch('routers.bicicleta.TrancaRepository') as mock_repo_tranca:
         
@@ -764,7 +764,7 @@ def test_retirar_tranca_nao_encontrada():
 
 def test_retirar_bicicleta_nao_esta_na_tranca():
     """Testa erro ao retirar bicicleta que não está na tranca informada"""
-    with patch('routers.bicicleta.get_db') as mock_get_db, \
+    with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo_bici, \
          patch('routers.bicicleta.TrancaRepository') as mock_repo_tranca:
         
@@ -799,7 +799,7 @@ def test_retirar_bicicleta_nao_esta_na_tranca():
 
 def test_retirar_status_destino_invalido(tranca_ocupada_com_bicicleta):
     """Testa erro ao usar status de destino inválido"""
-    with patch('routers.bicicleta.get_db') as mock_get_db, \
+    with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo_bici, \
          patch('routers.bicicleta.TrancaRepository') as mock_repo_tranca:
         
@@ -829,7 +829,7 @@ def test_retirar_status_destino_invalido(tranca_ocupada_com_bicicleta):
 
 def test_retirar_status_case_insensitive(tranca_ocupada_com_bicicleta):
     """Testa que statusAcaoReparador aceita minúsculas"""
-    with patch('routers.bicicleta.get_db') as mock_get_db, \
+    with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo_bici, \
          patch('routers.bicicleta.TrancaRepository') as mock_repo_tranca:
         
@@ -861,7 +861,7 @@ def test_retirar_status_case_insensitive(tranca_ocupada_com_bicicleta):
 
 def test_cadastrar_bicicleta_exception_generica():
     """Testa tratamento de exceção genérica no cadastro"""
-    with patch('routers.bicicleta.get_db') as mock_get_db, \
+    with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo:
         
         mock_repo_instance = Mock()
@@ -883,7 +883,7 @@ def test_cadastrar_bicicleta_exception_generica():
 
 def test_editar_bicicleta_exception_generica(bicicleta_exemplo):
     """Testa tratamento de exceção genérica na edição"""
-    with patch('routers.bicicleta.get_db') as mock_get_db, \
+    with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo:
         
         mock_repo_instance = Mock()

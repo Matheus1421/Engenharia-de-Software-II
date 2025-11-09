@@ -126,7 +126,7 @@ def totem_exemplo():
 
 def test_listar_trancas_sucesso(tranca_exemplo, tranca_exemplo_2):
     """Testa listagem de trancas com sucesso"""
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo:
         
         mock_repo_instance = MagicMock()
@@ -144,7 +144,7 @@ def test_listar_trancas_sucesso(tranca_exemplo, tranca_exemplo_2):
 
 def test_listar_trancas_vazio():
     """Testa listagem quando não há trancas"""
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo:
         
         mock_repo_instance = MagicMock()
@@ -166,7 +166,7 @@ def test_listar_trancas_multiplas():
         for i in range(1, 6)
     ]
     
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo:
         
         mock_repo_instance = MagicMock()
@@ -186,7 +186,7 @@ def test_cadastrar_tranca_sucesso(nova_tranca_valida):
     """Testa cadastro de tranca com sucesso"""
     tranca_criada = Tranca(id=1, **{**nova_tranca_valida, "status": StatusTranca.NOVA, "bicicleta": None})
     
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo:
         
         mock_repo_instance = MagicMock()
@@ -205,7 +205,7 @@ def test_cadastrar_tranca_sucesso(nova_tranca_valida):
 
 def test_cadastrar_tranca_numero_duplicado(nova_tranca_valida, tranca_exemplo):
     """Testa erro ao cadastrar tranca com número duplicado"""
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo:
         
         mock_repo_instance = MagicMock()
@@ -252,7 +252,7 @@ def test_cadastrar_tranca_sem_numero():
 
 def test_cadastrar_tranca_exception():
     """Testa tratamento de exceção no cadastro"""
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo:
         
         mock_repo_instance = MagicMock()
@@ -268,7 +268,7 @@ def test_cadastrar_tranca_exception():
 
 def test_obter_tranca_sucesso(tranca_exemplo):
     """Testa obtenção de tranca com sucesso"""
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo:
         
         mock_repo_instance = MagicMock()
@@ -285,7 +285,7 @@ def test_obter_tranca_sucesso(tranca_exemplo):
 
 def test_obter_tranca_nao_encontrada():
     """Testa erro quando tranca não existe"""
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo:
         
         mock_repo_instance = MagicMock()
@@ -301,7 +301,7 @@ def test_obter_tranca_nao_encontrada():
 
 def test_obter_tranca_id_zero():
     """Testa obtenção de tranca com ID zero"""
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo:
         
         mock_repo_instance = MagicMock()
@@ -327,7 +327,7 @@ def test_editar_tranca_sucesso(tranca_exemplo):
     
     tranca_atualizada = Tranca(id=1, **{**dados_atualizados, "status": StatusTranca.LIVRE, "bicicleta": None})
     
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo:
         
         mock_repo_instance = MagicMock()
@@ -345,7 +345,7 @@ def test_editar_tranca_sucesso(tranca_exemplo):
 
 def test_editar_tranca_nao_encontrada():
     """Testa erro ao editar tranca inexistente"""
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo:
         
         mock_repo_instance = MagicMock()
@@ -367,7 +367,7 @@ def test_editar_tranca_nao_encontrada():
 
 def test_editar_tranca_numero_duplicado(tranca_exemplo, tranca_exemplo_2):
     """Testa erro ao alterar número para um já existente"""
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo:
         
         mock_repo_instance = MagicMock()
@@ -390,7 +390,7 @@ def test_editar_tranca_numero_duplicado(tranca_exemplo, tranca_exemplo_2):
 
 def test_editar_tranca_dados_invalidos(tranca_exemplo):
     """Testa erro com dados inválidos na edição"""
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo:
         
         mock_repo_instance = MagicMock()
@@ -412,7 +412,7 @@ def test_editar_tranca_dados_invalidos(tranca_exemplo):
 
 def test_editar_tranca_exception(tranca_exemplo):
     """Testa tratamento de exceção na edição"""
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo:
         
         mock_repo_instance = MagicMock()
@@ -437,7 +437,7 @@ def test_editar_tranca_exception(tranca_exemplo):
 
 def test_remover_tranca_sucesso():
     """Testa remoção de tranca com sucesso"""
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo:
         
         mock_repo_instance = MagicMock()
@@ -453,7 +453,7 @@ def test_remover_tranca_sucesso():
 
 def test_remover_tranca_nao_encontrada():
     """Testa erro ao remover tranca inexistente"""
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo:
         
         mock_repo_instance = MagicMock()
@@ -467,7 +467,7 @@ def test_remover_tranca_nao_encontrada():
 
 def test_remover_tranca_verifica_exclusao():
     """Testa se a tranca foi realmente excluída"""
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo:
         
         mock_repo_instance = MagicMock()
@@ -484,7 +484,7 @@ def test_remover_tranca_verifica_exclusao():
 
 def test_obter_bicicleta_na_tranca_sucesso(tranca_ocupada, bicicleta_exemplo):
     """Testa obtenção de bicicleta na tranca"""
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo_tranca, \
          patch('routers.tranca.BicicletaRepository') as mock_repo_bicicleta:
         
@@ -505,7 +505,7 @@ def test_obter_bicicleta_na_tranca_sucesso(tranca_ocupada, bicicleta_exemplo):
 
 def test_obter_bicicleta_tranca_nao_encontrada():
     """Testa erro quando tranca não existe"""
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo:
         
         mock_repo_instance = MagicMock()
@@ -519,7 +519,7 @@ def test_obter_bicicleta_tranca_nao_encontrada():
 
 def test_obter_bicicleta_tranca_sem_bicicleta(tranca_exemplo):
     """Testa erro quando tranca não tem bicicleta"""
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo:
         
         mock_repo_instance = MagicMock()
@@ -551,7 +551,7 @@ def test_obter_bicicleta_id_invalido_negativo():
 
 def test_obter_bicicleta_nao_encontrada_no_banco(tranca_ocupada):
     """Testa erro quando bicicleta associada não existe no banco"""
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo_tranca, \
          patch('routers.tranca.BicicletaRepository') as mock_repo_bicicleta:
         
@@ -578,7 +578,7 @@ def test_trancar_sem_bicicleta(tranca_exemplo):
         status=StatusTranca.OCUPADA, bicicleta=None
     )
     
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo:
         
         mock_repo_instance = MagicMock()
@@ -601,7 +601,7 @@ def test_trancar_com_bicicleta(tranca_exemplo, bicicleta_exemplo):
         status=StatusTranca.OCUPADA, bicicleta=1
     )
     
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo_tranca, \
          patch('routers.tranca.BicicletaRepository') as mock_repo_bicicleta:
         
@@ -626,7 +626,7 @@ def test_trancar_com_bicicleta(tranca_exemplo, bicicleta_exemplo):
 
 def test_trancar_tranca_nao_encontrada():
     """Testa erro ao trancar tranca inexistente"""
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo:
         
         mock_repo_instance = MagicMock()
@@ -640,7 +640,7 @@ def test_trancar_tranca_nao_encontrada():
 
 def test_trancar_tranca_ja_trancada(tranca_ocupada):
     """Testa erro ao trancar tranca já trancada"""
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo:
         
         mock_repo_instance = MagicMock()
@@ -656,7 +656,7 @@ def test_trancar_tranca_ja_trancada(tranca_ocupada):
 
 def test_trancar_bicicleta_nao_encontrada(tranca_exemplo):
     """Testa erro quando bicicleta não existe"""
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo_tranca, \
          patch('routers.tranca.BicicletaRepository') as mock_repo_bicicleta:
         
@@ -683,7 +683,7 @@ def test_destrancar_sem_bicicleta(tranca_ocupada):
         status=StatusTranca.LIVRE, bicicleta=None
     )
     
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo:
         
         mock_repo_instance = MagicMock()
@@ -706,7 +706,7 @@ def test_destrancar_com_bicicleta(tranca_ocupada, bicicleta_exemplo):
         status=StatusTranca.LIVRE, bicicleta=None
     )
     
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo_tranca, \
          patch('routers.tranca.BicicletaRepository') as mock_repo_bicicleta:
         
@@ -730,7 +730,7 @@ def test_destrancar_com_bicicleta(tranca_ocupada, bicicleta_exemplo):
 
 def test_destrancar_tranca_nao_encontrada():
     """Testa erro ao destrancar tranca inexistente"""
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo:
         
         mock_repo_instance = MagicMock()
@@ -744,7 +744,7 @@ def test_destrancar_tranca_nao_encontrada():
 
 def test_destrancar_bicicleta_nao_encontrada(tranca_ocupada):
     """Testa erro quando bicicleta não existe"""
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo_tranca, \
          patch('routers.tranca.BicicletaRepository') as mock_repo_bicicleta:
         
@@ -763,7 +763,7 @@ def test_destrancar_bicicleta_nao_encontrada(tranca_ocupada):
 
 def test_destrancar_bicicleta_nao_esta_na_tranca(tranca_ocupada, bicicleta_exemplo):
     """Testa erro quando bicicleta não está na tranca"""
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo_tranca, \
          patch('routers.tranca.BicicletaRepository') as mock_repo_bicicleta:
         
@@ -791,7 +791,7 @@ def test_alterar_status_trancar(tranca_exemplo):
         status=StatusTranca.OCUPADA, bicicleta=None
     )
     
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo:
         
         mock_repo_instance = MagicMock()
@@ -814,7 +814,7 @@ def test_alterar_status_destrancar(tranca_ocupada):
         status=StatusTranca.LIVRE, bicicleta=1
     )
     
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo:
         
         mock_repo_instance = MagicMock()
@@ -831,7 +831,7 @@ def test_alterar_status_destrancar(tranca_ocupada):
 
 def test_alterar_status_tranca_nao_encontrada():
     """Testa erro ao alterar status de tranca inexistente"""
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo:
         
         mock_repo_instance = MagicMock()
@@ -845,7 +845,7 @@ def test_alterar_status_tranca_nao_encontrada():
 
 def test_alterar_status_acao_invalida(tranca_exemplo):
     """Testa erro com ação inválida"""
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo:
         
         mock_repo_instance = MagicMock()
@@ -861,7 +861,7 @@ def test_alterar_status_acao_invalida(tranca_exemplo):
 
 def test_alterar_status_trancar_ja_trancada(tranca_ocupada):
     """Testa erro ao trancar tranca já trancada"""
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo:
         
         mock_repo_instance = MagicMock()
@@ -881,7 +881,7 @@ def test_alterar_status_case_insensitive(tranca_exemplo):
         status=StatusTranca.OCUPADA, bicicleta=None
     )
     
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo:
         
         mock_repo_instance = MagicMock()
@@ -904,7 +904,7 @@ def test_integrar_tranca_na_rede_sucesso(tranca_nova, totem_exemplo):
         status=StatusTranca.LIVRE, bicicleta=None
     )
     
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo_tranca, \
          patch('routers.tranca.TotemRepository') as mock_repo_totem:
         
@@ -941,7 +941,7 @@ def test_integrar_tranca_em_reparo(tranca_em_reparo, totem_exemplo):
         status=StatusTranca.LIVRE, bicicleta=None
     )
     
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo_tranca, \
          patch('routers.tranca.TotemRepository') as mock_repo_totem:
         
@@ -968,7 +968,7 @@ def test_integrar_tranca_em_reparo(tranca_em_reparo, totem_exemplo):
 
 def test_integrar_tranca_nao_encontrada(totem_exemplo):
     """Testa erro quando tranca não existe"""
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo_tranca, \
          patch('routers.tranca.TotemRepository') as mock_repo_totem:
         
@@ -993,7 +993,7 @@ def test_integrar_tranca_nao_encontrada(totem_exemplo):
 
 def test_integrar_totem_nao_encontrado(tranca_nova):
     """Testa erro quando totem não existe"""
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo_tranca, \
          patch('routers.tranca.TotemRepository') as mock_repo_totem:
         
@@ -1018,7 +1018,7 @@ def test_integrar_totem_nao_encontrado(tranca_nova):
 
 def test_integrar_status_invalido(tranca_exemplo, totem_exemplo):
     """Testa erro ao integrar tranca com status inválido"""
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo_tranca, \
          patch('routers.tranca.TotemRepository') as mock_repo_totem:
         
@@ -1053,7 +1053,7 @@ def test_retirar_tranca_da_rede_para_reparo(tranca_exemplo, totem_exemplo):
         status=StatusTranca.EM_REPARO, bicicleta=None
     )
     
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo_tranca, \
          patch('routers.tranca.TotemRepository') as mock_repo_totem:
         
@@ -1091,7 +1091,7 @@ def test_retirar_tranca_da_rede_para_aposentadoria(tranca_exemplo, totem_exemplo
         status=StatusTranca.APOSENTADA, bicicleta=None
     )
     
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo_tranca, \
          patch('routers.tranca.TotemRepository') as mock_repo_totem:
         
@@ -1122,7 +1122,7 @@ def test_retirar_tranca_da_rede_para_aposentadoria(tranca_exemplo, totem_exemplo
 
 def test_retirar_tranca_nao_encontrada(totem_exemplo):
     """Testa erro quando tranca não existe"""
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo_tranca, \
          patch('routers.tranca.TotemRepository') as mock_repo_totem:
         
@@ -1148,7 +1148,7 @@ def test_retirar_tranca_nao_encontrada(totem_exemplo):
 
 def test_retirar_totem_nao_encontrado(tranca_exemplo):
     """Testa erro quando totem não existe"""
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo_tranca, \
          patch('routers.tranca.TotemRepository') as mock_repo_totem:
         
@@ -1174,7 +1174,7 @@ def test_retirar_totem_nao_encontrado(tranca_exemplo):
 
 def test_retirar_tranca_nao_esta_no_totem(tranca_exemplo, totem_exemplo):
     """Testa erro quando tranca não está no totem informado"""
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo_tranca, \
          patch('routers.tranca.TotemRepository') as mock_repo_totem:
         
@@ -1203,7 +1203,7 @@ def test_retirar_tranca_nao_esta_no_totem(tranca_exemplo, totem_exemplo):
 
 def test_retirar_status_destino_invalido(tranca_exemplo, totem_exemplo):
     """Testa erro com status de destino inválido"""
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo_tranca, \
          patch('routers.tranca.TotemRepository') as mock_repo_totem:
         
@@ -1238,7 +1238,7 @@ def test_retirar_case_insensitive_status(tranca_exemplo, totem_exemplo):
         status=StatusTranca.EM_REPARO, bicicleta=None
     )
     
-    with patch('routers.tranca.get_db') as mock_db, \
+    with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo_tranca, \
          patch('routers.tranca.TotemRepository') as mock_repo_totem:
         
