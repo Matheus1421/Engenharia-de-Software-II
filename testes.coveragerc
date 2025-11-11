@@ -1,0 +1,8 @@
+[run]
+source =
+    servico-aluguel
+    servico-equipamento
+    servico-externo
+
+[report]
+relative_files = True
