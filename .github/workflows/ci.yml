@@ -43,6 +43,14 @@ jobs:
             echo "Corrigido caminho em $file"
           done
 
+      - name: Mostrar conteúdo dos coverage*.xml (debug)
+        run: |
+          for file in coverage-*.xml; do
+            echo "===== $file ====="
+            head -n 200 "$file"
+            echo ""
+          done
+
       - name: Setup Java (requisito Sonar)
         uses: actions/setup-java@v4
         with:
