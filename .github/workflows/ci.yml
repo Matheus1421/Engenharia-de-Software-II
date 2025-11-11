@@ -1,72 +1,46 @@
-name: CI - Análise SonarCloud
+name: CI
 
 on:
   push:
-    branches:
-      - main
   pull_request:
-    branches:
-      - main
 
 jobs:
-  build:
+  test-and-sonar:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout do código
+      - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Configurar Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.13'
+          python-version: "3.13"
 
       - name: Instalar dependências
         run: |
           python -m pip install --upgrade pip
-          pip install pytest pytest-cov coverage fastapi uvicorn httpx tinydb pydantic
+          pip install fastapi uvicorn pytest httpx pytest-cov tinydb pydantic
 
-      - name: Rodar testes e gerar coverage.xml
+      - name: Rodar testes com cobertura
         run: |
-          coverage erase
-
-          # serviço 1
-          if [ -d "servico-equipamento" ]; then
-            pytest -q \
-              --cov=servico-equipamento \
-              --cov-append \
-              --cov-report=xml:coverage.xml \
-              --cov-config=.coveragerc
-          fi
-
-          # serviço 2
-          if [ -d "servico-aluguel" ]; then
-            pytest -q \
-              --cov=servico-aluguel \
-              --cov-append \
-              --cov-report=xml:coverage.xml \
-              --cov-config=.coveragerc
-          fi
-
-          # serviço 3
-          if [ -d "servico-externo" ]; then
-            pytest -q \
-              --cov=servico-externo \
-              --cov-append \
-              --cov-report=xml:coverage.xml \
-              --cov-config=.coveragerc
-          fi
+          pytest -q --cov=. --cov-report=xml:coverage.xml
 
       - name: Ajustar caminhos do coverage para o SonarCloud
         run: |
           if [ -f coverage.xml ]; then
             sed -i 's#/home/runner/work/Engenharia-de-Software-II/Engenharia-de-Software-II/#./#g' coverage.xml
+            sed -i 's#/github/workspace/#./#g' coverage.xml
           fi
+
+      - name: Setup Java (requisito Sonar)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v2.2
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          args: >
-            -Dsonar.projectBaseDir=.
