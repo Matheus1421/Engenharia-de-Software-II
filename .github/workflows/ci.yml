@@ -5,35 +5,36 @@ on:
   pull_request:
 
 jobs:
-  test:
+  test-and-sonar:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "3.13" 
+
       - name: Instalar dependências
         run: |
           python -m pip install --upgrade pip
           pip install fastapi uvicorn pytest httpx pytest-cov
+
       - name: Rodar testes com cobertura
         run: |
-          pytest -q --cov=servico-aluguel --cov=servico-equipamento --cov=servico-externo --cov-report=xml
+          pytest -q \
+            --cov=servico-aluguel \
+            --cov=servico-equipamento \
+            --cov=servico-externo \
+            --cov-report=xml
 
-  sonarcloud:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       - name: Setup Java (requisito Sonar)
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
+
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v2.2
         env:
