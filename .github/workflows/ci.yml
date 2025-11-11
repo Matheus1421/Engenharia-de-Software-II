@@ -1,27 +1,55 @@
-sonar.host.url=https://sonarcloud.io
-sonar.organization=es220252
-sonar.projectKey=Matheus1421_Engenharia-de-Software-II
+name: CI
 
-# FASE 1 - apenas servico-equipamento (atual)
-sonar.sources=servico-equipamento
-sonar.tests=servico-equipamento/tests
-sonar.test.inclusions=servico-equipamento/tests/**/*
-sonar.exclusions=servico-aluguel/**/*,servico-externo/**/*,**/__pycache__/**,**/.venv/**,**/*.pyc,**/build-wrapper-dump.json
-sonar.python.coverage.reportPaths=coverage-equipamento.xml
+on:
+  push:
+  pull_request:
 
-# FASE 2 - incluir servico-aluguel
-# sonar.sources=servico-equipamento,servico-aluguel
-# sonar.tests=servico-equipamento/tests,servico-aluguel/tests
-# sonar.test.inclusions=servico-equipamento/tests/**/*,servico-aluguel/tests/**/*
-# sonar.python.coverage.reportPaths=coverage-equipamento.xml,coverage-aluguel.xml
-# sonar.exclusions=servico-externo/**/*,**/__pycache__/**,**/.venv/**,**/*.pyc,**/build-wrapper-dump.json
+jobs:
+  test-and-sonar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-# FASE 3 - incluir servico-externo
-# sonar.sources=servico-equipamento,servico-aluguel,servico-externo
-# sonar.tests=servico-equipamento/tests,servico-aluguel/tests,servico-externo/tests
-# sonar.test.inclusions=servico-equipamento/tests/**/*,servico-aluguel/tests/**/*,servico-externo/tests/**/*
-# sonar.python.coverage.reportPaths=coverage-equipamento.xml,coverage-aluguel.xml,coverage-externo.xml
-# sonar.exclusions=**/__pycache__/**,**/.venv/**,**/*.pyc,**/build-wrapper-dump.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
 
-sonar.sourceEncoding=UTF-8
-sonar.python.version=3.13
+      - name: Instalar dependências
+        run: |
+          python -m pip install --upgrade pip
+          pip install fastapi uvicorn pytest httpx pytest-cov tinydb pydantic
+
+      - name: Rodar testes com cobertura
+        run: |
+          pytest -q \
+            --cov=servico-equipamento \
+            --cov-report=xml:coverage-equipamento.xml \
+            --cov-config=.coveragerc
+          pytest -q \
+            --cov=servico-aluguel \
+            --cov-report=xml:coverage-aluguel.xml \
+            --cov-config=.coveragerc
+          pytest -q \
+            --cov=servico-externo \
+            --cov-report=xml:coverage-externo.xml \
+            --cov-config=.coveragerc
+
+      - name: Ajustar caminhos dos relatórios de cobertura
+        run: |
+          for file in coverage-*.xml; do
+            echo "Corrigindo caminho em $file"
+            sed -i 's#/home/runner/work/Engenharia-de-Software-II/Engenharia-de-Software-II/#./#g' "$file"
+          done
+
+      - name: Setup Java (requisito Sonar)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2.2
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
