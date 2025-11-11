@@ -24,15 +24,23 @@ jobs:
       - name: Rodar testes com cobertura
         run: |
           pytest -q \
-            --cov=servico-aluguel \
             --cov=servico-equipamento \
+            --cov-report=xml:coverage-equipamento.xml \
+            --cov-config=.coveragerc
+          pytest -q \
+            --cov=servico-aluguel \
+            --cov-report=xml:coverage-aluguel.xml \
+            --cov-config=.coveragerc
+          pytest -q \
             --cov=servico-externo \
-            --cov-report=xml \
+            --cov-report=xml:coverage-externo.xml \
             --cov-config=.coveragerc
 
       - name: Ajustar caminhos do coverage para o Sonar
         run: |
-          sed -i 's#/home/runner/work/Engenharia-de-Software-II/Engenharia-de-Software-II/#./#g' coverage.xml
+          for f in coverage-*.xml; do
+            sed -i 's#/home/runner/work/Engenharia-de-Software-II/Engenharia-de-Software-II/#./#g' "$f"
+          done
 
       - name: Setup Java (requisito Sonar)
         uses: actions/setup-java@v4
