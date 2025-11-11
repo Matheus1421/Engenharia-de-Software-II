@@ -61,3 +61,6 @@ jobs:
         uses: SonarSource/sonarcloud-github-action@v2.2
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Mostrar conteúdo dos coverage*.xml (debug)
+
