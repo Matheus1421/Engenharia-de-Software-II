@@ -21,20 +21,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install fastapi uvicorn pytest httpx pytest-cov tinydb pydantic
 
-      - name: Rodar testes com cobertura
+      - name: Rodar testes com cobertura unificada
         run: |
-          pytest -q \
-            --cov=servico-equipamento \
-            --cov-report=xml:coverage-equipamento.xml \
-            --cov-config=.coveragerc
-          pytest -q \
-            --cov=servico-aluguel \
-            --cov-report=xml:coverage-aluguel.xml \
-            --cov-config=.coveragerc
-          pytest -q \
-            --cov=servico-externo \
-            --cov-report=xml:coverage-externo.xml \
-            --cov-config=.coveragerc
+          coverage erase
+          pytest -q --cov=servico-equipamento --cov=servico-aluguel --cov=servico-externo --cov-report=xml:coverage.xml --cov-config=.coveragerc
+          coverage xml -o coverage.xml
 
       - name: Ajustar caminhos dos relatórios de cobertura
         run: |
