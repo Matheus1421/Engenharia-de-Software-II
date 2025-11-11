@@ -27,7 +27,8 @@ jobs:
             --cov=servico-aluguel \
             --cov=servico-equipamento \
             --cov=servico-externo \
-            --cov-report=xml
+            --cov-report=xml \
+            --cov-config=.coveragerc
 
       - name: Setup Java (requisito Sonar)
         uses: actions/setup-java@v4
