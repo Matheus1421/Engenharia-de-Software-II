@@ -30,6 +30,10 @@ jobs:
             --cov-report=xml \
             --cov-config=.coveragerc
 
+      - name: Ajustar caminhos do coverage para o Sonar
+        run: |
+          sed -i 's#/home/runner/work/Engenharia-de-Software-II/Engenharia-de-Software-II/#./#g' coverage.xml
+
       - name: Setup Java (requisito Sonar)
         uses: actions/setup-java@v4
         with:
