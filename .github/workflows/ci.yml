@@ -36,10 +36,11 @@ jobs:
             --cov-report=xml:coverage-externo.xml \
             --cov-config=.coveragerc
 
-      - name: Ajustar caminhos do coverage para o Sonar
+      - name: Ajustar caminhos dos relatórios de cobertura
         run: |
-          for f in coverage-*.xml; do
-            sed -i 's#/home/runner/work/Engenharia-de-Software-II/Engenharia-de-Software-II/#./#g' "$f"
+          for file in coverage-*.xml; do
+            sed -i 's#/home/runner/work/Engenharia-de-Software-II/Engenharia-de-Software-II/#./#g' "$file"
+            echo "Corrigido caminho em $file"
           done
 
       - name: Setup Java (requisito Sonar)
