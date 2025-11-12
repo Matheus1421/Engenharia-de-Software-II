@@ -7,6 +7,7 @@ on:
 jobs:
   test-and-sonar:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -23,18 +24,19 @@ jobs:
           python -m pip install --upgrade pip
           pip install fastapi uvicorn pytest httpx pytest-cov tinydb pydantic
 
-      - name: Rodar testes com cobertura
+      - name: Rodar testes (somente servico-equipamento)
         run: |
-          pytest -q --cov=. --cov-report=xml:coverage.xml
+          pytest -q \
+            --cov=servico-equipamento \
+            --cov-report=xml:coverage.xml \
+            --cov-config=.coveragerc
 
-      - name: Ajustar caminhos do coverage para o SonarCloud
+      - name: Ajustar caminhos do coverage.xml
         run: |
-          if [ -f coverage.xml ]; then
-            sed -i 's#/home/runner/work/Engenharia-de-Software-II/Engenharia-de-Software-II/#./#g' coverage.xml
-            sed -i 's#/github/workspace/#./#g' coverage.xml
-          fi
+          # substitui o caminho absoluto do runner por ./ para o Sonar conseguir casar
+          sed -i 's#/home/runner/work/[^/]*/[^/]*/#./#g' coverage.xml
 
-      - name: Setup Java (requisito Sonar)
+      - name: Setup Java (SonarCloud)
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
@@ -44,3 +46,4 @@ jobs:
         uses: SonarSource/sonarcloud-github-action@v2.2
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
