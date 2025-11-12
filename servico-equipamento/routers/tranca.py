@@ -6,6 +6,7 @@ Implementa os endpoints da API de equipamentos para trancas.
 from typing import List, Optional
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
+from enum import Enum
 
 from database.database import get_db
 from repositories.tranca_repository import TrancaRepository
@@ -19,6 +20,13 @@ from utils.validators import validate_bicicleta_exists, validate_tranca_exists, 
 
 
 router = APIRouter(prefix="/tranca", tags=["Equipamento"])
+
+
+# Enum para ações de status da tranca
+class AcaoTranca(str, Enum):
+    """Ações possíveis para alterar status da tranca"""
+    TRANCAR = "TRANCAR"
+    DESTRANCAR = "DESTRANCAR"
 
 
 # Modelos para requests específicos
@@ -335,7 +343,7 @@ def destrancar(id_tranca: int, request: DestrancarRequest = DestrancarRequest())
 
 
 @router.post("/{id_tranca}/status/{acao}", summary="Alterar status da tranca", response_model=Tranca)
-def alterar_status_tranca(id_tranca: int, acao: str):
+def alterar_status_tranca(id_tranca: int, acao: AcaoTranca):
     """
     Altera o status de uma tranca (TRANCAR ou DESTRANCAR).
     
@@ -357,19 +365,9 @@ def alterar_status_tranca(id_tranca: int, acao: str):
     tranca = tranca_repo.get_by_id(id_tranca)
     validate_tranca_exists(tranca, id_tranca)
     
-    # Valida a ação
-    acao_upper = acao.upper()
-    if acao_upper not in ["TRANCAR", "DESTRANCAR"]:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=[{
-                "codigo": "ACAO_INVALIDA",
-                "mensagem": f"Ação '{acao}' inválida. Valores permitidos: TRANCAR, DESTRANCAR"
-            }]
-        )
-    
+    # O FastAPI já valida automaticamente se o valor está no Enum
     # Define o novo status baseado na ação
-    if acao_upper == "TRANCAR":
+    if acao == AcaoTranca.TRANCAR:
         # Verifica se já está trancada
         if tranca.status == StatusTranca.OCUPADA:
             raise HTTPException(

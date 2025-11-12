@@ -171,7 +171,7 @@ def remover_bicicleta(id_bicicleta: int):
 
 
 @router.post("/{id_bicicleta}/status/{acao}", summary="Alterar status da bicicleta", response_model=Bicicleta)
-def alterar_status_bicicleta(id_bicicleta: int, acao: str):
+def alterar_status_bicicleta(id_bicicleta: int, acao: StatusBicicleta):
     """
     Altera o status de uma bicicleta.
     
@@ -192,20 +192,9 @@ def alterar_status_bicicleta(id_bicicleta: int, acao: str):
     # Verifica se a bicicleta existe
     validate_bicicleta_exists(bicicleta_repo.get_by_id(id_bicicleta), id_bicicleta)
     
-    # Valida o status
-    acao_upper = acao.upper()
-    try:
-        novo_status = StatusBicicleta[acao_upper]
-    except KeyError:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=[{
-                "codigo": "STATUS_INVALIDO",
-                "mensagem": f"Status '{acao}' inválido. Valores permitidos: DISPONIVEL, EM_USO, NOVA, APOSENTADA, REPARO_SOLICITADO, EM_REPARO"
-            }]
-        )
-    
-    bicicleta_atualizada = bicicleta_repo.update_status(id_bicicleta, novo_status)
+    # O FastAPI já valida automaticamente se o valor está no Enum
+    # Não precisa mais do try-except manual
+    bicicleta_atualizada = bicicleta_repo.update_status(id_bicicleta, acao)
     return bicicleta_atualizada
 
 

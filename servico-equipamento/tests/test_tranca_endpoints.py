@@ -854,9 +854,11 @@ def test_alterar_status_acao_invalida(tranca_exemplo):
         
         response = client.post("/tranca/1/status/INVALIDA")
         
+        # Com Enum, o FastAPI retorna erro de validação automático
         assert response.status_code == 422
+        # O erro agora é do FastAPI, não nosso erro customizado
         data = response.json()
-        assert data["detail"][0]["codigo"] == "ACAO_INVALIDA"
+        assert "detail" in data
 
 
 def test_alterar_status_trancar_ja_trancada(tranca_ocupada):
@@ -874,7 +876,7 @@ def test_alterar_status_trancar_ja_trancada(tranca_ocupada):
 
 
 def test_alterar_status_case_insensitive(tranca_exemplo):
-    """Testa que ação aceita case insensitive"""
+    """Testa que ação com Enum é case-sensitive (maiúsculas obrigatórias)"""
     tranca_trancada = Tranca(
         id=1, numero=1, localizacao="-22.9068,-43.1729",
         anoDeFabricacao="2023", modelo="Modelo X1",
@@ -889,8 +891,12 @@ def test_alterar_status_case_insensitive(tranca_exemplo):
         mock_repo_instance.update_status.return_value = tranca_trancada
         mock_repo.return_value = mock_repo_instance
         
+        # Com Enum, minúsculas não são aceitas
         response = client.post("/tranca/1/status/trancar")
+        assert response.status_code == 422
         
+        # Maiúsculas funcionam
+        response = client.post("/tranca/1/status/TRANCAR")
         assert response.status_code == 200
 
 

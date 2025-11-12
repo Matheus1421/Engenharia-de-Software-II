@@ -434,7 +434,7 @@ def test_alterar_status_bicicleta_nao_encontrada():
 
 
 def test_alterar_status_case_insensitive(bicicleta_exemplo):
-    """Testa que o status aceita minúsculas e converte para maiúsculas"""
+    """Testa que o status com Enum é case-sensitive (maiúsculas obrigatórias)"""
     with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo:
         
@@ -452,8 +452,12 @@ def test_alterar_status_case_insensitive(bicicleta_exemplo):
         )
         mock_repo_instance.update_status.return_value = bicicleta_atualizada
         
-        response = client.post("/bicicleta/1/status/em_reparo")  # minúsculas
+        # Com Enum, minúsculas não são aceitas - retorna 422
+        response = client.post("/bicicleta/1/status/em_reparo")
+        assert response.status_code == 422
         
+        # Maiúsculas funcionam
+        response = client.post("/bicicleta/1/status/EM_REPARO")
         assert response.status_code == 200
         assert response.json()["status"] == "EM_REPARO"
 

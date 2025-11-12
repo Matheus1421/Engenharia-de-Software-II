@@ -11,7 +11,7 @@ if SERVICE_ROOT not in sys.path:
 from models.bicicleta_model import Bicicleta, StatusBicicleta
 from models.tranca_model import Tranca, StatusTranca
 
-
+''
 # Fixtures compartilhadas para Bicicletas
 @pytest.fixture
 def bicicleta_padrao():
