@@ -47,9 +47,6 @@ jobs:
 
       - name: Rodar análise no SonarCloud
         uses: SonarSource/sonarcloud-github-action@v2.2
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
+        with:
+          args: >
+            -Dsonar.token=${{ secrets.SONAR_TOKEN }}
