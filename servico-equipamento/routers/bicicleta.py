@@ -13,6 +13,8 @@ from repositories.tranca_repository import TrancaRepository
 from models.bicicleta_model import Bicicleta, NovaBicicleta, StatusBicicleta
 from models.tranca_model import StatusTranca
 from models.erro_model import Erro
+from utils.error_handler import handle_api_errors
+from utils.validators import validate_bicicleta_exists, validate_tranca_exists, validate_status
 
 
 router = APIRouter(prefix="/bicicleta", tags=["Equipamento"])
@@ -54,6 +56,7 @@ def listar_bicicletas():
 
 
 @router.post("", summary="Cadastrar bicicleta", response_model=Bicicleta, status_code=status.HTTP_200_OK)
+@handle_api_errors
 def cadastrar_bicicleta(bicicleta: NovaBicicleta):
     """
     Cadastra uma nova bicicleta no sistema.
@@ -67,33 +70,21 @@ def cadastrar_bicicleta(bicicleta: NovaBicicleta):
     Raises:
         HTTPException 422: Dados inválidos
     """
-    try:
-        db = get_db()
-        bicicleta_repo = BicicletaRepository(db)
-        
-        # Valida se já existe uma bicicleta com o mesmo número
-        todas = bicicleta_repo.get_all()
-        if any(b.numero == bicicleta.numero for b in todas):
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail=[{
-                    "codigo": "NUMERO_DUPLICADO",
-                    "mensagem": f"Já existe uma bicicleta com o número {bicicleta.numero}"
-                }]
-            )
-        
-        return bicicleta_repo.create(bicicleta)
-        
-    except HTTPException:
-        raise
-    except Exception as e:
+    db = get_db()
+    bicicleta_repo = BicicletaRepository(db)
+    
+    # Valida se já existe uma bicicleta com o mesmo número
+    todas = bicicleta_repo.get_all()
+    if any(b.numero == bicicleta.numero for b in todas):
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=[{
-                "codigo": "DADOS_INVALIDOS",
-                "mensagem": str(e)
+                "codigo": "NUMERO_DUPLICADO",
+                "mensagem": f"Já existe uma bicicleta com o número {bicicleta.numero}"
             }]
         )
+    
+    return bicicleta_repo.create(bicicleta)
 
 
 @router.get("/{id_bicicleta}", summary="Obter bicicleta", response_model=Bicicleta)
@@ -114,19 +105,11 @@ def obter_bicicleta(id_bicicleta: int):
     bicicleta_repo = BicicletaRepository(db)
     bicicleta = bicicleta_repo.get_by_id(id_bicicleta)
     
-    if not bicicleta:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={
-                "codigo": "BICICLETA_NAO_ENCONTRADA",
-                "mensagem": f"Bicicleta com ID {id_bicicleta} não encontrada"
-            }
-        )
-    
-    return bicicleta
+    return validate_bicicleta_exists(bicicleta, id_bicicleta)
 
 
 @router.put("/{id_bicicleta}", summary="Editar bicicleta", response_model=Bicicleta)
+@handle_api_errors
 def editar_bicicleta(id_bicicleta: int, bicicleta: NovaBicicleta):
     """
     Atualiza os dados de uma bicicleta existente.
@@ -142,44 +125,25 @@ def editar_bicicleta(id_bicicleta: int, bicicleta: NovaBicicleta):
         HTTPException 404: Bicicleta não encontrada
         HTTPException 422: Dados inválidos
     """
-    try:
-        db = get_db()
-        bicicleta_repo = BicicletaRepository(db)
-        
-        # Verifica se existe
-        if not bicicleta_repo.get_by_id(id_bicicleta):
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail={
-                    "codigo": "BICICLETA_NAO_ENCONTRADA",
-                    "mensagem": f"Bicicleta com ID {id_bicicleta} não encontrada"
-                }
-            )
-        
-        # Valida se o número não está sendo usado por outra bicicleta
-        todas = bicicleta_repo.get_all()
-        if any(b.numero == bicicleta.numero and b.id != id_bicicleta for b in todas):
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail=[{
-                    "codigo": "NUMERO_DUPLICADO",
-                    "mensagem": f"Já existe outra bicicleta com o número {bicicleta.numero}"
-                }]
-            )
-        
-        bicicleta_atualizada = bicicleta_repo.update(id_bicicleta, bicicleta)
-        return bicicleta_atualizada
-        
-    except HTTPException:
-        raise
-    except Exception as e:
+    db = get_db()
+    bicicleta_repo = BicicletaRepository(db)
+    
+    # Verifica se existe
+    validate_bicicleta_exists(bicicleta_repo.get_by_id(id_bicicleta), id_bicicleta)
+    
+    # Valida se o número não está sendo usado por outra bicicleta
+    todas = bicicleta_repo.get_all()
+    if any(b.numero == bicicleta.numero and b.id != id_bicicleta for b in todas):
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=[{
-                "codigo": "DADOS_INVALIDOS",
-                "mensagem": str(e)
+                "codigo": "NUMERO_DUPLICADO",
+                "mensagem": f"Já existe outra bicicleta com o número {bicicleta.numero}"
             }]
         )
+    
+    bicicleta_atualizada = bicicleta_repo.update(id_bicicleta, bicicleta)
+    return bicicleta_atualizada
 
 
 @router.delete("/{id_bicicleta}", summary="Remover bicicleta", status_code=status.HTTP_200_OK)
@@ -199,15 +163,10 @@ def remover_bicicleta(id_bicicleta: int):
     db = get_db()
     bicicleta_repo = BicicletaRepository(db)
     
-    if not bicicleta_repo.delete(id_bicicleta):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={
-                "codigo": "BICICLETA_NAO_ENCONTRADA",
-                "mensagem": f"Bicicleta com ID {id_bicicleta} não encontrada"
-            }
-        )
+    # Verifica se existe antes de remover
+    validate_bicicleta_exists(bicicleta_repo.get_by_id(id_bicicleta), id_bicicleta)
     
+    bicicleta_repo.delete(id_bicicleta)
     return {"mensagem": "Bicicleta removida com sucesso"}
 
 
@@ -231,14 +190,7 @@ def alterar_status_bicicleta(id_bicicleta: int, acao: str):
     bicicleta_repo = BicicletaRepository(db)
     
     # Verifica se a bicicleta existe
-    if not bicicleta_repo.get_by_id(id_bicicleta):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={
-                "codigo": "BICICLETA_NAO_ENCONTRADA",
-                "mensagem": f"Bicicleta com ID {id_bicicleta} não encontrada"
-            }
-        )
+    validate_bicicleta_exists(bicicleta_repo.get_by_id(id_bicicleta), id_bicicleta)
     
     # Valida o status
     acao_upper = acao.upper()
@@ -279,27 +231,13 @@ def integrar_bicicleta_na_rede(request: IntegrarNaRedeRequest):
     bicicleta_repo = BicicletaRepository(db)
     tranca_repo = TrancaRepository(db)
     
-    # Busca bicicleta
+    # Busca e valida bicicleta
     bicicleta = bicicleta_repo.get_by_id(request.id_bicicleta)
-    if not bicicleta:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={
-                "codigo": "BICICLETA_NAO_ENCONTRADA",
-                "mensagem": f"Bicicleta com ID {request.id_bicicleta} não encontrada"
-            }
-        )
+    validate_bicicleta_exists(bicicleta, request.id_bicicleta)
     
-    # Busca tranca
+    # Busca e valida tranca
     tranca = tranca_repo.get_by_id(request.id_tranca)
-    if not tranca:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={
-                "codigo": "TRANCA_NAO_ENCONTRADA",
-                "mensagem": f"Tranca com ID {request.id_tranca} não encontrada"
-            }
-        )
+    validate_tranca_exists(tranca, request.id_tranca)
     
     # Valida status da bicicleta
     if bicicleta.status not in [StatusBicicleta.NOVA, StatusBicicleta.EM_REPARO]:
@@ -358,27 +296,13 @@ def retirar_bicicleta_da_rede(request: RetirarDaRedeRequest):
     bicicleta_repo = BicicletaRepository(db)
     tranca_repo = TrancaRepository(db)
     
-    # Busca bicicleta
+    # Busca e valida bicicleta
     bicicleta = bicicleta_repo.get_by_id(request.id_bicicleta)
-    if not bicicleta:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={
-                "codigo": "BICICLETA_NAO_ENCONTRADA",
-                "mensagem": f"Bicicleta com ID {request.id_bicicleta} não encontrada"
-            }
-        )
+    validate_bicicleta_exists(bicicleta, request.id_bicicleta)
     
-    # Busca tranca
+    # Busca e valida tranca
     tranca = tranca_repo.get_by_id(request.id_tranca)
-    if not tranca:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={
-                "codigo": "TRANCA_NAO_ENCONTRADA",
-                "mensagem": f"Tranca com ID {request.id_tranca} não encontrada"
-            }
-        )
+    validate_tranca_exists(tranca, request.id_tranca)
     
     # Valida se a bicicleta está na tranca
     if tranca.bicicleta != request.id_bicicleta:
@@ -391,15 +315,11 @@ def retirar_bicicleta_da_rede(request: RetirarDaRedeRequest):
         )
     
     # Valida o status de destino
-    status_destino_upper = request.status_acao_reparador.upper()
-    if status_destino_upper not in ["APOSENTADA", "EM_REPARO"]:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=[{
-                "codigo": "STATUS_DESTINO_INVALIDO",
-                "mensagem": "statusAcaoReparador deve ser 'APOSENTADA' ou 'EM_REPARO'"
-            }]
-        )
+    status_destino_upper = validate_status(
+        request.status_acao_reparador, 
+        ["APOSENTADA", "EM_REPARO"], 
+        "statusAcaoReparador"
+    )
     
     # Retira da rede
     # 1. Atualiza status da bicicleta

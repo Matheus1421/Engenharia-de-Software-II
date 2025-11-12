@@ -14,6 +14,8 @@ from repositories.bicicleta_repository import BicicletaRepository
 from models.tranca_model import Tranca, NovaTranca, StatusTranca
 from models.bicicleta_model import Bicicleta, StatusBicicleta
 from models.erro_model import Erro
+from utils.error_handler import handle_api_errors
+from utils.validators import validate_bicicleta_exists, validate_tranca_exists, validate_totem_exists, validate_status
 
 
 router = APIRouter(prefix="/tranca", tags=["Equipamento"])
@@ -63,6 +65,7 @@ def listar_trancas():
 
 
 @router.post("", summary="Cadastrar tranca", response_model=Tranca, status_code=status.HTTP_200_OK)
+@handle_api_errors
 def cadastrar_tranca(tranca: NovaTranca):
     """
     Cadastra uma nova tranca no sistema.
@@ -76,33 +79,21 @@ def cadastrar_tranca(tranca: NovaTranca):
     Raises:
         HTTPException 422: Dados inválidos
     """
-    try:
-        db = get_db()
-        tranca_repo = TrancaRepository(db)
-        
-        # Valida se já existe uma tranca com o mesmo número
-        todas = tranca_repo.get_all()
-        if any(t.numero == tranca.numero for t in todas):
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail=[{
-                    "codigo": "NUMERO_DUPLICADO",
-                    "mensagem": f"Já existe uma tranca com o número {tranca.numero}"
-                }]
-            )
-        
-        return tranca_repo.create(tranca)
-        
-    except HTTPException:
-        raise
-    except Exception as e:
+    db = get_db()
+    tranca_repo = TrancaRepository(db)
+    
+    # Valida se já existe uma tranca com o mesmo número
+    todas = tranca_repo.get_all()
+    if any(t.numero == tranca.numero for t in todas):
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=[{
-                "codigo": "DADOS_INVALIDOS",
-                "mensagem": str(e)
+                "codigo": "NUMERO_DUPLICADO",
+                "mensagem": f"Já existe uma tranca com o número {tranca.numero}"
             }]
         )
+    
+    return tranca_repo.create(tranca)
 
 
 @router.get("/{id_tranca}", summary="Obter tranca", response_model=Tranca)
@@ -123,19 +114,11 @@ def obter_tranca(id_tranca: int):
     tranca_repo = TrancaRepository(db)
     tranca = tranca_repo.get_by_id(id_tranca)
     
-    if not tranca:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={
-                "codigo": "TRANCA_NAO_ENCONTRADA",
-                "mensagem": f"Tranca com ID {id_tranca} não encontrada"
-            }
-        )
-    
-    return tranca
+    return validate_tranca_exists(tranca, id_tranca)
 
 
 @router.put("/{id_tranca}", summary="Editar tranca", response_model=Tranca)
+@handle_api_errors
 def editar_tranca(id_tranca: int, tranca: NovaTranca):
     """
     Atualiza os dados de uma tranca existente.
@@ -151,44 +134,25 @@ def editar_tranca(id_tranca: int, tranca: NovaTranca):
         HTTPException 404: Tranca não encontrada
         HTTPException 422: Dados inválidos
     """
-    try:
-        db = get_db()
-        tranca_repo = TrancaRepository(db)
-        
-        # Verifica se existe
-        if not tranca_repo.get_by_id(id_tranca):
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail={
-                    "codigo": "TRANCA_NAO_ENCONTRADA",
-                    "mensagem": f"Tranca com ID {id_tranca} não encontrada"
-                }
-            )
-        
-        # Valida se o número não está sendo usado por outra tranca
-        todas = tranca_repo.get_all()
-        if any(t.numero == tranca.numero and t.id != id_tranca for t in todas):
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail=[{
-                    "codigo": "NUMERO_DUPLICADO",
-                    "mensagem": f"Já existe outra tranca com o número {tranca.numero}"
-                }]
-            )
-        
-        tranca_atualizada = tranca_repo.update(id_tranca, tranca)
-        return tranca_atualizada
-        
-    except HTTPException:
-        raise
-    except Exception as e:
+    db = get_db()
+    tranca_repo = TrancaRepository(db)
+    
+    # Verifica se existe
+    validate_tranca_exists(tranca_repo.get_by_id(id_tranca), id_tranca)
+    
+    # Valida se o número não está sendo usado por outra tranca
+    todas = tranca_repo.get_all()
+    if any(t.numero == tranca.numero and t.id != id_tranca for t in todas):
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=[{
-                "codigo": "DADOS_INVALIDOS",
-                "mensagem": str(e)
+                "codigo": "NUMERO_DUPLICADO",
+                "mensagem": f"Já existe outra tranca com o número {tranca.numero}"
             }]
         )
+    
+    tranca_atualizada = tranca_repo.update(id_tranca, tranca)
+    return tranca_atualizada
 
 
 @router.delete("/{id_tranca}", summary="Remover tranca", status_code=status.HTTP_200_OK)
@@ -209,15 +173,10 @@ def remover_tranca(id_tranca: int):
     db = get_db()
     tranca_repo = TrancaRepository(db)
     
-    if not tranca_repo.delete(id_tranca):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={
-                "codigo": "TRANCA_NAO_ENCONTRADA",
-                "mensagem": f"Tranca com ID {id_tranca} não encontrada"
-            }
-        )
+    # Verifica se existe antes de remover
+    validate_tranca_exists(tranca_repo.get_by_id(id_tranca), id_tranca)
     
+    tranca_repo.delete(id_tranca)
     return {"mensagem": "Tranca removida com sucesso"}
 
 
@@ -250,16 +209,9 @@ def obter_bicicleta_na_tranca(id_tranca: int):
     tranca_repo = TrancaRepository(db)
     bicicleta_repo = BicicletaRepository(db)
     
-    # Busca tranca
+    # Busca e valida tranca
     tranca = tranca_repo.get_by_id(id_tranca)
-    if not tranca:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={
-                "codigo": "TRANCA_NAO_ENCONTRADA",
-                "mensagem": f"Tranca com ID {id_tranca} não encontrada"
-            }
-        )
+    validate_tranca_exists(tranca, id_tranca)
     
     # Verifica se há bicicleta na tranca
     if not tranca.bicicleta:
@@ -271,16 +223,9 @@ def obter_bicicleta_na_tranca(id_tranca: int):
             }
         )
     
-    # Busca bicicleta
+    # Busca e valida bicicleta
     bicicleta = bicicleta_repo.get_by_id(tranca.bicicleta)
-    if not bicicleta:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={
-                "codigo": "BICICLETA_NAO_ENCONTRADA",
-                "mensagem": f"Bicicleta {tranca.bicicleta} não encontrada"
-            }
-        )
+    validate_bicicleta_exists(bicicleta, tranca.bicicleta)
     
     return bicicleta
 
@@ -306,16 +251,9 @@ def trancar(id_tranca: int, request: TrancarRequest = TrancarRequest()):
     tranca_repo = TrancaRepository(db)
     bicicleta_repo = BicicletaRepository(db)
     
-    # Busca tranca
+    # Busca e valida tranca
     tranca = tranca_repo.get_by_id(id_tranca)
-    if not tranca:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={
-                "codigo": "TRANCA_NAO_ENCONTRADA",
-                "mensagem": f"Tranca com ID {id_tranca} não encontrada"
-            }
-        )
+    validate_tranca_exists(tranca, id_tranca)
     
     # Verifica se a tranca já está trancada
     if tranca.status == StatusTranca.OCUPADA:
@@ -330,14 +268,7 @@ def trancar(id_tranca: int, request: TrancarRequest = TrancarRequest()):
     # Se foi fornecido ID da bicicleta, valida e associa
     if request.bicicleta:
         bicicleta = bicicleta_repo.get_by_id(request.bicicleta)
-        if not bicicleta:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail={
-                    "codigo": "BICICLETA_NAO_ENCONTRADA",
-                    "mensagem": f"Bicicleta com ID {request.bicicleta} não encontrada"
-                }
-            )
+        validate_bicicleta_exists(bicicleta, request.bicicleta)
         
         # Associa bicicleta à tranca
         tranca_repo.associar_bicicleta(id_tranca, request.bicicleta)
@@ -372,28 +303,14 @@ def destrancar(id_tranca: int, request: DestrancarRequest = DestrancarRequest())
     tranca_repo = TrancaRepository(db)
     bicicleta_repo = BicicletaRepository(db)
     
-    # Busca tranca
+    # Busca e valida tranca
     tranca = tranca_repo.get_by_id(id_tranca)
-    if not tranca:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={
-                "codigo": "TRANCA_NAO_ENCONTRADA",
-                "mensagem": f"Tranca com ID {id_tranca} não encontrada"
-            }
-        )
+    validate_tranca_exists(tranca, id_tranca)
     
     # Se foi fornecido ID da bicicleta, valida e desassocia
     if request.bicicleta:
         bicicleta = bicicleta_repo.get_by_id(request.bicicleta)
-        if not bicicleta:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail={
-                    "codigo": "BICICLETA_NAO_ENCONTRADA",
-                    "mensagem": f"Bicicleta com ID {request.bicicleta} não encontrada"
-                }
-            )
+        validate_bicicleta_exists(bicicleta, request.bicicleta)
         
         # Verifica se a bicicleta está na tranca
         if tranca.bicicleta != request.bicicleta:
@@ -438,14 +355,7 @@ def alterar_status_tranca(id_tranca: int, acao: str):
     
     # Verifica se a tranca existe
     tranca = tranca_repo.get_by_id(id_tranca)
-    if not tranca:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={
-                "codigo": "TRANCA_NAO_ENCONTRADA",
-                "mensagem": f"Tranca com ID {id_tranca} não encontrada"
-            }
-        )
+    validate_tranca_exists(tranca, id_tranca)
     
     # Valida a ação
     acao_upper = acao.upper()
@@ -498,27 +408,13 @@ def integrar_tranca_na_rede(request: IntegrarNaRedeRequest):
     tranca_repo = TrancaRepository(db)
     totem_repo = TotemRepository(db)
     
-    # Busca tranca
+    # Busca e valida tranca
     tranca = tranca_repo.get_by_id(request.id_tranca)
-    if not tranca:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={
-                "codigo": "TRANCA_NAO_ENCONTRADA",
-                "mensagem": f"Tranca com ID {request.id_tranca} não encontrada"
-            }
-        )
+    validate_tranca_exists(tranca, request.id_tranca)
     
-    # Busca totem
+    # Busca e valida totem
     totem = totem_repo.get_by_id(request.id_totem)
-    if not totem:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={
-                "codigo": "TOTEM_NAO_ENCONTRADO",
-                "mensagem": f"Totem com ID {request.id_totem} não encontrado"
-            }
-        )
+    validate_totem_exists(totem, request.id_totem)
     
     # Valida status da tranca
     if tranca.status not in [StatusTranca.NOVA, StatusTranca.EM_REPARO]:
@@ -564,27 +460,13 @@ def retirar_tranca_da_rede(request: RetirarDaRedeRequest):
     tranca_repo = TrancaRepository(db)
     totem_repo = TotemRepository(db)
     
-    # Busca tranca
+    # Busca e valida tranca
     tranca = tranca_repo.get_by_id(request.id_tranca)
-    if not tranca:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={
-                "codigo": "TRANCA_NAO_ENCONTRADA",
-                "mensagem": f"Tranca com ID {request.id_tranca} não encontrada"
-            }
-        )
+    validate_tranca_exists(tranca, request.id_tranca)
     
-    # Busca totem
+    # Busca e valida totem
     totem = totem_repo.get_by_id(request.id_totem)
-    if not totem:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={
-                "codigo": "TOTEM_NAO_ENCONTRADO",
-                "mensagem": f"Totem com ID {request.id_totem} não encontrado"
-            }
-        )
+    validate_totem_exists(totem, request.id_totem)
     
     # Verifica se a tranca está no totem
     totem_id_tranca = tranca_repo.get_totem_id(request.id_tranca)
@@ -598,15 +480,11 @@ def retirar_tranca_da_rede(request: RetirarDaRedeRequest):
         )
     
     # Valida o status de destino
-    status_destino_upper = request.status_acao_reparador.upper()
-    if status_destino_upper not in ["APOSENTADA", "EM_REPARO"]:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=[{
-                "codigo": "STATUS_DESTINO_INVALIDO",
-                "mensagem": "statusAcaoReparador deve ser 'APOSENTADA' ou 'EM_REPARO'"
-            }]
-        )
+    status_destino_upper = validate_status(
+        request.status_acao_reparador, 
+        ["APOSENTADA", "EM_REPARO"], 
+        "statusAcaoReparador"
+    )
     
     # Retira da rede
     # 1. Atualiza status da tranca

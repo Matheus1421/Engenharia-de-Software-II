@@ -14,6 +14,8 @@ from models.totem_model import Totem, NovoTotem
 from models.tranca_model import Tranca
 from models.bicicleta_model import Bicicleta
 from models.erro_model import Erro
+from utils.error_handler import handle_api_errors
+from utils.validators import validate_totem_exists
 
 
 router = APIRouter(prefix="/totem", tags=["Equipamento"])
@@ -33,6 +35,7 @@ def listar_totems():
 
 
 @router.post("", summary="Incluir totem", response_model=Totem, status_code=status.HTTP_200_OK)
+@handle_api_errors
 def cadastrar_totem(totem: NovoTotem):
     """
     Cadastra um novo totem no sistema.
@@ -46,35 +49,24 @@ def cadastrar_totem(totem: NovoTotem):
     Raises:
         HTTPException 422: Dados inválidos
     """
-    try:
-        db = get_db()
-        totem_repo = TotemRepository(db)
-        
-        # Valida se a localização não está vazia
-        if not totem.localizacao or totem.localizacao.strip() == "":
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail=[{
-                    "codigo": "LOCALIZACAO_INVALIDA",
-                    "mensagem": "A localização do totem é obrigatória"
-                }]
-            )
-        
-        return totem_repo.create(totem)
-        
-    except HTTPException:
-        raise
-    except Exception as e:
+    db = get_db()
+    totem_repo = TotemRepository(db)
+    
+    # Valida se a localização não está vazia
+    if not totem.localizacao or totem.localizacao.strip() == "":
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=[{
-                "codigo": "DADOS_INVALIDOS",
-                "mensagem": str(e)
+                "codigo": "LOCALIZACAO_INVALIDA",
+                "mensagem": "A localização do totem é obrigatória"
             }]
         )
+    
+    return totem_repo.create(totem)
 
 
 @router.put("/{id_totem}", summary="Editar totem", response_model=Totem)
+@handle_api_errors
 def editar_totem(id_totem: int, totem: NovoTotem):
     """
     Atualiza os dados de um totem existente.
@@ -90,43 +82,24 @@ def editar_totem(id_totem: int, totem: NovoTotem):
         HTTPException 404: Totem não encontrado
         HTTPException 422: Dados inválidos
     """
-    try:
-        db = get_db()
-        totem_repo = TotemRepository(db)
-        
-        # Verifica se existe
-        if not totem_repo.get_by_id(id_totem):
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail={
-                    "codigo": "TOTEM_NAO_ENCONTRADO",
-                    "mensagem": f"Totem com ID {id_totem} não encontrado"
-                }
-            )
-        
-        # Valida se a localização não está vazia
-        if not totem.localizacao or totem.localizacao.strip() == "":
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail=[{
-                    "codigo": "LOCALIZACAO_INVALIDA",
-                    "mensagem": "A localização do totem é obrigatória"
-                }]
-            )
-        
-        totem_atualizado = totem_repo.update(id_totem, totem)
-        return totem_atualizado
-        
-    except HTTPException:
-        raise
-    except Exception as e:
+    db = get_db()
+    totem_repo = TotemRepository(db)
+    
+    # Verifica se existe
+    validate_totem_exists(totem_repo.get_by_id(id_totem), id_totem)
+    
+    # Valida se a localização não está vazia
+    if not totem.localizacao or totem.localizacao.strip() == "":
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=[{
-                "codigo": "DADOS_INVALIDOS",
-                "mensagem": str(e)
+                "codigo": "LOCALIZACAO_INVALIDA",
+                "mensagem": "A localização do totem é obrigatória"
             }]
         )
+    
+    totem_atualizado = totem_repo.update(id_totem, totem)
+    return totem_atualizado
 
 
 @router.delete("/{id_totem}", summary="Remover totem", status_code=status.HTTP_200_OK)
@@ -147,14 +120,7 @@ def remover_totem(id_totem: int):
     totem_repo = TotemRepository(db)
     
     # Verifica se o totem existe
-    if not totem_repo.get_by_id(id_totem):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={
-                "codigo": "TOTEM_NAO_ENCONTRADO",
-                "mensagem": f"Totem com ID {id_totem} não encontrado"
-            }
-        )
+    validate_totem_exists(totem_repo.get_by_id(id_totem), id_totem)
     
     # Remove o totem (o repositório já remove as associações com trancas)
     totem_repo.delete(id_totem)
@@ -192,14 +158,7 @@ def listar_trancas_do_totem(id_totem: int):
     tranca_repo = TrancaRepository(db)
     
     # Verifica se o totem existe
-    if not totem_repo.get_by_id(id_totem):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={
-                "codigo": "TOTEM_NAO_ENCONTRADO",
-                "mensagem": f"Totem com ID {id_totem} não encontrado"
-            }
-        )
+    validate_totem_exists(totem_repo.get_by_id(id_totem), id_totem)
     
     # Busca os IDs das trancas associadas ao totem
     trancas_ids = totem_repo.get_trancas_ids(id_totem)
@@ -245,14 +204,7 @@ def listar_bicicletas_do_totem(id_totem: int):
     bicicleta_repo = BicicletaRepository(db)
     
     # Verifica se o totem existe
-    if not totem_repo.get_by_id(id_totem):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={
-                "codigo": "TOTEM_NAO_ENCONTRADO",
-                "mensagem": f"Totem com ID {id_totem} não encontrado"
-            }
-        )
+    validate_totem_exists(totem_repo.get_by_id(id_totem), id_totem)
     
     # Busca os IDs das trancas associadas ao totem
     trancas_ids = totem_repo.get_trancas_ids(id_totem)
