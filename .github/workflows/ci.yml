@@ -35,7 +35,8 @@ jobs:
         run: |
           echo "Antes da correção:"
           head -20 coverage.xml || true
-          sed -i 's#/home/runner/work/Engenharia-de-Software-II/Engenharia-de-Software-II#.#g' coverage.xml
+          # Remove o caminho absoluto do runner e deixa relativo
+          sed -i 's#/home/runner/work/.*/#./#g' coverage.xml
           echo "Depois da correção:"
           head -20 coverage.xml || true
 
