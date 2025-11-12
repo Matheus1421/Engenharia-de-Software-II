@@ -339,7 +339,7 @@ def test_remover_bicicleta_nao_encontrada():
         
         mock_repo_instance = Mock()
         mock_repo.return_value = mock_repo_instance
-        mock_repo_instance.delete.return_value = False
+        mock_repo_instance.get_by_id.return_value = None  # Bicicleta não existe
         
         response = client.delete("/bicicleta/999")
         

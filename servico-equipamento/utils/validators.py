@@ -107,7 +107,7 @@ def validate_totem_exists(totem: Any, totem_id: int) -> Any:
     return totem
 
 
-def validate_status(status_value: str, allowed_statuses: List[str], field_name: str = "status") -> str:
+def validate_status(status_value: str, allowed_statuses: List[str], field_name: str = "status", error_code: str = "STATUS_INVALIDO") -> str:
     """
     Valida se um status está entre os valores permitidos.
     
@@ -115,6 +115,7 @@ def validate_status(status_value: str, allowed_statuses: List[str], field_name: 
         status_value: Valor do status a ser validado
         allowed_statuses: Lista de valores permitidos
         field_name: Nome do campo para mensagens de erro
+        error_code: Código de erro customizado (padrão: "STATUS_INVALIDO")
         
     Returns:
         O status em uppercase se for válido
@@ -127,7 +128,7 @@ def validate_status(status_value: str, allowed_statuses: List[str], field_name: 
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=[{
-                "codigo": "STATUS_INVALIDO",
+                "codigo": error_code,
                 "mensagem": f"{field_name} deve ser um dos seguintes: {', '.join(allowed_statuses)}"
             }]
         )

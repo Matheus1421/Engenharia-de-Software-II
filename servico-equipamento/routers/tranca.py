@@ -483,7 +483,8 @@ def retirar_tranca_da_rede(request: RetirarDaRedeRequest):
     status_destino_upper = validate_status(
         request.status_acao_reparador, 
         ["APOSENTADA", "EM_REPARO"], 
-        "statusAcaoReparador"
+        "statusAcaoReparador",
+        "STATUS_DESTINO_INVALIDO"
     )
     
     # Retira da rede

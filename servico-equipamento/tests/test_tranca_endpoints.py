@@ -457,7 +457,7 @@ def test_remover_tranca_nao_encontrada():
          patch('routers.tranca.TrancaRepository') as mock_repo:
         
         mock_repo_instance = MagicMock()
-        mock_repo_instance.delete.return_value = False
+        mock_repo_instance.get_by_id.return_value = None  # Tranca não existe
         mock_repo.return_value = mock_repo_instance
         
         response = client.delete("/tranca/999")
