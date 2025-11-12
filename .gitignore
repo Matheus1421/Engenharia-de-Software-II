@@ -9,6 +9,7 @@ servico-equipamento/.pytest_cache/
 # Env
 .venv/
 venv/
+.env
 
 # OS
 .DS_Store
