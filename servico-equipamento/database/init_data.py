@@ -14,24 +14,24 @@ DEFAULT_LOCALIZACAO = "-22.9068, -43.1729"
 BICICLETAS_INICIAIS = [
     {
         "id": 1,
-        "marca": "Caloi",
-        "modelo": "Mountain Bike Pro",
+        "marca": "Magrela",
+        "modelo": "Mais Veloz da pista",
         "ano": "2023",
         "numero": 100,
         "status": StatusBicicleta.DISPONIVEL.value
     },
     {
         "id": 2,
-        "marca": "Shimano",
-        "modelo": "City Bike",
+        "marca": "Foguete",
+        "modelo": "Elétrico",
         "ano": "2023",
         "numero": 101,
         "status": StatusBicicleta.DISPONIVEL.value
     },
     {
         "id": 3,
-        "marca": "Trek",
-        "modelo": "Speed Master",
+        "marca": "Rapidex",
+        "modelo": "Bike do The Flash",
         "ano": "2024",
         "numero": 102,
         "status": StatusBicicleta.NOVA.value
