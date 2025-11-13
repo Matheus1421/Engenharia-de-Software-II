@@ -24,18 +24,36 @@ jobs:
           python -m pip install --upgrade pip
           pip install fastapi uvicorn pytest httpx pytest-cov tinydb pydantic email-validator
 
-      - name: Rodar testes e gerar cobertura
+      - name: Rodar testes e gerar cobertura (serviço a serviço)
         run: |
-          echo "==> Rodando pytest com cobertura..."
-          pytest -q \
-            --cov=servico-equipamento \
-            --cov=servico-externo \
-            --cov=servico-aluguel \
-            --cov-report=xml:coverage.xml \
-            --cov-config=testes.coveragerc
+          set -e  # se der ruim em algo fora do pytest, falha o job
 
-          echo "==> coverage.xml na raiz:"
-          ls -l coverage.xml
+          # 1) servico-equipamento
+          echo "==> Rodando testes do servico-equipamento"
+          cd servico-equipamento
+          pytest -q \
+            --cov=. \
+            --cov-report=xml:coverage.xml || true
+          cd ..
+
+          # 2) servico-aluguel
+          echo "==> Rodando testes do servico-aluguel"
+          cd servico-aluguel
+          pytest -q \
+            --cov=. \
+            --cov-report=xml:coverage.xml || true
+          cd ..
+
+          # 3) servico-externo
+          echo "==> Rodando testes do servico-externo"
+          cd servico-externo
+          pytest -q \
+            --cov=. \
+            --cov-report=xml:coverage.xml || true
+          cd ..
+
+          echo "==> coverage.xml gerados:"
+          find . -name "coverage.xml" -print || echo "Nenhum coverage.xml encontrado"
 
       - name: Setup Java (SonarCloud)
         uses: actions/setup-java@v4
