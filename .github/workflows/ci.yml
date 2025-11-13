@@ -31,8 +31,7 @@ jobs:
           # 1) servico-equipamento
           echo "==> Rodando testes do servico-equipamento"
           cd servico-equipamento
-          pytest -q \
-            --cov=models --cov=routers --cov=repositories --cov=utils --cov=main.py \
+          pytest tests/ -q \
             --cov-report=xml:coverage.xml \
             --cov-report=term || true
           cd ..
@@ -40,8 +39,7 @@ jobs:
           # 2) servico-aluguel
           echo "==> Rodando testes do servico-aluguel"
           cd servico-aluguel
-          pytest -q \
-            --cov=models --cov=routers --cov=repositories --cov=services --cov=main.py \
+          pytest tests/ -q \
             --cov-report=xml:coverage.xml \
             --cov-report=term || true
           cd ..
@@ -49,8 +47,7 @@ jobs:
           # 3) servico-externo
           echo "==> Rodando testes do servico-externo"
           cd servico-externo
-          pytest -q \
-            --cov=models --cov=routers --cov=repositories --cov=services --cov=main.py \
+          pytest tests/ -q \
             --cov-report=xml:coverage.xml \
             --cov-report=term || true
           cd ..

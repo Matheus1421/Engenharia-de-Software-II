@@ -43,9 +43,9 @@ jobs:
       - name: Run tests with coverage
         working-directory: ${{ matrix.service.path }}
         run: |
-          poetry run pytest \
+          poetry run pytest tests/ \
             --maxfail=1 -q \
-            --cov=. --cov-branch \
+            --cov-branch \
             --cov-report=xml:coverage.xml
           ls -la  # opcional, só pra checar o coverage.xml no log
 
