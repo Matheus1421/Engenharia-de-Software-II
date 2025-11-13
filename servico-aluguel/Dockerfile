@@ -2,15 +2,23 @@
 
 FROM python:3.11-slim
 
-WORKDIR /app
+ENV POETRY_VERSION=1.8.0 \
+    POETRY_VIRTUALENVS_CREATE=false \
+    PIP_NO_CACHE_DIR=1 \
+    PATH="/root/.local/bin:$PATH"
 
-RUN pip install poetry
+RUN apt-get update && apt-get install -y curl build-essential && rm -rf /var/lib/apt/lists/*
 
-COPY pyproject.toml poetry.lock* ./
+RUN curl -sSL https://install.python-poetry.org | python3 - --version $POETRY_VERSION
 
-RUN poetry config virtualenvs.create false \
-    && poetry install --no-interaction --no-ansi --no-root --no-dev
+WORKDIR /app/servico-aluguel
 
+# Copia manifestos de dependência primeiro (para cache de build eficiente)
+COPY pyproject.toml ./
+
+RUN poetry install --no-interaction --no-root
+
+# Copia o código do serviço
 COPY . .
 
 EXPOSE 8001
@@ -18,4 +26,4 @@ EXPOSE 8001
 # Comando para iniciar o servidor
 # 0.0.0.0 permite acessar de fora do container
 # ${PORT:-8001} usa variável de ambiente PORT ou 8001 como padrão
-CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8001}"]
+CMD ["sh", "-c", "poetry run uvicorn main:app --host=0.0.0.0 --port=${PORT:-8001}"]
