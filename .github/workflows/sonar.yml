@@ -1,0 +1,62 @@
+name: SonarCloud monorepo
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  sonar:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        service:
+          - name: servico-aluguel
+            path: servico-aluguel
+            project_key: org_repositorio_servico-aluguel
+            token_secret: SONAR_TOKEN_ALUGUEL
+          - name: servico-equipamento
+            path: servico-equipamento
+            project_key: org_repositorio_servico-equipamento
+            token_secret: SONAR_TOKEN_EQUIPAMENTO
+          - name: servico-externo
+            path: servico-externo
+            project_key: org_repositorio_servico-externo
+            token_secret: SONAR_TOKEN_EXTERNO
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Poetry
+        run: |
+          pip install poetry
+
+      - name: Install dependencies
+        working-directory: ${{ matrix.service.path }}
+        run: |
+          poetry install --no-interaction --no-root
+
+      - name: Run tests with coverage
+        working-directory: ${{ matrix.service.path }}
+        run: |
+          poetry run pytest \
+            --maxfail=1 -q \
+            --cov=app --cov-branch \
+            --cov-report=xml:coverage.xml
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2.2
+        env:
+          SONAR_TOKEN: ${{ secrets[matrix.service.token_secret] }}
+        with:
+          projectBaseDir: ${{ matrix.service.path }}
+          args: >
+            -Dsonar.projectKey=${{ matrix.service.project_key }}
+            -Dsonar.python.coverage.reportPaths=coverage.xml
