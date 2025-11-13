@@ -24,7 +24,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install fastapi uvicorn pytest httpx pytest-cov tinydb pydantic email-validator
 
-      # Roda testes de todos os microserviços e gera coverage.xml na raiz
       - name: Rodar testes e gerar cobertura
         run: |
           echo "==> Rodando pytest com cobertura..."
@@ -33,49 +32,10 @@ jobs:
             --cov=servico-externo \
             --cov=servico-aluguel \
             --cov-report=xml:coverage.xml \
-            --cov-config=.coveragerc || true
+            --cov-config=testes.coveragerc
 
-          echo "==> Listando coverage.xml gerados no repositório:"
-          find . -name "coverage.xml" -print || echo "Nenhum coverage.xml encontrado"
-
-          # Fallback: se não tiver coverage.xml na raiz, mas algum micro gerou um, copia o primeiro encontrado
-          if [ ! -f coverage.xml ]; then
-            first_cov=$(find . -name "coverage.xml" | head -n 1 || true)
-            if [ -n "$first_cov" ]; then
-              echo "Nenhum coverage.xml na raiz. Usando '${first_cov}' como base e copiando para ./coverage.xml"
-              cp "$first_cov" coverage.xml
-            else
-              echo "Nenhum coverage.xml disponível para copiar."
-            fi
-          fi
-
-      # Ajusta o coverage.xml apenas se ele existir na raiz
-      - name: Ajustar caminhos do coverage.xml
-        run: |
-          if [ ! -f coverage.xml ]; then
-            echo "coverage.xml NÃO encontrado na raiz do repositório."
-            echo "Pulando ajuste de caminhos. O SonarCloud vai rodar sem cobertura."
-            exit 0
-          fi
-
-          echo "coverage.xml encontrado na raiz, ajustando caminhos..."
-
-          python - << 'PY'
-          import xml.etree.ElementTree as ET
-
-          path = "coverage.xml"
-          tree = ET.parse(path)
-          root = tree.getroot()
-
-          # Ajustar todas as <source> para apontar para a raiz do repositório
-          for source in root.findall(".//sources/source"):
-              source.text = "."
-
-          tree.write(path, encoding="utf-8", xml_declaration=True)
-          PY
-
-          echo "Primeiras linhas do coverage.xml (ajustado):"
-          head -40 coverage.xml || true
+          echo "==> coverage.xml na raiz:"
+          ls -l coverage.xml
 
       - name: Setup Java (SonarCloud)
         uses: actions/setup-java@v4
