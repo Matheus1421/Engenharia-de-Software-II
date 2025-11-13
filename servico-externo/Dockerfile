@@ -19,7 +19,7 @@ RUN poetry install --no-interaction --no-root
 # Copia o código do serviço
 COPY . .
 
-EXPOSE 8000
+EXPOSE 8002
 
-CMD ["poetry", "run", "uvicorn", "main:app", "--host=0.0.0.0", "--port=8000"]
+CMD ["sh", "-c", "poetry run uvicorn main:app --host=0.0.0.0 --port=${PORT:-8002}"]
 

@@ -39,7 +39,7 @@ def cadastrar_ciclista(dados: CiclistaCadastro, meio_pagamento: NovoCartaoDeCred
     validacao = pagamento_service.validar_cartao(
         meio_pagamento.numero,
         meio_pagamento.nomeTitular,
-        meio_pagamento.validade.isoformat(),
+        meio_pagamento.validade,
         meio_pagamento.cvv
     )
 

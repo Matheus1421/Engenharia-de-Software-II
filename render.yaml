@@ -1,0 +1,58 @@
+services:
+  # Microserviço de Equipamento
+  - type: web
+    name: servico-equipamento
+    runtime: docker
+    dockerfilePath: ./servico-equipamento/Dockerfile
+    dockerContext: ./servico-equipamento
+    env: python
+    plan: free
+    region: oregon
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: PYTHON_VERSION
+        value: 3.11
+    healthCheckPath: /health
+
+  # Microserviço de Aluguel
+  - type: web
+    name: servico-aluguel
+    runtime: docker
+    dockerfilePath: ./servico-aluguel/Dockerfile
+    dockerContext: ./servico-aluguel
+    env: python
+    plan: free
+    region: oregon
+    envVars:
+      - key: PORT
+        value: 8001
+      - key: PYTHON_VERSION
+        value: 3.11
+      - key: SERVICO_EQUIPAMENTO_URL
+        fromService:
+          name: servico-equipamento
+          type: web
+          property: host
+      - key: SERVICO_EXTERNO_URL
+        fromService:
+          name: servico-externo
+          type: web
+          property: host
+    healthCheckPath: /health
+
+  # Microserviço Externo (Pagamento/Email)
+  - type: web
+    name: servico-externo
+    runtime: docker
+    dockerfilePath: ./servico-externo/Dockerfile
+    dockerContext: ./servico-externo
+    env: python
+    plan: free
+    region: oregon
+    envVars:
+      - key: PORT
+        value: 8002
+      - key: PYTHON_VERSION
+        value: 3.11
+    healthCheckPath: /health
