@@ -55,6 +55,46 @@ jobs:
           echo "==> coverage.xml gerados:"
           find . -name "coverage.xml" -print || echo "Nenhum coverage.xml encontrado"
 
+      - name: Ajustar <source> dos coverage.xml para caminhos relativos
+        run: |
+          python - << 'PY'
+          import os
+          import xml.etree.ElementTree as ET
+
+          services = ["servico-equipamento", "servico-externo", "servico-aluguel"]
+
+          for service in services:
+              path = os.path.join(service, "coverage.xml")
+              if not os.path.exists(path):
+                  print(f"[WARN] {path} não encontrado, pulando.")
+                  continue
+
+              print(f"[INFO] Ajustando {path}...")
+              tree = ET.parse(path)
+              root = tree.getroot()
+
+              # coverage.py: <coverage><sources><source>...</source></sources>...
+              sources = root.find(".//sources")
+              if sources is None:
+                  sources = ET.SubElement(root, "sources")
+
+              # limpar sources atuais
+              for child in list(sources):
+                  sources.remove(child)
+
+              # adicionar uma única source relativa ao repo
+              s = ET.SubElement(sources, "source")
+              s.text = service  # ex: "servico-equipamento"
+
+              tree.write(path, encoding="utf-8", xml_declaration=True)
+
+          PY
+
+          echo "==> Primeiras linhas dos coverage.xml ajustados:"
+          head -40 servico-equipamento/coverage.xml || true
+          head -40 servico-externo/coverage.xml || true
+          head -40 servico-aluguel/coverage.xml || true
+
       - name: Setup Java (SonarCloud)
         uses: actions/setup-java@v4
         with:
