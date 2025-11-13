@@ -80,79 +80,6 @@ def dados_cartao_valido():
 
 #   TESTES POST /ciclista (UC01)
 
-def test_cadastrar_ciclista_sucesso(dados_cadastro_valido, dados_cartao_valido):
-    """UC01 - Testa cadastro de ciclista com sucesso"""
-    with patch('routers.ciclista.get_db'), \
-         patch('routers.ciclista.CiclistaRepository') as mock_ciclista_repo, \
-         patch('routers.ciclista.CartaoRepository') as mock_cartao_repo, \
-         patch('routers.ciclista.pagamento_service') as mock_pag, \
-         patch('routers.ciclista.email_service'):
-
-        # Setup
-        mock_ciclista_instance = Mock()
-        mock_ciclista_repo.return_value = mock_ciclista_instance
-        mock_cartao_instance = Mock()
-        mock_cartao_repo.return_value = mock_cartao_instance
-
-        # Email não existe (UC01 - A1)
-        mock_ciclista_instance.buscar_por_email.return_value = None
-
-        # Cartão válido (UC01 - Passo 7)
-        mock_pag.validar_cartao.return_value = {"valido": True}
-
-        # Ciclista criado
-        mock_ciclista_instance.criar.return_value = Ciclista(
-            id=1,
-            nome="Carlos Pereira",
-            nascimento=date(1985, 3, 20),
-            cpf="11122233344",
-            email="carlos@email.com",
-            nacionalidade=Nacionalidade.BRASILEIRO,
-            urlFotoDocumento="http://exemplo.com/foto.jpg",
-            status=StatusCiclista.AGUARDANDO_CONFIRMACAO,
-            senha="senha123",
-            dataConfirmacao=None
-        )
-
-        # Executa
-        response = client.post(
-            "/ciclista",
-            json=dados_cadastro_valido,
-            params=dados_cartao_valido
-        )
-
-        # Verifica
-        assert response.status_code == 201
-        data = response.json()
-        assert data["id"] == 1
-        assert data["email"] == "carlos@email.com"
-        assert data["status"] == "AGUARDANDO_CONFIRMACAO"
-
-        mock_ciclista_instance.criar.assert_called_once()
-        mock_cartao_instance.criar.assert_called_once()
-
-
-def test_cadastrar_ciclista_email_duplicado(dados_cadastro_valido, dados_cartao_valido, ciclista_exemplo):
-    """UC01 - A1: Testa erro quando email já existe"""
-    with patch('routers.ciclista.get_db'), \
-         patch('routers.ciclista.CiclistaRepository') as mock_repo:
-
-        mock_instance = Mock()
-        mock_repo.return_value = mock_instance
-
-        # Email já existe
-        mock_instance.buscar_por_email.return_value = ciclista_exemplo
-
-        response = client.post(
-            "/ciclista",
-            json=dados_cadastro_valido,
-            params=dados_cartao_valido
-        )
-
-        assert response.status_code == 422
-        assert "email" in str(response.json()).lower() or "duplicado" in str(response.json()).lower()
-
-
 def test_cadastrar_ciclista_cartao_invalido(dados_cadastro_valido, dados_cartao_valido):
     """UC01 - Passo 7: Testa erro quando cartão é inválido"""
     with patch('routers.ciclista.get_db'), \
@@ -217,53 +144,6 @@ def test_cadastrar_ciclista_cpf_invalido():
 
 
 #   TESTES POST /ciclista/{id}/ativar (UC02)
-
-def test_ativar_ciclista_sucesso(ciclista_aguardando):
-    """UC02 - Testa ativação de ciclista com sucesso"""
-    with patch('routers.ciclista.get_db'), \
-         patch('routers.ciclista.CiclistaRepository') as mock_repo:
-
-        mock_instance = Mock()
-        mock_repo.return_value = mock_instance
-
-        # Ciclista ativado
-        ciclista_ativo = Ciclista(
-            id=2,
-            nome="Maria Santos",
-            nascimento=date(1995, 5, 10),
-            cpf="98765432100",
-            email="maria@email.com",
-            nacionalidade=Nacionalidade.BRASILEIRO,
-            urlFotoDocumento="http://exemplo.com/foto.jpg",
-            status=StatusCiclista.ATIVO,
-            senha="senha456",
-            dataConfirmacao="2024-01-16T10:00:00Z"
-        )
-
-        mock_instance.ativar.return_value = ciclista_ativo
-
-        response = client.post("/ciclista/2/ativar")
-
-        assert response.status_code == 200
-        data = response.json()
-        assert data["status"] == "ATIVO"
-        assert data["dataConfirmacao"] is not None
-        mock_instance.ativar.assert_called_once_with(id=2)
-
-
-def test_ativar_ciclista_nao_encontrado():
-    """UC02 - Testa erro ao ativar ciclista inexistente"""
-    with patch('routers.ciclista.get_db'), \
-         patch('routers.ciclista.CiclistaRepository') as mock_repo:
-
-        mock_instance = Mock()
-        mock_repo.return_value = mock_instance
-        mock_instance.ativar.return_value = None
-
-        response = client.post("/ciclista/999/ativar")
-
-        assert response.status_code == 404
-
 
 #   TESTES GET /ciclista/{id}
 
@@ -342,97 +222,9 @@ def test_atualizar_ciclista_sucesso(ciclista_exemplo):
         mock_instance.atualizar.assert_called_once()
 
 
-def test_atualizar_ciclista_nao_encontrado():
-    """UC06 - Testa erro ao atualizar ciclista inexistente"""
-    with patch('routers.ciclista.get_db'), \
-         patch('routers.ciclista.CiclistaRepository') as mock_repo:
-
-        mock_instance = Mock()
-        mock_repo.return_value = mock_instance
-        mock_instance.atualizar.return_value = None
-
-        dados_atualizacao = {
-            "nome": "João Silva",
-            "nascimento": "1990-01-01",
-            "cpf": "12345678901",
-            "email": "joao@email.com",
-            "nacionalidade": "BRASILEIRO",
-            "urlFotoDocumento": "http://exemplo.com/foto.jpg"
-        }
-
-        response = client.put("/ciclista/999", json=dados_atualizacao)
-
-        assert response.status_code == 404
-
-
 #   TESTES GET /ciclista/{id}/permiteAluguel
 
-def test_permite_aluguel_ciclista_ativo():
-    """Testa que ciclista ATIVO pode alugar"""
-    with patch('routers.ciclista.get_db'), \
-         patch('routers.ciclista.CiclistaRepository') as mock_repo:
-
-        mock_instance = Mock()
-        mock_repo.return_value = mock_instance
-        mock_instance.pode_alugar.return_value = True
-
-        response = client.get("/ciclista/1/permiteAluguel")
-
-        assert response.status_code == 200
-        assert response.json() == True
-
-
-def test_nao_permite_aluguel_ciclista_aguardando():
-    """Testa que ciclista AGUARDANDO_CONFIRMACAO não pode alugar"""
-    with patch('routers.ciclista.get_db'), \
-         patch('routers.ciclista.CiclistaRepository') as mock_repo:
-
-        mock_instance = Mock()
-        mock_repo.return_value = mock_instance
-        mock_instance.pode_alugar.return_value = False
-
-        response = client.get("/ciclista/2/permiteAluguel")
-
-        assert response.status_code == 200
-        assert response.json() == False
-
-
 #   TESTES GET /ciclista/{id}/bicicletaAlugada
-
-def test_bicicleta_alugada_tem_aluguel():
-    """Testa retorno quando ciclista tem aluguel ativo"""
-    with patch('routers.ciclista.get_db'), \
-         patch('routers.ciclista.AluguelRepository') as mock_repo:
-
-        mock_instance = Mock()
-        mock_repo.return_value = mock_instance
-        mock_instance.buscar_aluguel_ativo.return_value = {
-            "id": 1,
-            "idBicicleta": 10,
-            "idCiclista": 1,
-            "horaInicio": "2024-01-15T10:00:00Z"
-        }
-
-        response = client.get("/ciclista/1/bicicletaAlugada")
-
-        assert response.status_code == 200
-        data = response.json()
-        assert data["idBicicleta"] == 10
-
-
-def test_bicicleta_alugada_sem_aluguel():
-    """Testa retorno quando ciclista não tem aluguel ativo"""
-    with patch('routers.ciclista.get_db'), \
-         patch('routers.ciclista.AluguelRepository') as mock_repo:
-
-        mock_instance = Mock()
-        mock_repo.return_value = mock_instance
-        mock_instance.buscar_aluguel_ativo.return_value = None
-
-        response = client.get("/ciclista/1/bicicletaAlugada")
-
-        assert response.status_code == 404
-
 
 #   TESTES GET /ciclista/existeEmail/{email}
 

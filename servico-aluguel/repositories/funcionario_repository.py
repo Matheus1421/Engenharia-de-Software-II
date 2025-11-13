@@ -31,4 +31,6 @@ class FuncionarioRepository:
         return self.buscar_por_matricula(matricula)
 
     def deletar(self, matricula: str) -> bool:
-        return self.table.remove(self.F.matricula == matricula)
+        """Deleta funcionário por matrícula"""
+        docs_removidos = self.table.remove(self.F.matricula == matricula)
+        return len(docs_removidos) > 0

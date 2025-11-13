@@ -72,6 +72,10 @@ class CiclistaRepository:
 
         return True
 
+    def listar(self) -> List[Ciclista]:
+        """Lista todos os ciclistas"""
+        return [Ciclista(**c) for c in self.table.all()]
+
 _ciclista_repository = None
 
 def get_ciclista_repository(db: TinyDB) -> CiclistaRepository:

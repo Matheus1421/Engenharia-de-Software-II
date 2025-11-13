@@ -67,14 +67,14 @@ def test_buscar_por_id_encontra():
     mock_table = MagicMock()
     mock_db.table.return_value = mock_table
 
-    mock_table.search.return_value = [{
+    mock_table.get.return_value = {
         'id': 1,
         'nomeTitular': 'João Silva',
         'numero': '1234567890123456',
         'validade': '12/25',
         'cvv': '123',
         'idCiclista': 1
-    }]
+    }
 
     repo = CartaoRepository(mock_db)
     resultado = repo.buscar_por_id(1)
@@ -89,7 +89,7 @@ def test_buscar_por_id_nao_encontra():
     mock_db = MagicMock()
     mock_table = MagicMock()
     mock_db.table.return_value = mock_table
-    mock_table.search.return_value = []  # Não encontrado
+    mock_table.get.return_value = None  # Não encontrado
 
     repo = CartaoRepository(mock_db)
     resultado = repo.buscar_por_id(999)
@@ -105,14 +105,14 @@ def test_buscar_por_ciclista_encontra():
     mock_table = MagicMock()
     mock_db.table.return_value = mock_table
 
-    mock_table.search.return_value = [{
+    mock_table.get.return_value = {
         'id': 1,
         'nomeTitular': 'João Silva',
         'numero': '1234567890123456',
         'validade': '12/25',
         'cvv': '123',
         'idCiclista': 1
-    }]
+    }
 
     repo = CartaoRepository(mock_db)
     resultado = repo.buscar_por_ciclista(id_ciclista=1)
@@ -126,7 +126,7 @@ def test_buscar_por_ciclista_nao_encontra():
     mock_db = MagicMock()
     mock_table = MagicMock()
     mock_db.table.return_value = mock_table
-    mock_table.search.return_value = []  # Não encontrado
+    mock_table.get.return_value = None  # Não encontrado
 
     repo = CartaoRepository(mock_db)
     resultado = repo.buscar_por_ciclista(id_ciclista=999)
@@ -152,12 +152,19 @@ def test_atualizar_cartao_sucesso():
         'idCiclista': 1
     }
 
-    # Cartão depois
-    cartao_depois = cartao_antes.copy()
-    cartao_depois['validade'] = '06/26'
-    cartao_depois['cvv'] = '456'
+    # Cartão depois (buscar_por_ciclista remove cvv e numeroCompleto)
+    cartao_depois = {
+        'id': 1,
+        'nomeTitular': 'João Silva',
+        'numero': '**** **** **** 3456',
+        'validade': '06/26',
+        'idCiclista': 1
+    }
 
-    mock_table.search.side_effect = [[cartao_antes], [cartao_depois]]
+    # Precisamos mockar duas chamadas ao get():
+    # 1ª: buscar_por_id(1) -> retorna cartao_antes (para pegar idCiclista)
+    # 2ª: buscar_por_ciclista(1) -> retorna cartao_depois
+    mock_table.get.side_effect = [cartao_antes, cartao_depois]
     mock_table.update = Mock()
 
     repo = CartaoRepository(mock_db)
@@ -173,7 +180,7 @@ def test_atualizar_cartao_sucesso():
 
     assert resultado is not None
     assert resultado.validade == "06/26"
-    assert resultado.cvv == "456"
+    # cvv não é retornado por buscar_por_ciclista
     mock_table.update.assert_called_once()
 
 
@@ -182,7 +189,7 @@ def test_atualizar_cartao_nao_encontrado():
     mock_db = MagicMock()
     mock_table = MagicMock()
     mock_db.table.return_value = mock_table
-    mock_table.search.return_value = []  # Não encontrado
+    mock_table.get.return_value = None  # Não encontrado
 
     repo = CartaoRepository(mock_db)
 
@@ -207,8 +214,15 @@ def test_deletar_cartao_sucesso():
     mock_db.table.return_value = mock_table
 
     # Cartão existe
-    mock_table.search.return_value = [{'id': 1}]
-    mock_table.remove = Mock()
+    mock_table.get.return_value = {
+        'id': 1,
+        'nomeTitular': 'João Silva',
+        'numero': '1234567890123456',
+        'validade': '12/25',
+        'cvv': '123',
+        'idCiclista': 1
+    }
+    mock_table.remove = Mock(return_value=[1])  # Lista com 1 documento removido
 
     repo = CartaoRepository(mock_db)
     resultado = repo.deletar(id=1)
@@ -222,7 +236,7 @@ def test_deletar_cartao_nao_encontrado():
     mock_db = MagicMock()
     mock_table = MagicMock()
     mock_db.table.return_value = mock_table
-    mock_table.search.return_value = []  # Não encontrado
+    mock_table.get.return_value = None  # Não encontrado
 
     repo = CartaoRepository(mock_db)
     resultado = repo.deletar(id=999)

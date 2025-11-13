@@ -100,7 +100,7 @@ def test_buscar_por_id_encontra():
     mock_table = MagicMock()
     mock_db.table.return_value = mock_table
 
-    mock_table.search.return_value = [{
+    mock_table.get.return_value = {
         'id': 1,
         'nome': 'João Silva',
         'nascimento': '1990-01-01',
@@ -111,7 +111,7 @@ def test_buscar_por_id_encontra():
         'status': 'ATIVO',
         'senha': 'senha123',
         'dataConfirmacao': '2024-01-15T10:00:00Z'
-    }]
+    }
 
     repo = CiclistaRepository(mock_db)
     resultado = repo.buscar_por_id(1)
@@ -126,7 +126,7 @@ def test_buscar_por_id_nao_encontra():
     mock_db = MagicMock()
     mock_table = MagicMock()
     mock_db.table.return_value = mock_table
-    mock_table.search.return_value = []  # Não encontrado
+    mock_table.get.return_value = None  # Não encontrado
 
     repo = CiclistaRepository(mock_db)
     resultado = repo.buscar_por_id(999)
@@ -142,7 +142,7 @@ def test_buscar_por_email_encontra():
     mock_table = MagicMock()
     mock_db.table.return_value = mock_table
 
-    mock_table.search.return_value = [{
+    mock_table.get.return_value = {
         'id': 2,
         'nome': 'Maria Santos',
         'nascimento': '1995-05-10',
@@ -153,7 +153,7 @@ def test_buscar_por_email_encontra():
         'status': 'AGUARDANDO_CONFIRMACAO',
         'senha': 'senha456',
         'dataConfirmacao': None
-    }]
+    }
 
     repo = CiclistaRepository(mock_db)
     resultado = repo.buscar_por_email("maria@email.com")
@@ -168,7 +168,7 @@ def test_buscar_por_email_nao_encontra():
     mock_db = MagicMock()
     mock_table = MagicMock()
     mock_db.table.return_value = mock_table
-    mock_table.search.return_value = []
+    mock_table.get.return_value = None
 
     repo = CiclistaRepository(mock_db)
     resultado = repo.buscar_por_email("naoexiste@email.com")
@@ -203,7 +203,7 @@ def test_ativar_muda_status_para_ativo():
     ciclista_depois['status'] = 'ATIVO'
     ciclista_depois['dataConfirmacao'] = datetime.now().isoformat()
 
-    mock_table.search.side_effect = [[ciclista_antes], [ciclista_depois]]
+    mock_table.get.return_value = ciclista_depois
     mock_table.update = Mock()
 
     repo = CiclistaRepository(mock_db)
@@ -220,7 +220,7 @@ def test_ativar_ciclista_nao_existe():
     mock_db = MagicMock()
     mock_table = MagicMock()
     mock_db.table.return_value = mock_table
-    mock_table.search.return_value = []  # Não encontrado
+    mock_table.get.return_value = None  # Não encontrado
 
     repo = CiclistaRepository(mock_db)
     resultado = repo.ativar(id=999)
@@ -254,7 +254,7 @@ def test_atualizar_ciclista_sucesso():
     ciclista_depois = ciclista_antes.copy()
     ciclista_depois['urlFotoDocumento'] = 'http://exemplo.com/foto_nova.jpg'
 
-    mock_table.search.side_effect = [[ciclista_antes], [ciclista_depois]]
+    mock_table.get.return_value = ciclista_depois
     mock_table.update = Mock()
 
     repo = CiclistaRepository(mock_db)
@@ -280,7 +280,7 @@ def test_atualizar_ciclista_nao_encontrado():
     mock_db = MagicMock()
     mock_table = MagicMock()
     mock_db.table.return_value = mock_table
-    mock_table.search.return_value = []  # Não encontrado
+    mock_table.get.return_value = None  # Não encontrado
 
     repo = CiclistaRepository(mock_db)
 
@@ -367,17 +367,24 @@ def test_pode_alugar_ciclista_ativo_sem_aluguel():
     )
 
     # Ciclista ATIVO
-    mock_table_ciclistas.search.return_value = [{
+    mock_table_ciclistas.get.return_value = {
         'id': 1,
         'nome': 'João Silva',
-        'status': 'ATIVO'
-    }]
+        'nascimento': '1990-01-01',
+        'cpf': '12345678901',
+        'email': 'joao@email.com',
+        'nacionalidade': 'BRASILEIRO',
+        'urlFotoDocumento': 'http://exemplo.com/foto.jpg',
+        'status': 'ATIVO',
+        'senha': 'senha123',
+        'dataConfirmacao': '2024-01-15T10:00:00Z'
+    }
 
     # Sem aluguel ativo
     mock_table_alugueis.search.return_value = []
 
     repo = CiclistaRepository(mock_db)
-    resultado = repo.pode_alugar(id_ciclista=1)
+    resultado = repo.pode_alugar(1)
 
     assert resultado is True
 
@@ -389,14 +396,21 @@ def test_nao_pode_alugar_ciclista_aguardando():
     mock_db.table.return_value = mock_table
 
     # Ciclista AGUARDANDO_CONFIRMACAO
-    mock_table.search.return_value = [{
+    mock_table.get.return_value = {
         'id': 2,
         'nome': 'Maria Santos',
-        'status': 'AGUARDANDO_CONFIRMACAO'
-    }]
+        'nascimento': '1995-05-10',
+        'cpf': '98765432100',
+        'email': 'maria@email.com',
+        'nacionalidade': 'BRASILEIRO',
+        'urlFotoDocumento': 'http://exemplo.com/foto.jpg',
+        'status': 'AGUARDANDO_CONFIRMACAO',
+        'senha': 'senha456',
+        'dataConfirmacao': None
+    }
 
     repo = CiclistaRepository(mock_db)
-    resultado = repo.pode_alugar(id_ciclista=2)
+    resultado = repo.pode_alugar(2)
 
     assert resultado is False
 
@@ -406,9 +420,9 @@ def test_nao_pode_alugar_ciclista_nao_existe():
     mock_db = MagicMock()
     mock_table = MagicMock()
     mock_db.table.return_value = mock_table
-    mock_table.search.return_value = []  # Não encontrado
+    mock_table.get.return_value = None  # Não encontrado
 
     repo = CiclistaRepository(mock_db)
-    resultado = repo.pode_alugar(id_ciclista=999)
+    resultado = repo.pode_alugar(999)
 
     assert resultado is False

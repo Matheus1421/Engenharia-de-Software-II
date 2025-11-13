@@ -50,6 +50,7 @@ def root():
     }
 
 @app.get("/health", tags=["Health"])
+@app.get("/status", tags=["Health"])
 def health():
     """Health check para monitoramento"""
     return {"status": "ok"}

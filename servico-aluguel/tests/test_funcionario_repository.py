@@ -102,7 +102,7 @@ def test_buscar_por_matricula_encontra():
     mock_table = MagicMock()
     mock_db.table.return_value = mock_table
 
-    mock_table.search.return_value = [{
+    mock_table.get.return_value = {
         'matricula': 'F001',
         'nome': 'Admin Sistema',
         'idade': 35,
@@ -110,7 +110,7 @@ def test_buscar_por_matricula_encontra():
         'cpf': '12345678901',
         'email': 'admin@scb.com',
         'senha': 'admin123'
-    }]
+    }
 
     repo = FuncionarioRepository(mock_db)
     resultado = repo.buscar_por_matricula("F001")
@@ -125,7 +125,7 @@ def test_buscar_por_matricula_nao_encontra():
     mock_db = MagicMock()
     mock_table = MagicMock()
     mock_db.table.return_value = mock_table
-    mock_table.search.return_value = []  # Não encontrado
+    mock_table.get.return_value = None  # Não encontrado
 
     repo = FuncionarioRepository(mock_db)
     resultado = repo.buscar_por_matricula("F999")
@@ -156,7 +156,7 @@ def test_atualizar_funcionario_sucesso():
     funcionario_depois = funcionario_antes.copy()
     funcionario_depois['senha'] = 'senha_nova'
 
-    mock_table.search.side_effect = [[funcionario_antes], [funcionario_depois]]
+    mock_table.get.return_value = funcionario_depois
     mock_table.update = Mock()
 
     repo = FuncionarioRepository(mock_db)
@@ -183,7 +183,7 @@ def test_atualizar_funcionario_nao_encontrado():
     mock_db = MagicMock()
     mock_table = MagicMock()
     mock_db.table.return_value = mock_table
-    mock_table.search.return_value = []  # Não encontrado
+    mock_table.get.return_value = None  # Não encontrado
 
     repo = FuncionarioRepository(mock_db)
 
@@ -211,11 +211,16 @@ def test_deletar_funcionario_sucesso():
     mock_db.table.return_value = mock_table
 
     # Funcionário existe
-    mock_table.search.return_value = [{
+    mock_table.get.return_value = {
         'matricula': 'F003',
-        'nome': 'Carlos Silva'
-    }]
-    mock_table.remove = Mock()
+        'nome': 'Carlos Silva',
+        'idade': 30,
+        'funcao': 'REPARADOR',
+        'cpf': '11122233344',
+        'email': 'carlos@scb.com',
+        'senha': 'senha123'
+    }
+    mock_table.remove = Mock(return_value=[1])  # Lista com 1 documento removido
 
     repo = FuncionarioRepository(mock_db)
     resultado = repo.deletar(matricula="F003")
@@ -229,7 +234,7 @@ def test_deletar_funcionario_nao_encontrado():
     mock_db = MagicMock()
     mock_table = MagicMock()
     mock_db.table.return_value = mock_table
-    mock_table.search.return_value = []  # Não encontrado
+    mock_table.get.return_value = None  # Não encontrado
 
     repo = FuncionarioRepository(mock_db)
     resultado = repo.deletar(matricula="F999")

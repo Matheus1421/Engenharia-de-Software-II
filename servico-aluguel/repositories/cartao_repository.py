@@ -20,8 +20,8 @@ class CartaoRepository:
             "idCiclista": id_ciclista,
             "nomeTitular": cartao.nomeTitular,
             "numero": numero_mascarado,
-            "numeroCompleto": cartao.numero, 
-            "validade": cartao.validade.isoformat(),
+            "numeroCompleto": cartao.numero,
+            "validade": cartao.validade,
             "cvv": cartao.cvv
         }
 
@@ -37,16 +37,61 @@ class CartaoRepository:
             return CartaoDeCredito(**resultado)
         return None
 
-    def atualizar(self, id_ciclista: int, cartao: NovoCartaoDeCredito) -> Optional[CartaoDeCredito]:
-        """UC07: Alterar cartão"""
+    def atualizar(self, cartao: NovoCartaoDeCredito, id: int = None, id_ciclista: int = None) -> Optional[CartaoDeCredito]:
+        """UC07: Alterar cartão (aceita id ou id_ciclista)"""
+        # Se passou id, buscar o idCiclista
+        if id is not None:
+            cartao_existente = self.buscar_por_id(id)
+            if not cartao_existente:
+                return None
+            id_ciclista = cartao_existente.idCiclista
+
+        if id_ciclista is None:
+            return None
+
         numero_mascarado = "**** **** **** " + cartao.numero[-4:]
         dados = {
             "nomeTitular": cartao.nomeTitular,
             "numero": numero_mascarado,
             "numeroCompleto": cartao.numero,
-            "validade": cartao.validade.isoformat(),
+            "validade": cartao.validade,
             "cvv": cartao.cvv
         }
 
         self.table.update(dados, self.C.idCiclista == id_ciclista)
         return self.buscar_por_ciclista(id_ciclista)
+
+    def listar(self):
+        """Lista todos os cartões"""
+        from typing import List
+        cartoes = []
+        for c in self.table.all():
+            c_copy = c.copy()
+            c_copy.pop('cvv', None)
+            c_copy.pop('numeroCompleto', None)
+            cartoes.append(CartaoDeCredito(**c_copy))
+        return cartoes
+
+    def buscar_por_id(self, id: int) -> Optional[CartaoDeCredito]:
+        """Busca cartão por ID"""
+        resultado = self.table.get(self.C.id == id)
+        if resultado:
+            resultado.pop('cvv', None)
+            resultado.pop('numeroCompleto', None)
+            return CartaoDeCredito(**resultado)
+        return None
+
+    def deletar(self, id: int = None, id_ciclista: int = None) -> bool:
+        """Deleta cartão (aceita id ou id_ciclista)"""
+        # Se passou id, buscar o idCiclista
+        if id is not None:
+            cartao_existente = self.buscar_por_id(id)
+            if not cartao_existente:
+                return False
+            id_ciclista = cartao_existente.idCiclista
+
+        if id_ciclista is None:
+            return False
+
+        docs_removidos = self.table.remove(self.C.idCiclista == id_ciclista)
+        return len(docs_removidos) > 0

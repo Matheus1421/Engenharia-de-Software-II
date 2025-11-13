@@ -28,10 +28,10 @@ class NovoCartaoDeCredito(BaseModel):
         examples=["4111111111111111", "5555555555554444"]
     )
 
-    validade: date = Field(
+    validade: str = Field(
         ...,
-        description="Data de validade (YYYY-MM-DD)",
-        examples=["2028-12-31"]
+        description="Data de validade (YYYY-MM-DD ou MM/YY)",
+        examples=["2028-12-31", "12/28"]
     )
 
     cvv: str = Field(
@@ -43,17 +43,32 @@ class NovoCartaoDeCredito(BaseModel):
 
     @field_validator('validade')
     @classmethod
-    def validar_validade_futura(cls, v: date) -> date:
-        """Valida que o cartão não está vencido"""
-        if v < date.today():
-            raise ValueError("Cartão vencido")
+    def validar_validade(cls, v: str) -> str:
+        """Valida formato da validade (YYYY-MM-DD ou MM/YY)"""
+        import re
+        if re.match(r'^\d{4}-\d{2}-\d{2}$', v):
+            # Formato YYYY-MM-DD
+            try:
+                data = date.fromisoformat(v)
+                if data < date.today():
+                    raise ValueError("Cartão vencido")
+            except ValueError as e:
+                if "Cartão vencido" in str(e):
+                    raise
+                raise ValueError("Data inválida")
+            return v
+        elif re.match(r'^\d{2}/\d{2}$', v):
+            # Formato MM/YY - aceitar sem validar vencimento
+            return v
+        else:
+            raise ValueError("Formato de validade inválido (use YYYY-MM-DD ou MM/YY)")
         return v
 
     @field_validator('nomeTitular')
     @classmethod
     def validar_nome_maiusculo(cls, v: str) -> str:
-        """Converte nome para maiúsculas (padrão de cartões)"""
-        return v.upper().strip()
+        """Remove espaços extras do nome"""
+        return v.strip()
 
     class Config:
         json_schema_extra = {
@@ -72,7 +87,7 @@ class CartaoDeCredito(BaseModel):
     idCiclista: int = Field(..., description="ID do ciclista dono do cartão")
     nomeTitular: str
     numero: str = Field(..., description="Número mascarado (ex: **** **** **** 1234)")
-    validade: date
+    validade: str
     cvv: Optional[str] = Field(default=None, exclude=True, description="NUNCA retornado")
 
     @classmethod

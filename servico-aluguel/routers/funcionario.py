@@ -47,7 +47,7 @@ def editar_funcionario(idFuncionario: str, dados: NovoFuncionario):
 
     return func
 
-@router.delete("/{idFuncionario}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{idFuncionario}", status_code=status.HTTP_200_OK)
 def remover_funcionario(idFuncionario: str):
     """UC15: Remover funcionário"""
     db = get_db()
@@ -55,3 +55,5 @@ def remover_funcionario(idFuncionario: str):
 
     if not repo.deletar(idFuncionario):
         raise HTTPException(status_code=404, detail="Funcionário não encontrado")
+
+    return {"message": "Funcionário removido com sucesso"}

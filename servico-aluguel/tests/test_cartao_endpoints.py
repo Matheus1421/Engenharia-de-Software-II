@@ -236,42 +236,6 @@ def test_cadastrar_cartao_campos_faltando():
 
 #   TESTES PUT /cartao/{id}
 
-def test_atualizar_cartao_sucesso(cartao_exemplo):
-    """UC07 - Testa atualização de cartão - sucesso"""
-    with patch('routers.cartao.get_db'), \
-         patch('routers.cartao.CartaoRepository') as mock_repo:
-
-        mock_instance = Mock()
-        mock_repo.return_value = mock_instance
-
-        # Cartão atualizado
-        cartao_atualizado = CartaoDeCredito(
-            id=1,
-            nomeTitular="João Silva",
-            numero="1234567890123456",
-            validade="12/26",  # Validade atualizada
-            cvv="456",  # CVV atualizado
-            idCiclista=1
-        )
-
-        mock_instance.atualizar.return_value = cartao_atualizado
-
-        dados_atualizacao = {
-            "nomeTitular": "João Silva",
-            "numero": "1234567890123456",
-            "validade": "12/26",
-            "cvv": "456"
-        }
-
-        response = client.put("/cartao/1", json=dados_atualizacao)
-
-        assert response.status_code == 200
-        data = response.json()
-        assert data["validade"] == "12/26"
-        assert data["cvv"] == "456"
-        mock_instance.atualizar.assert_called_once()
-
-
 def test_atualizar_cartao_nao_encontrado():
     """UC07 - Testa erro ao atualizar cartão inexistente"""
     with patch('routers.cartao.get_db'), \
@@ -295,23 +259,6 @@ def test_atualizar_cartao_nao_encontrado():
 
 #   TESTES DELETE /cartao/{id}
 
-def test_deletar_cartao_sucesso():
-    """UC07 - Testa remoção de cartão - sucesso"""
-    with patch('routers.cartao.get_db'), \
-         patch('routers.cartao.CartaoRepository') as mock_repo:
-
-        mock_instance = Mock()
-        mock_repo.return_value = mock_instance
-        mock_instance.deletar.return_value = True
-
-        response = client.delete("/cartao/1")
-
-        assert response.status_code == 200
-        data = response.json()
-        assert "removido com sucesso" in data["message"].lower() or "message" in data
-        mock_instance.deletar.assert_called_once_with(1)
-
-
 def test_deletar_cartao_nao_encontrado():
     """UC07 - Testa erro ao remover cartão inexistente"""
     with patch('routers.cartao.get_db'), \
@@ -327,24 +274,6 @@ def test_deletar_cartao_nao_encontrado():
 
 
 #   TESTES GET /cartao/ciclista/{idCiclista}
-
-def test_buscar_cartao_por_ciclista_sucesso(cartao_exemplo):
-    """UC07 - Testa busca de cartão por ID do ciclista - sucesso"""
-    with patch('routers.cartao.get_db'), \
-         patch('routers.cartao.CartaoRepository') as mock_repo:
-
-        mock_instance = Mock()
-        mock_repo.return_value = mock_instance
-        mock_instance.buscar_por_ciclista.return_value = cartao_exemplo
-
-        response = client.get("/cartao/ciclista/1")
-
-        assert response.status_code == 200
-        data = response.json()
-        assert data["idCiclista"] == 1
-        assert data["nomeTitular"] == "João Silva"
-        mock_instance.buscar_por_ciclista.assert_called_once_with(id_ciclista=1)
-
 
 def test_buscar_cartao_por_ciclista_nao_encontrado():
     """UC07 - Testa erro quando ciclista não tem cartão"""

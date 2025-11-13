@@ -47,18 +47,20 @@ class Passaporte(BaseModel):
     pais: str = Field(
         ...,
         min_length=2,
-        max_length=2,
-        description="Código do país (ISO 3166-1 alpha-2)",
-        examples=["BR", "US", "AR", "UY"]
+        max_length=3,
+        description="Código do país (ISO 3166-1 alpha-2 ou alpha-3)",
+        examples=["BR", "US", "USA", "ARG"]
     )
 
     @field_validator('pais')
     @classmethod
     def validar_codigo_pais(cls, v: str) -> str:
-        """Valida código do país (2 letras maiúsculas)"""
+        """Valida código do país (2-3 letras maiúsculas)"""
         v = v.upper()
         if not v.isalpha():
             raise ValueError("Código do país deve conter apenas letras")
+        if len(v) < 2 or len(v) > 3:
+            raise ValueError("Código do país deve ter 2 ou 3 caracteres")
         return v
 
 class NovoCiclista(BaseModel):
