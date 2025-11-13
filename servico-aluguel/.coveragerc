@@ -1,5 +1,10 @@
 [run]
-source = .
+source =
+    models
+    routers
+    repositories
+    services
+    main.py
 relative_files = True
 omit =
     */tests/*
