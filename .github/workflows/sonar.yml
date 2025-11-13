@@ -14,16 +14,13 @@ jobs:
         service:
           - name: servico-aluguel
             path: servico-aluguel
-            project_key: org_repositorio_servico-aluguel
-            token_secret: SONAR_TOKEN_ALUGUEL
+            project_key: es220252_Engenharia-de-Software-II-Servico-Aluguel
           - name: servico-equipamento
             path: servico-equipamento
-            project_key: org_repositorio_servico-equipamento
-            token_secret: SONAR_TOKEN_EQUIPAMENTO
+            project_key: es220252_Engenharia-de-Software-II-Servico-Equipamento
           - name: servico-externo
             path: servico-externo
-            project_key: org_repositorio_servico-externo
-            token_secret: SONAR_TOKEN_EXTERNO
+            project_key: es220252_Engenharia-de-Software-II-Servico-Externo
 
     steps:
       - name: Checkout
@@ -50,11 +47,12 @@ jobs:
             --maxfail=1 -q \
             --cov=app --cov-branch \
             --cov-report=xml:coverage.xml
+          ls -la  # opcional, só pra checar o coverage.xml no log
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v2.2
         env:
-          SONAR_TOKEN: ${{ secrets[matrix.service.token_secret] }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           projectBaseDir: ${{ matrix.service.path }}
           args: >
