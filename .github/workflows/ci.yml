@@ -24,15 +24,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install fastapi uvicorn pytest httpx pytest-cov tinydb pydantic
 
-      # roda testes e gera coverage.xml na raiz
       - name: Rodar testes e gerar cobertura
         run: |
           pytest -q \
             --cov=servico-equipamento \
+            --cov=servico-externo \
             --cov-report=xml:coverage.xml \
             --cov-config=.coveragerc || true
 
-      # ajusta só a tag <source> do coverage.xml
       - name: Ajustar caminhos do coverage.xml
         run: |
           python - << 'PY'
@@ -42,23 +41,20 @@ jobs:
           tree = ET.parse(path)
           root = tree.getroot()
 
-          # no modelo do coverage.py, as sources ficam em /coverage/sources/source
           for source in root.findall(".//sources/source"):
-              # deixa tudo relativo à raiz do repo
-              source.text = "./"
+              source.text = "."
 
-          # grava de volta
           tree.write(path, encoding="utf-8", xml_declaration=True)
           PY
 
-          echo "coverage.xml depois do ajuste:"
+          echo "coverage.xml (ajustado):"
           head -40 coverage.xml || true
 
       - name: Setup Java (SonarCloud)
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: "temurin"
+          java-version: "17"
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v2.2
