@@ -15,7 +15,7 @@ from models.totem_model import Totem
 client = TestClient(app)
 
 
-# ========== FIXTURES ==========
+#   FIXTURES  
 
 @pytest.fixture
 def tranca_exemplo():
@@ -122,7 +122,7 @@ def totem_exemplo():
     )
 
 
-# ========== TESTES GET /tranca ==========
+#   TESTES GET /tranca  
 
 def test_listar_trancas_sucesso(tranca_exemplo, tranca_exemplo_2):
     """Testa listagem de trancas com sucesso"""
@@ -180,7 +180,7 @@ def test_listar_trancas_multiplas():
         assert len(data) == 5
 
 
-# ========== TESTES POST /tranca ==========
+#   TESTES POST /tranca  
 
 def test_cadastrar_tranca_sucesso(nova_tranca_valida):
     """Testa cadastro de tranca com sucesso"""
@@ -264,7 +264,7 @@ def test_cadastrar_tranca_exception():
         assert response.status_code == 422
 
 
-# ========== TESTES GET /tranca/{idTranca} ==========
+#   TESTES GET /tranca/{idTranca}  
 
 def test_obter_tranca_sucesso(tranca_exemplo):
     """Testa obtenção de tranca com sucesso"""
@@ -313,7 +313,7 @@ def test_obter_tranca_id_zero():
         assert response.status_code == 404
 
 
-# ========== TESTES PUT /tranca/{idTranca} ==========
+#   TESTES PUT /tranca/{idTranca}  
 
 def test_editar_tranca_sucesso(tranca_exemplo):
     """Testa edição de tranca com sucesso"""
@@ -433,7 +433,7 @@ def test_editar_tranca_exception(tranca_exemplo):
         assert response.status_code == 422
 
 
-# ========== TESTES DELETE /tranca/{idTranca} ==========
+#   TESTES DELETE /tranca/{idTranca}  
 
 def test_remover_tranca_sucesso():
     """Testa remoção de tranca com sucesso"""
@@ -480,7 +480,7 @@ def test_remover_tranca_verifica_exclusao():
         mock_repo_instance.delete.assert_called_once_with(1)
 
 
-# ========== TESTES GET /tranca/{idTranca}/bicicleta ==========
+#   TESTES GET /tranca/{idTranca}/bicicleta  
 
 def test_obter_bicicleta_na_tranca_sucesso(tranca_ocupada, bicicleta_exemplo):
     """Testa obtenção de bicicleta na tranca"""
@@ -568,7 +568,7 @@ def test_obter_bicicleta_nao_encontrada_no_banco(tranca_ocupada):
         assert response.status_code == 404
 
 
-# ========== TESTES POST /tranca/{idTranca}/trancar ==========
+#   TESTES POST /tranca/{idTranca}/trancar  
 
 def test_trancar_sem_bicicleta(tranca_exemplo):
     """Testa trancamento sem bicicleta"""
@@ -673,7 +673,7 @@ def test_trancar_bicicleta_nao_encontrada(tranca_exemplo):
         assert response.status_code == 404
 
 
-# ========== TESTES POST /tranca/{idTranca}/destrancar ==========
+#   TESTES POST /tranca/{idTranca}/destrancar  
 
 def test_destrancar_sem_bicicleta(tranca_ocupada):
     """Testa destrancamento sem bicicleta"""
@@ -781,7 +781,7 @@ def test_destrancar_bicicleta_nao_esta_na_tranca(tranca_ocupada, bicicleta_exemp
         assert response.status_code == 422
 
 
-# ========== TESTES POST /tranca/{idTranca}/status/{acao} ==========
+#   TESTES POST /tranca/{idTranca}/status/{acao}  
 
 def test_alterar_status_trancar(tranca_exemplo):
     """Testa alteração de status para TRANCAR"""
@@ -900,7 +900,7 @@ def test_alterar_status_case_insensitive(tranca_exemplo):
         assert response.status_code == 200
 
 
-# ========== TESTES POST /tranca/integrarNaRede ==========
+#   TESTES POST /tranca/integrarNaRede  
 
 def test_integrar_tranca_na_rede_sucesso(tranca_nova, totem_exemplo):
     """Testa integração de tranca na rede com sucesso"""
@@ -1049,7 +1049,7 @@ def test_integrar_status_invalido(tranca_exemplo, totem_exemplo):
         assert data["detail"][0]["codigo"] == "STATUS_TRANCA_INVALIDO"
 
 
-# ========== TESTES POST /tranca/retirarDaRede ==========
+#   TESTES POST /tranca/retirarDaRede  
 
 def test_retirar_tranca_da_rede_para_reparo(tranca_exemplo, totem_exemplo):
     """Testa retirada de tranca para reparo"""

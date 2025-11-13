@@ -16,7 +16,7 @@ from models.bicicleta_model import Bicicleta, StatusBicicleta
 client = TestClient(app)
 
 
-# ==================== FIXTURES ====================
+# FIXTURES 
 
 @pytest.fixture
 def totem_exemplo():
@@ -88,7 +88,7 @@ def bicicleta_exemplo():
     )
 
 
-# ==================== TESTES GET /totem ====================
+# TESTES GET /totem 
 
 def test_listar_totems_sucesso(totem_exemplo, totem_exemplo_2):
     """Testa listagem de todos os totems - sucesso"""
@@ -144,7 +144,7 @@ def test_listar_totems_multiplos(totem_exemplo):
         assert len(response.json()) == 5
 
 
-# ==================== TESTES POST /totem ====================
+# TESTES POST /totem 
 
 def test_cadastrar_totem_sucesso(novo_totem_valido):
     """Testa cadastro de novo totem - sucesso"""
@@ -251,7 +251,7 @@ def test_cadastrar_totem_exception_generica():
         assert "DADOS_INVALIDOS" in str(response.json())
 
 
-# ==================== TESTES PUT /totem/{id} ====================
+# TESTES PUT /totem/{id} 
 
 def test_editar_totem_sucesso(totem_exemplo):
     """Testa edição de totem - sucesso"""
@@ -363,7 +363,7 @@ def test_editar_totem_exception_generica(totem_exemplo):
         assert "DADOS_INVALIDOS" in str(response.json())
 
 
-# ==================== TESTES DELETE /totem/{id} ====================
+# TESTES DELETE /totem/{id} 
 
 def test_remover_totem_sucesso(totem_exemplo):
     """Testa remoção de totem - sucesso"""
@@ -413,7 +413,7 @@ def test_remover_totem_verifica_existencia_antes():
         assert response.status_code == 404
 
 
-# ==================== TESTES GET /totem/{id}/trancas ====================
+# TESTES GET /totem/{id}/trancas 
 
 def test_listar_trancas_do_totem_sucesso(totem_exemplo, tranca_exemplo):
     """Testa listagem de trancas de um totem - sucesso"""
@@ -525,7 +525,7 @@ def test_listar_trancas_id_invalido_muito_negativo():
     assert "ID_INVALIDO" in str(response.json())
 
 
-# ==================== TESTES GET /totem/{id}/bicicletas ====================
+# TESTES GET /totem/{id}/bicicletas 
 
 def test_listar_bicicletas_do_totem_sucesso(totem_exemplo, tranca_com_bicicleta, bicicleta_exemplo):
     """Testa listagem de bicicletas de um totem - sucesso"""
@@ -704,7 +704,6 @@ def test_listar_bicicletas_totem_sem_trancas(totem_exemplo):
         assert response.json() == []
 
 
-# ==================== TESTES DE COBERTURA ADICIONAL ====================
 
 def test_listar_trancas_verifica_id_antes_de_buscar_totem():
     """Testa que validação de ID ocorre antes de buscar totem"""

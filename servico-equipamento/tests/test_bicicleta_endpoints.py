@@ -15,7 +15,7 @@ from models.tranca_model import Tranca, StatusTranca
 client = TestClient(app)
 
 
-# ==================== FIXTURES ====================
+#   FIXTURES  
 
 @pytest.fixture
 def mock_db():
@@ -75,20 +75,20 @@ def tranca_ocupada_com_bicicleta():
     )
 
 
-# ==================== TESTES GET /bicicleta ====================
+#   TESTES GET /bicicleta  
 
 def test_listar_bicicletas_sucesso():
     """Testa listagem de todas as bicicletas - sucesso"""
     with patch('routers.bicicleta.get_db'), \
-         patch('routers.bicicleta.BicicletaRepository') as mock_repo:
+         patch('routers.bicicleta.BicicletaRepository') as mock_repo: # aqui ele mocka o construtor do BicicletaRepository
         
         # Setup
-        mock_repo_instance = Mock()
+        mock_repo_instance = Mock() # aqui ele cria a instância mockada que será retornada pelo construtor mockado
         mock_repo.return_value = mock_repo_instance
-        mock_repo_instance.get_all.return_value = [
+        mock_repo_instance.get_all.return_value = [ # aqui ele define o retorno do método get_all da instância mockada
             Bicicleta(id=1, marca="Caloi", modelo="Mountain", ano="2023", numero=100, status=StatusBicicleta.DISPONIVEL),
             Bicicleta(id=2, marca="Trek", modelo="Speed", ano="2024", numero=101, status=StatusBicicleta.EM_USO)
-        ]
+        ] 
         
         # Executa
         response = client.get("/bicicleta")
@@ -117,7 +117,7 @@ def test_listar_bicicletas_lista_vazia():
         assert response.json() == []
 
 
-# ==================== TESTES POST /bicicleta ====================
+#   TESTES POST /bicicleta  
 
 def test_cadastrar_bicicleta_sucesso(nova_bicicleta_valida):
     """Testa cadastro de nova bicicleta - sucesso"""
@@ -195,7 +195,7 @@ def test_cadastrar_bicicleta_campos_faltando():
     assert response.status_code == 422
 
 
-# ==================== TESTES GET /bicicleta/{id} ====================
+#   TESTES GET /bicicleta/{id}  
 
 def test_obter_bicicleta_sucesso(bicicleta_exemplo):
     """Testa obtenção de bicicleta por ID - sucesso"""
@@ -230,7 +230,7 @@ def test_obter_bicicleta_nao_encontrada():
         assert "BICICLETA_NAO_ENCONTRADA" in str(response.json())
 
 
-# ==================== TESTES PUT /bicicleta/{id} ====================
+#   TESTES PUT /bicicleta/{id}  
 
 def test_editar_bicicleta_sucesso(bicicleta_exemplo):
     """Testa edição de bicicleta - sucesso"""
@@ -314,7 +314,7 @@ def test_editar_bicicleta_numero_duplicado(bicicleta_exemplo):
         assert "NUMERO_DUPLICADO" in str(response.json())
 
 
-# ==================== TESTES DELETE /bicicleta/{id} ====================
+#   TESTES DELETE /bicicleta/{id}  
 
 def test_remover_bicicleta_sucesso():
     """Testa remoção de bicicleta - sucesso"""
@@ -347,7 +347,7 @@ def test_remover_bicicleta_nao_encontrada():
         assert "BICICLETA_NAO_ENCONTRADA" in str(response.json())
 
 
-# ==================== TESTES POST /bicicleta/{id}/status/{acao} ====================
+#   TESTES POST /bicicleta/{id}/status/{acao}  
 
 def test_alterar_status_bicicleta_sucesso(bicicleta_exemplo):
     """Testa alteração de status da bicicleta - sucesso"""
@@ -462,7 +462,7 @@ def test_alterar_status_case_insensitive(bicicleta_exemplo):
         assert response.json()["status"] == "EM_REPARO"
 
 
-# ==================== TESTES POST /bicicleta/integrarNaRede ====================
+#   TESTES POST /bicicleta/integrarNaRede  
 
 def test_integrar_bicicleta_na_rede_sucesso_status_nova(tranca_livre):
     """Testa integração de bicicleta NOVA na rede - sucesso"""
@@ -645,7 +645,7 @@ def test_integrar_tranca_ocupada():
         assert "STATUS_TRANCA_INVALIDO" in str(response.json())
 
 
-# ==================== TESTES POST /bicicleta/retirarDaRede ====================
+#   TESTES POST /bicicleta/retirarDaRede  
 
 def test_retirar_bicicleta_da_rede_para_reparo(tranca_ocupada_com_bicicleta):
     """Testa retirada de bicicleta da rede para reparo - sucesso"""
@@ -861,7 +861,7 @@ def test_retirar_status_case_insensitive(tranca_ocupada_com_bicicleta):
         assert response.json()["novoStatus"] == "EM_REPARO"
 
 
-# ==================== TESTES DE COBERTURA ADICIONAL ====================
+#   TESTES DE COBERTURA ADICIONAL  
 
 def test_cadastrar_bicicleta_exception_generica():
     """Testa tratamento de exceção genérica no cadastro"""
