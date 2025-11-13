@@ -62,7 +62,6 @@ class NovoCartaoDeCredito(BaseModel):
             return v
         else:
             raise ValueError("Formato de validade inválido (use YYYY-MM-DD ou MM/YY)")
-        return v
 
     @field_validator('nomeTitular')
     @classmethod
