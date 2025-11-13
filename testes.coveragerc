@@ -1,8 +1,15 @@
 [run]
+branch = True
 source =
     servico-aluguel
     servico-equipamento
     servico-externo
+omit =
+    */tests/*
+    */__pycache__/*
+    */.venv/*
+    */main.py
 
 [report]
 relative_files = True
+show_missing = True
