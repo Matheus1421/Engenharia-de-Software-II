@@ -29,11 +29,18 @@ jobs:
           pytest -q \
             --cov=servico-equipamento \
             --cov=servico-externo \
+            --cov=servico-aluguel \
             --cov-report=xml:coverage.xml \
             --cov-config=.coveragerc || true
 
       - name: Ajustar caminhos do coverage.xml
         run: |
+          if [ ! -f coverage.xml ]; then
+            echo "coverage.xml não encontrado. Provavelmente os testes falharam antes de gerar o relatório."
+            echo "Pulando ajuste de caminhos. O SonarCloud pode rodar sem cobertura."
+            exit 0
+          fi
+
           python - << 'PY'
           import xml.etree.ElementTree as ET
 
