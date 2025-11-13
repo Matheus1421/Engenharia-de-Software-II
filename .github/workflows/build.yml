@@ -1,19 +1,30 @@
-name: Build
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    types: [opened, synchronize, reopened]
-jobs:
-  sonarqube:
-    name: SonarQube
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v6
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+# Identificação (SonarCloud)
+sonar.projectKey=Matheus1421_Engenharia-de-Software-II
+sonar.organization=es220252
+
+# Nome/versão (opcional)
+sonar.projectName=Engenharia-de-Software-II
+sonar.projectVersion=1.0
+
+# Codificação
+sonar.sourceEncoding=UTF-8
+
+# Fontes e testes
+# Considerando que seu código e testes estão dentro dos três serviços abaixo.
+# Ajuste se a estrutura for diferente.
+sonar.sources=servico-aluguel,servico-equipamento,servico-externo
+# Evita que /tests entre como "fonte"
+sonar.exclusions=**/tests/**,**/.venv/**,**/venv/**,**/migrations/**
+
+# Diretórios de testes
+sonar.tests=servico-aluguel,servico-equipamento,servico-externo
+sonar.test.inclusions=**/tests/**/*.py,**/*_test.py,**/test_*.py
+
+# Relatórios de cobertura (gerados pelo pytest-cov como coverage.xml em cada serviço)
+sonar.python.coverage.reportPaths=servico-aluguel/coverage.xml,servico-equipamento/coverage.xml,servico-externo/coverage.xml
+
+# Relatórios de execução de testes (JUnit do pytest)
+sonar.testExecutionReportPaths=servico-aluguel/test-results/junit.xml,servico-equipamento/test-results/junit.xml,servico-externo/test-results/junit.xml
+
+# Caso tenha subpastas de código específicas (ex.: src/ ou app/), podemos refinar:
+# sonar.inclusions=**/src/**/*.py,**/app/**/*.py
