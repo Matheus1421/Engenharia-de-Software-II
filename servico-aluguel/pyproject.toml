@@ -37,3 +37,14 @@ omit = [
     "test_*.py",
     "database/init_data.py"
 ]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]
+precision = 2
+show_missing = true
