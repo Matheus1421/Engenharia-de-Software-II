@@ -45,7 +45,7 @@ jobs:
         run: |
           poetry run pytest \
             --maxfail=1 -q \
-            --cov=app --cov-branch \
+            --cov=. --cov-branch \
             --cov-report=xml:coverage.xml
           ls -la  # opcional, só pra checar o coverage.xml no log
 
