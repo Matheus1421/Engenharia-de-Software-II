@@ -1,0 +1,136 @@
+{
+    "_default": {},
+    "bicicletas": {
+        "1": {
+            "id": 1,
+            "marca": "Caloi",
+            "modelo": "Caloi",
+            "ano": "2020",
+            "numero": 12345,
+            "status": "DISPONIVEL"
+        },
+        "2": {
+            "id": 2,
+            "marca": "Caloi",
+            "modelo": "Caloi",
+            "ano": "2020",
+            "numero": 12346,
+            "status": "REPARO_SOLICITADO"
+        },
+        "3": {
+            "id": 3,
+            "marca": "Caloi",
+            "modelo": "Caloi",
+            "ano": "2020",
+            "numero": 12347,
+            "status": "EM_USO"
+        },
+        "4": {
+            "id": 4,
+            "marca": "Caloi",
+            "modelo": "Caloi",
+            "ano": "2020",
+            "numero": 12348,
+            "status": "EM_REPARO"
+        },
+        "5": {
+            "id": 5,
+            "marca": "Caloi",
+            "modelo": "Caloi",
+            "ano": "2020",
+            "numero": 12349,
+            "status": "DISPONIVEL"
+        }
+    },
+    "trancas": {
+        "1": {
+            "id": 1,
+            "numero": 12345,
+            "localizacao": "Rio de Janeiro",
+            "anoDeFabricacao": "2020",
+            "modelo": "Caloi",
+            "status": "OCUPADA",
+            "bicicleta": 1,
+            "totem": 1
+        },
+        "2": {
+            "id": 2,
+            "numero": 12346,
+            "localizacao": "Rio de Janeiro",
+            "anoDeFabricacao": "2020",
+            "modelo": "Caloi",
+            "status": "LIVRE",
+            "bicicleta": null,
+            "totem": 1
+        },
+        "3": {
+            "id": 3,
+            "numero": 12347,
+            "localizacao": "Rio de Janeiro",
+            "anoDeFabricacao": "2020",
+            "modelo": "Caloi",
+            "status": "OCUPADA",
+            "bicicleta": 2,
+            "totem": 1
+        },
+        "4": {
+            "id": 4,
+            "numero": 12348,
+            "localizacao": "Rio de Janeiro",
+            "anoDeFabricacao": "2020",
+            "modelo": "Caloi",
+            "status": "OCUPADA",
+            "bicicleta": 5,
+            "totem": 1
+        },
+        "5": {
+            "id": 5,
+            "numero": 12349,
+            "localizacao": "Rio de Janeiro",
+            "anoDeFabricacao": "2020",
+            "modelo": "Caloi",
+            "status": "EM_REPARO",
+            "bicicleta": null,
+            "totem": null
+        },
+        "6": {
+            "id": 6,
+            "numero": 12350,
+            "localizacao": "Rio de Janeiro",
+            "anoDeFabricacao": "2020",
+            "modelo": "Caloi",
+            "status": "REPARO_SOLICITADO",
+            "bicicleta": null,
+            "totem": 1
+        }
+    },
+    "totems": {
+        "1": {
+            "id": 1,
+            "localizacao": "Rio de Janeiro",
+            "descricao": "Totem principal"
+        }
+    },
+    "tranca_totem": {
+        "1": {
+            "idTranca": 1,
+            "idTotem": 1
+        },
+        "2": {
+            "idTranca": 2,
+            "idTotem": 1
+        },
+        "3": {
+            "idTranca": 3,
+            "idTotem": 1
+        },
+        "4": {
+            "idTranca": 4,
+            "idTotem": 1
+        },
+        "5": {
+            "idTranca": 6,
+            "idTotem": 1
+        }
+    }
+}

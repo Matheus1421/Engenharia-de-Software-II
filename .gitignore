@@ -5,7 +5,7 @@ __pycache__/
 
 # Test
 servico-equipamento/.pytest_cache/
-
+servico-equipamento/database/equipamentos.json
 # Env
 .venv/
 venv/

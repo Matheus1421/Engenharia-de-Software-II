@@ -26,6 +26,7 @@ class TrancaRepository:
         tranca_data = tranca.model_dump()
         tranca_data['id'] = new_id
         tranca_data['bicicleta'] = None
+        tranca_data['totem'] = None
         tranca_data['status'] = tranca_data['status'].value if hasattr(tranca_data['status'], 'value') else tranca_data['status']
         
         self.table.insert(tranca_data)
@@ -50,6 +51,7 @@ class TrancaRepository:
         tranca_data = tranca.model_dump()
         tranca_data['id'] = tranca_id
         tranca_data['bicicleta'] = existing.get('bicicleta')  # Mantém a bicicleta associada
+        tranca_data['totem'] = existing.get('totem')  # Mantém o totem associado
         tranca_data['status'] = tranca_data['status'].value if hasattr(tranca_data['status'], 'value') else tranca_data['status']
         
         self.table.update(tranca_data, self.query.id == tranca_id)
@@ -93,22 +95,54 @@ class TrancaRepository:
     
     def associar_totem(self, tranca_id: int, totem_id: int) -> bool:
         """Associa uma tranca a um totem"""
-        # Remove associações anteriores
+        # Remove associações anteriores na tabela de relacionamento
         self.tranca_totem_table.remove(self.query.idTranca == tranca_id)
         
-        # Cria nova associação
+        # Cria nova associação na tabela de relacionamento
         self.tranca_totem_table.insert({
             'idTranca': tranca_id,
             'idTotem': totem_id
         })
+        
+        # Também atualiza o campo totem diretamente na tranca
+        self.table.update({'totem': totem_id}, self.query.id == tranca_id)
         return True
     
     def desassociar_totem(self, tranca_id: int) -> bool:
         """Remove a associação de uma tranca com um totem"""
         self.tranca_totem_table.remove(self.query.idTranca == tranca_id)
+        # Também atualiza o campo totem diretamente na tranca
+        self.table.update({'totem': None}, self.query.id == tranca_id)
         return True
     
     def get_totem_id(self, tranca_id: int) -> Optional[int]:
         """Retorna o ID do totem associado à tranca"""
+        # Primeiro tenta buscar do campo direto na tranca
+        tranca = self.get_by_id(tranca_id)
+        if tranca and tranca.totem is not None:
+            return tranca.totem
+        # Fallback para tabela de relacionamento
         result = self.tranca_totem_table.get(self.query.idTranca == tranca_id)
         return result['idTotem'] if result else None
+    
+    def get_by_totem(self, totem_id: int) -> List[Tranca]:
+        """Retorna todas as trancas de um totem"""
+        # Busca trancas que têm o totem diretamente ou via tabela de relacionamento
+        trancas = []
+        
+        # Busca via campo direto
+        results = self.table.search(self.query.totem == totem_id)
+        for r in results:
+            trancas.append(Tranca(**r))
+        
+        # Também busca via tabela de relacionamento para compatibilidade
+        relations = self.tranca_totem_table.search(self.query.idTotem == totem_id)
+        for rel in relations:
+            tranca_id = rel['idTranca']
+            # Evita duplicatas
+            if not any(t.id == tranca_id for t in trancas):
+                tranca = self.get_by_id(tranca_id)
+                if tranca:
+                    trancas.append(tranca)
+        
+        return trancas

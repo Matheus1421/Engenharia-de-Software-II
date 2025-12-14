@@ -1,8 +1,8 @@
-"""
-Router para operações com bicicletas.
+"""Router para operações com bicicletas.
 Implementa os endpoints da API de equipamentos para bicicletas.
 """
 
+import logging
 from typing import List
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
@@ -15,6 +15,10 @@ from models.tranca_model import StatusTranca
 from models.erro_model import Erro
 from utils.error_handler import handle_api_errors
 from utils.validators import validate_bicicleta_exists, validate_tranca_exists, validate_status
+from services.email_service import email_service
+from services.aluguel_service import aluguel_service
+
+logger = logging.getLogger(__name__)
 
 
 router = APIRouter(prefix="/bicicleta", tags=["Equipamento"])
@@ -220,6 +224,12 @@ def integrar_bicicleta_na_rede(request: IntegrarNaRedeRequest):
     bicicleta_repo = BicicletaRepository(db)
     tranca_repo = TrancaRepository(db)
     
+    # Valida funcionário via serviço de aluguel
+    funcionario_valido, email_funcionario = aluguel_service.validar_funcionario(request.id_funcionario)
+    if not funcionario_valido:
+        logger.warning(f"Funcionário {request.id_funcionario} não encontrado ou inválido - continuando operação")
+        email_funcionario = None
+    
     # Busca e valida bicicleta
     bicicleta = bicicleta_repo.get_by_id(request.id_bicicleta)
     validate_bicicleta_exists(bicicleta, request.id_bicicleta)
@@ -258,6 +268,16 @@ def integrar_bicicleta_na_rede(request: IntegrarNaRedeRequest):
     # 3. Atualiza status da tranca para OCUPADA
     tranca_repo.update_status(request.id_tranca, StatusTranca.OCUPADA)
     
+    # 4. Envia notificação por email via serviço externo
+    sucesso_email, _ = email_service.notificar_inclusao_bicicleta(
+        id_bicicleta=request.id_bicicleta,
+        id_tranca=request.id_tranca,
+        id_funcionario=request.id_funcionario,
+        email_funcionario=email_funcionario
+    )
+    if not sucesso_email:
+        logger.warning(f"Falha ao enviar email de notificação para inclusão da bicicleta {request.id_bicicleta}")
+    
     return {
         "mensagem": "Bicicleta integrada na rede com sucesso",
         "idBicicleta": request.id_bicicleta,
@@ -284,6 +304,12 @@ def retirar_bicicleta_da_rede(request: RetirarDaRedeRequest):
     db = get_db()
     bicicleta_repo = BicicletaRepository(db)
     tranca_repo = TrancaRepository(db)
+    
+    # Valida funcionário via serviço de aluguel
+    funcionario_valido, email_funcionario = aluguel_service.validar_funcionario(request.id_funcionario)
+    if not funcionario_valido:
+        logger.warning(f"Funcionário {request.id_funcionario} não encontrado ou inválido - continuando operação")
+        email_funcionario = None
     
     # Busca e valida bicicleta
     bicicleta = bicicleta_repo.get_by_id(request.id_bicicleta)
@@ -321,6 +347,17 @@ def retirar_bicicleta_da_rede(request: RetirarDaRedeRequest):
     
     # 3. Atualiza status da tranca para LIVRE
     tranca_repo.update_status(request.id_tranca, StatusTranca.LIVRE)
+    
+    # 4. Envia notificação por email via serviço externo
+    sucesso_email, _ = email_service.notificar_retirada_bicicleta(
+        id_bicicleta=request.id_bicicleta,
+        id_tranca=request.id_tranca,
+        id_funcionario=request.id_funcionario,
+        status_destino=novo_status.value,
+        email_funcionario=email_funcionario
+    )
+    if not sucesso_email:
+        logger.warning(f"Falha ao enviar email de notificação para retirada da bicicleta {request.id_bicicleta}")
     
     return {
         "mensagem": "Bicicleta retirada da rede com sucesso",

@@ -10,6 +10,7 @@ class StatusTranca(str, Enum):
     NOVA = "NOVA"
     APOSENTADA = "APOSENTADA"
     EM_REPARO = "EM_REPARO"
+    REPARO_SOLICITADO = "REPARO_SOLICITADO"
 
 
 class NovaTranca(BaseModel):
@@ -25,6 +26,7 @@ class Tranca(NovaTranca):
     """Modelo completo de uma tranca com ID"""
     id: int = Field(..., description="ID único da tranca")
     bicicleta: Optional[int] = Field(None, description="ID da bicicleta associada à tranca")
+    totem: Optional[int] = Field(None, description="ID do totem associado à tranca")
 
     class Config:
         json_schema_extra = {
@@ -35,6 +37,7 @@ class Tranca(NovaTranca):
                 "anoDeFabricacao": "2023",
                 "modelo": "Tranca Modelo X",
                 "status": "LIVRE",
-                "bicicleta": None
+                "bicicleta": None,
+                "totem": 1
             }
         }

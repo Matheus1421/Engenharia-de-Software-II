@@ -1,5 +1,6 @@
 """
 Arquivo para inicializar o banco de dados com dados de exemplo.
+Dados conforme especificação dos testes automatizados do Postman.
 """
 
 from models.bicicleta_model import StatusBicicleta
@@ -7,81 +8,125 @@ from models.tranca_model import StatusTranca
 
 
 # Constante para localização padrão
-DEFAULT_LOCALIZACAO = "-22.9068, -43.1729"
+DEFAULT_LOCALIZACAO = "Rio de Janeiro"
 
 
-# Dados iniciais para bicicletas
+# Dados iniciais para bicicletas conforme testes Postman
 BICICLETAS_INICIAIS = [
     {
         "id": 1,
-        "marca": "Magrela",
-        "modelo": "Mais Veloz da pista",
-        "ano": "2023",
-        "numero": 100,
+        "marca": "Caloi",
+        "modelo": "Caloi",
+        "ano": "2020",
+        "numero": 12345,
         "status": StatusBicicleta.DISPONIVEL.value
     },
     {
         "id": 2,
-        "marca": "Foguete",
-        "modelo": "Elétrico",
-        "ano": "2023",
-        "numero": 101,
-        "status": StatusBicicleta.DISPONIVEL.value
+        "marca": "Caloi",
+        "modelo": "Caloi",
+        "ano": "2020",
+        "numero": 12346,
+        "status": StatusBicicleta.REPARO_SOLICITADO.value
     },
     {
         "id": 3,
-        "marca": "Rapidex",
-        "modelo": "Bike do The Flash",
-        "ano": "2024",
-        "numero": 102,
-        "status": StatusBicicleta.NOVA.value
+        "marca": "Caloi",
+        "modelo": "Caloi",
+        "ano": "2020",
+        "numero": 12347,
+        "status": StatusBicicleta.EM_USO.value
+    },
+    {
+        "id": 4,
+        "marca": "Caloi",
+        "modelo": "Caloi",
+        "ano": "2020",
+        "numero": 12348,
+        "status": StatusBicicleta.EM_REPARO.value
+    },
+    {
+        "id": 5,
+        "marca": "Caloi",
+        "modelo": "Caloi",
+        "ano": "2020",
+        "numero": 12349,
+        "status": StatusBicicleta.DISPONIVEL.value
     }
 ]
 
 
-# Dados iniciais para trancas
+# Dados iniciais para trancas conforme testes Postman
 TRANCAS_INICIAIS = [
     {
         "id": 1,
-        "numero": 1,
+        "numero": 12345,
         "localizacao": DEFAULT_LOCALIZACAO,
-        "anoDeFabricacao": "2023",
-        "modelo": "Tranca Smart v1",
-        "status": StatusTranca.LIVRE.value,
-        "bicicleta": None
+        "anoDeFabricacao": "2020",
+        "modelo": "Caloi",
+        "status": StatusTranca.OCUPADA.value,
+        "bicicleta": 1,
+        "totem": 1
     },
     {
         "id": 2,
-        "numero": 2,
+        "numero": 12346,
         "localizacao": DEFAULT_LOCALIZACAO,
-        "anoDeFabricacao": "2023",
-        "modelo": "Tranca Smart v1",
+        "anoDeFabricacao": "2020",
+        "modelo": "Caloi",
         "status": StatusTranca.LIVRE.value,
-        "bicicleta": None
+        "bicicleta": None,
+        "totem": 1
     },
     {
         "id": 3,
-        "numero": 3,
+        "numero": 12347,
         "localizacao": DEFAULT_LOCALIZACAO,
-        "anoDeFabricacao": "2024",
-        "modelo": "Tranca Smart v2",
-        "status": StatusTranca.NOVA.value,
-        "bicicleta": None
+        "anoDeFabricacao": "2020",
+        "modelo": "Caloi",
+        "status": StatusTranca.OCUPADA.value,
+        "bicicleta": 2,
+        "totem": 1
+    },
+    {
+        "id": 4,
+        "numero": 12348,
+        "localizacao": DEFAULT_LOCALIZACAO,
+        "anoDeFabricacao": "2020",
+        "modelo": "Caloi",
+        "status": StatusTranca.OCUPADA.value,
+        "bicicleta": 5,
+        "totem": 1
+    },
+    {
+        "id": 5,
+        "numero": 12349,
+        "localizacao": DEFAULT_LOCALIZACAO,
+        "anoDeFabricacao": "2020",
+        "modelo": "Caloi",
+        "status": StatusTranca.EM_REPARO.value,
+        "bicicleta": None,
+        "totem": None
+    },
+    {
+        "id": 6,
+        "numero": 12350,
+        "localizacao": DEFAULT_LOCALIZACAO,
+        "anoDeFabricacao": "2020",
+        "modelo": "Caloi",
+        "status": StatusTranca.REPARO_SOLICITADO.value,
+        "bicicleta": None,
+        "totem": 1
     }
 ]
 
 
-# Dados iniciais para totems
+# Dados iniciais para totems conforme testes Postman
 TOTEMS_INICIAIS = [
     {
         "id": 1,
         "localizacao": DEFAULT_LOCALIZACAO,
-        "descricao": "Totem da Praça Central - Centro"
-    },
-    {
-        "id": 2,
-        "localizacao": "-22.9110, -43.1780",
-        "descricao": "Totem do Parque Municipal"
+        "descricao": "Totem principal"
     }
 ]
 
@@ -90,7 +135,9 @@ TOTEMS_INICIAIS = [
 TRANCA_TOTEM_INICIAIS = [
     {"idTranca": 1, "idTotem": 1},
     {"idTranca": 2, "idTotem": 1},
-    {"idTranca": 3, "idTotem": 2}
+    {"idTranca": 3, "idTotem": 1},
+    {"idTranca": 4, "idTotem": 1},
+    {"idTranca": 6, "idTotem": 1}
 ]
 
 

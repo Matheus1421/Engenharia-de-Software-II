@@ -1,8 +1,8 @@
-"""
-Router para operações com trancas.
+"""Router para operações com trancas.
 Implementa os endpoints da API de equipamentos para trancas.
 """
 
+import logging
 from typing import List, Optional
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
@@ -17,6 +17,10 @@ from models.bicicleta_model import Bicicleta, StatusBicicleta
 from models.erro_model import Erro
 from utils.error_handler import handle_api_errors
 from utils.validators import validate_bicicleta_exists, validate_tranca_exists, validate_totem_exists, validate_status
+from services.email_service import email_service
+from services.aluguel_service import aluguel_service
+
+logger = logging.getLogger(__name__)
 
 
 router = APIRouter(prefix="/tranca", tags=["Equipamento"])
@@ -406,6 +410,12 @@ def integrar_tranca_na_rede(request: IntegrarNaRedeRequest):
     tranca_repo = TrancaRepository(db)
     totem_repo = TotemRepository(db)
     
+    # Valida funcionário via serviço de aluguel
+    funcionario_valido, email_funcionario = aluguel_service.validar_funcionario(request.id_funcionario)
+    if not funcionario_valido:
+        logger.warning(f"Funcionário {request.id_funcionario} não encontrado ou inválido - continuando operação")
+        email_funcionario = None
+    
     # Busca e valida tranca
     tranca = tranca_repo.get_by_id(request.id_tranca)
     validate_tranca_exists(tranca, request.id_tranca)
@@ -430,6 +440,16 @@ def integrar_tranca_na_rede(request: IntegrarNaRedeRequest):
     
     # 2. Atualiza status da tranca para LIVRE
     tranca_repo.update_status(request.id_tranca, StatusTranca.LIVRE)
+    
+    # 3. Envia notificação por email via serviço externo
+    sucesso_email, _ = email_service.notificar_inclusao_tranca(
+        id_tranca=request.id_tranca,
+        id_totem=request.id_totem,
+        id_funcionario=request.id_funcionario,
+        email_funcionario=email_funcionario
+    )
+    if not sucesso_email:
+        logger.warning(f"Falha ao enviar email de notificação para inclusão da tranca {request.id_tranca}")
     
     return {
         "mensagem": "Tranca integrada na rede com sucesso",
@@ -458,6 +478,12 @@ def retirar_tranca_da_rede(request: RetirarDaRedeRequest):
     tranca_repo = TrancaRepository(db)
     totem_repo = TotemRepository(db)
     
+    # Valida funcionário via serviço de aluguel
+    funcionario_valido, email_funcionario = aluguel_service.validar_funcionario(request.id_funcionario)
+    if not funcionario_valido:
+        logger.warning(f"Funcionário {request.id_funcionario} não encontrado ou inválido - continuando operação")
+        email_funcionario = None
+    
     # Busca e valida tranca
     tranca = tranca_repo.get_by_id(request.id_tranca)
     validate_tranca_exists(tranca, request.id_tranca)
@@ -477,6 +503,16 @@ def retirar_tranca_da_rede(request: RetirarDaRedeRequest):
             }]
         )
     
+    # Verifica se a tranca possui bicicleta associada
+    if tranca.bicicleta is not None:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=[{
+                "codigo": "TRANCA_COM_BICICLETA",
+                "mensagem": "Tranca possui bicicleta associada. Remova a bicicleta primeiro."
+            }]
+        )
+    
     # Valida o status de destino
     status_destino_upper = validate_status(
         request.status_acao_reparador, 
@@ -493,9 +529,20 @@ def retirar_tranca_da_rede(request: RetirarDaRedeRequest):
     # 2. Desassocia tranca do totem
     tranca_repo.desassociar_totem(request.id_tranca)
     
+    # 3. Envia notificação por email via serviço externo
+    sucesso_email, _ = email_service.notificar_retirada_tranca(
+        id_tranca=request.id_tranca,
+        id_totem=request.id_totem,
+        id_funcionario=request.id_funcionario,
+        status_destino=novo_status.value,
+        email_funcionario=email_funcionario
+    )
+    if not sucesso_email:
+        logger.warning(f"Falha ao enviar email de notificação para retirada da tranca {request.id_tranca}")
+    
     return {
         "mensagem": "Tranca retirada da rede com sucesso",
-        "id_tranca": request.id_tranca,
+        "idTranca": request.id_tranca,
         "idTotem": request.id_totem,
         "novoStatus": novo_status.value,
         "idFuncionario": request.id_funcionario

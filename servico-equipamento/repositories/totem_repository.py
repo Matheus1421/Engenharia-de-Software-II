@@ -63,5 +63,17 @@ class TotemRepository:
     
     def get_trancas_ids(self, totem_id: int) -> List[int]:
         """Retorna os IDs das trancas associadas ao totem"""
+        tranca_ids = set()
+        
+        # Busca via tabela de relacionamento
         results = self.tranca_totem_table.search(self.query.idTotem == totem_id)
-        return [r['idTranca'] for r in results]
+        for r in results:
+            tranca_ids.add(r['idTranca'])
+        
+        # Também busca via campo direto na tabela de trancas
+        trancas_table = self.db.get_table('trancas')
+        trancas_diretas = trancas_table.search(self.query.totem == totem_id)
+        for t in trancas_diretas:
+            tranca_ids.add(t['id'])
+        
+        return list(tranca_ids)
