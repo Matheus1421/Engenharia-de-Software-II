@@ -36,14 +36,14 @@ def cadastrar_ciclista(dados: CiclistaCadastro, meio_pagamento: NovoCartaoDeCred
         )
 
     # UC01 - Passo 7: Validar cartão
-    validacao = pagamento_service.validar_cartao(
+    sucesso_validacao, validacao = pagamento_service.validar_cartao(
         meio_pagamento.numero,
         meio_pagamento.nomeTitular,
         meio_pagamento.validade,
         meio_pagamento.cvv
     )
 
-    if not validacao.get("valido"):
+    if not sucesso_validacao or not validacao.get("valido"):
         raise HTTPException(
             status_code=422,
             detail=Erro(
@@ -59,11 +59,13 @@ def cadastrar_ciclista(dados: CiclistaCadastro, meio_pagamento: NovoCartaoDeCred
     cartao_repo.criar(ciclista.id, meio_pagamento)
 
     # UC01 - Passo 9: Enviar email confirmação
-    email_service.enviar_confirmacao_cadastro(
+    sucesso_email, _ = email_service.enviar_confirmacao_cadastro(
         ciclista.email,
         ciclista.nome,
         ciclista.id
     )
+    if not sucesso_email:
+        print(f"Aviso: Falha ao enviar email de confirmacao para {ciclista.email}")
 
     return ciclista
 

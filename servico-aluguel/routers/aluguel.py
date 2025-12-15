@@ -27,21 +27,23 @@ def alugar_bicicleta(dados: NovoAluguel):
         raise HTTPException(status_code=422, detail="Ciclista já possui um aluguel ativo")
 
     # UC03 - Passo 4: Ler bicicleta na tranca
-    bicicleta = equipamento_service.obter_bicicleta_tranca(dados.trancaInicio)
+    sucesso_bicicleta, bicicleta = equipamento_service.obter_bicicleta_tranca(dados.trancaInicio)
 
-    if not bicicleta:
+    if not sucesso_bicicleta or not bicicleta:
         raise HTTPException(status_code=422, detail="Não há bicicleta na tranca informada")
 
     # UC03 - Passo 6: Cobrar R$ 10,00
-    cobranca_resultado = pagamento_service.cobrar(10.00, dados.ciclista, "Aluguel SCB")
+    sucesso_cobranca, cobranca_resultado = pagamento_service.cobrar(10.00, dados.ciclista, "Aluguel SCB")
 
-    if cobranca_resultado.get("status") != "PAGA":
+    if not sucesso_cobranca or cobranca_resultado.get("status") != "PAGA":
         raise HTTPException(status_code=422, detail="Pagamento não autorizado")
 
     cobranca = aluguel_repo.criar_cobranca(10.00, dados.ciclista, "ALUGUEL_INICIAL")
 
     # UC03 - Passo 10: Destrancar
-    equipamento_service.destrancar(dados.trancaInicio, bicicleta['id'])
+    sucesso_destrancar, _ = equipamento_service.destrancar(dados.trancaInicio, bicicleta['id'])
+    if not sucesso_destrancar:
+        raise HTTPException(status_code=500, detail="Erro ao destrancar tranca")
 
     # UC03 - Passo 8: Registrar aluguel
     aluguel = aluguel_repo.criar_aluguel(
@@ -53,7 +55,7 @@ def alugar_bicicleta(dados: NovoAluguel):
 
     # UC03 - Passo 11: Enviar email
     ciclista = ciclista_repo.buscar_por_id(dados.ciclista)
-    email_service.enviar_recibo_aluguel(
+    sucesso_email, _ = email_service.enviar_recibo_aluguel(
         ciclista.email,
         ciclista.nome,
         bicicleta['id'],
@@ -61,6 +63,8 @@ def alugar_bicicleta(dados: NovoAluguel):
         10.00,
         aluguel.horaInicio
     )
+    if not sucesso_email:
+        print(f"Aviso: Falha ao enviar email de confirmacao de aluguel para {ciclista.email}")
 
     return aluguel
 
@@ -106,7 +110,9 @@ def devolver_bicicleta(dados: NovaDevolucao):
         id_cobranca_extra = cobranca_extra.id
 
     # UC04 - Passo 6: Trancar
-    equipamento_service.trancar(dados.idTranca, dados.idBicicleta)
+    sucesso_trancar, _ = equipamento_service.trancar(dados.idTranca, dados.idBicicleta)
+    if not sucesso_trancar:
+        raise HTTPException(status_code=500, detail="Erro ao trancar tranca")
 
     # UC04 - Passo 4: Finalizar aluguel
     aluguel = aluguel_repo.finalizar_aluguel(
@@ -117,7 +123,7 @@ def devolver_bicicleta(dados: NovaDevolucao):
 
     # UC04 - Passo 7: Enviar email
     ciclista = ciclista_repo.buscar_por_id(aluguel.ciclista)
-    email_service.enviar_recibo_devolucao(
+    sucesso_email, _ = email_service.enviar_recibo_devolucao(
         ciclista.email,
         ciclista.nome,
         dados.idBicicleta,
@@ -126,6 +132,8 @@ def devolver_bicicleta(dados: NovaDevolucao):
         10.00 + taxa_extra,
         taxa_extra
     )
+    if not sucesso_email:
+        print(f"Aviso: Falha ao enviar email de confirmacao de devolucao para {ciclista.email}")
 
     return Devolucao(
         aluguel=aluguel,

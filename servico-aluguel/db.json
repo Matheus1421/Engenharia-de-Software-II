@@ -1,0 +1,172 @@
+{
+    "ciclistas": {
+        "1": {
+            "id": 1,
+            "nome": "Fulano Beltrano",
+            "nascimento": "2021-05-02",
+            "cpf": "78804034009",
+            "passaporte": null,
+            "nacionalidade": "BRASILEIRO",
+            "email": "user@example.com",
+            "senha": "ABC123",
+            "urlFotoDocumento": "https://exemplo.com/foto.jpg",
+            "status": "ATIVO",
+            "dataConfirmacao": "2025-12-15T13:39:18.713449"
+        },
+        "2": {
+            "id": 2,
+            "nome": "Fulano Beltrano",
+            "nascimento": "2021-05-02",
+            "cpf": "43943488039",
+            "passaporte": null,
+            "nacionalidade": "BRASILEIRO",
+            "email": "user2@example.com",
+            "senha": "ABC123",
+            "urlFotoDocumento": "https://exemplo.com/foto.jpg",
+            "status": "AGUARDANDO_CONFIRMACAO",
+            "dataConfirmacao": null
+        },
+        "3": {
+            "id": 3,
+            "nome": "Fulano Beltrano",
+            "nascimento": "2021-05-02",
+            "cpf": "10243164084",
+            "passaporte": null,
+            "nacionalidade": "BRASILEIRO",
+            "email": "user3@example.com",
+            "senha": "ABC123",
+            "urlFotoDocumento": "https://exemplo.com/foto.jpg",
+            "status": "ATIVO",
+            "dataConfirmacao": "2025-12-15T13:39:18.713488"
+        },
+        "4": {
+            "id": 4,
+            "nome": "Fulano Beltrano",
+            "nascimento": "2021-05-02",
+            "cpf": "30880150017",
+            "passaporte": null,
+            "nacionalidade": "BRASILEIRO",
+            "email": "user4@example.com",
+            "senha": "ABC123",
+            "urlFotoDocumento": "https://exemplo.com/foto.jpg",
+            "status": "ATIVO",
+            "dataConfirmacao": "2025-12-15T13:39:18.713533"
+        }
+    },
+    "cartoes": {
+        "1": {
+            "id": 1,
+            "idCiclista": 1,
+            "nomeTitular": "Fulano Beltrano",
+            "numero": "4012001037141112",
+            "validade": "2022-12",
+            "cvv": "132"
+        },
+        "2": {
+            "id": 2,
+            "idCiclista": 2,
+            "nomeTitular": "Fulano Beltrano",
+            "numero": "4012001037141112",
+            "validade": "2022-12",
+            "cvv": "132"
+        },
+        "3": {
+            "id": 3,
+            "idCiclista": 3,
+            "nomeTitular": "Fulano Beltrano",
+            "numero": "4012001037141112",
+            "validade": "2022-12",
+            "cvv": "132"
+        },
+        "4": {
+            "id": 4,
+            "idCiclista": 4,
+            "nomeTitular": "Fulano Beltrano",
+            "numero": "4012001037141112",
+            "validade": "2022-12",
+            "cvv": "132"
+        }
+    },
+    "funcionarios": {
+        "1": {
+            "id": 1,
+            "matricula": "12345",
+            "nome": "Beltrano",
+            "idade": 25,
+            "funcao": "REPARADOR",
+            "cpf": "99999999999",
+            "email": "employee@example.com",
+            "senha": "123",
+            "confirmacaoSenha": "123"
+        }
+    },
+    "alugueis": {
+        "1": {
+            "id": 1,
+            "ciclista": 3,
+            "trancaInicio": 2,
+            "bicicleta": 3,
+            "horaInicio": "2025-12-15T13:39:18.727839",
+            "trancaFim": null,
+            "horaFim": null,
+            "cobranca": 1,
+            "cobrancaExtra": null,
+            "status": "EM_ANDAMENTO"
+        },
+        "2": {
+            "id": 2,
+            "ciclista": 4,
+            "trancaInicio": 4,
+            "bicicleta": 5,
+            "horaInicio": "2025-12-15T11:39:18.727839",
+            "trancaFim": null,
+            "horaFim": null,
+            "cobranca": 2,
+            "cobrancaExtra": null,
+            "status": "EM_ANDAMENTO"
+        },
+        "3": {
+            "id": 3,
+            "ciclista": 3,
+            "trancaInicio": 1,
+            "bicicleta": 1,
+            "horaInicio": "2025-12-15T11:39:18.727839",
+            "trancaFim": 2,
+            "horaFim": "2025-12-15T13:39:18.727839",
+            "cobranca": 3,
+            "cobrancaExtra": null,
+            "status": "FINALIZADO"
+        }
+    },
+    "cobrancas": {
+        "1": {
+            "id": 1,
+            "valor": 10.0,
+            "ciclista": 3,
+            "status": "PAGA",
+            "horaSolicitacao": "2025-12-15T13:39:18.727839",
+            "horaFinalizacao": "2025-12-15T13:39:18.727839",
+            "tipo": "ALUGUEL_INICIAL"
+        },
+        "2": {
+            "id": 2,
+            "valor": 10.0,
+            "ciclista": 4,
+            "status": "PAGA",
+            "horaSolicitacao": "2025-12-15T11:39:18.727839",
+            "horaFinalizacao": "2025-12-15T11:39:18.727839",
+            "tipo": "ALUGUEL_INICIAL"
+        },
+        "3": {
+            "id": 3,
+            "valor": 10.0,
+            "ciclista": 3,
+            "status": "PAGA",
+            "horaSolicitacao": "2025-12-15T11:39:18.727839",
+            "horaFinalizacao": "2025-12-15T11:39:18.727839",
+            "tipo": "ALUGUEL_INICIAL"
+        }
+    },
+    "fila_cobrancas": {},
+    "_default": {}
+}

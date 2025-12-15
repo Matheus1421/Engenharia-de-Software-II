@@ -1,13 +1,29 @@
-"""Serviço de Pagamento (Mock)"""
+"""Servico de Pagamento - Integracao com microsservico externo"""
 
-from typing import Dict, Any
-from datetime import datetime
+import os
 import logging
+from typing import Dict, Any, Tuple
+from datetime import datetime
+import httpx
 
 logger = logging.getLogger(__name__)
 
+BASE_URL_EXTERNO = os.getenv("SERVICO_EXTERNO_URL", "http://localhost:8002")
+
+
 class PagamentoService:
-    """Mock do serviço de pagamento"""
+    """Servico para comunicacao com o microsservico externo (cobrancas e validacao de cartao)"""
+
+    def __init__(self, base_url: str = None, timeout: float = 10.0):
+        """
+        Inicializa o servico de pagamento.
+
+        Args:
+            base_url: URL base do servico externo. Se None, usa a variavel de ambiente.
+            timeout: Timeout para requisicoes HTTP em segundos.
+        """
+        self.base_url = base_url or BASE_URL_EXTERNO
+        self.timeout = timeout
 
     def validar_cartao(
         self,
@@ -15,89 +31,153 @@ class PagamentoService:
         nome_titular: str,
         validade: str,
         cvv: str
-    ) -> Dict[str, Any]:
+    ) -> Tuple[bool, Dict[str, Any]]:
         """
-        UC01 - Passo 7: Validação de cartão com Administradora CC
+        UC01 - Passo 7: Validacao de cartao com Administradora CC
 
-        Mock: Sempre válido (exceto cartões com número iniciando em "0000")
+        Args:
+            numero: Numero do cartao
+            nome_titular: Nome do titular
+            validade: Data de validade
+            cvv: Codigo de seguranca
+
+        Returns:
+            Tupla (sucesso, dados_validacao/erro)
         """
-        logger.info(f"💳 [MOCK] Validando cartão: **** **** **** {numero[-4:]}")
+        try:
+            logger.info(f"Validando cartao terminado em {numero[-4:]}")
 
-        if numero.startswith("0000"):
-            return {
-                "valido": False,
-                "motivo": "Cartão recusado pela operadora"
+            payload = {
+                "numero": numero,
+                "nomeTitular": nome_titular,
+                "validade": validade,
+                "cvv": cvv
             }
 
-        return {
-            "valido": True,
-            "token": f"tok_{numero[-4:]}_mock"
-        }
+            with httpx.Client(timeout=self.timeout) as client:
+                response = client.post(
+                    f"{self.base_url}/cartao/validar",
+                    json=payload
+                )
+
+                if response.status_code == 200:
+                    resultado = response.json()
+                    logger.info(f"Cartao validado com sucesso: {resultado.get('valido', False)}")
+                    return True, resultado
+                else:
+                    logger.warning(f"Erro ao validar cartao: status {response.status_code}")
+                    return False, {"error": response.text, "status_code": response.status_code}
+
+        except httpx.TimeoutException:
+            logger.error(f"Timeout ao validar cartao")
+            return False, {"error": "Timeout ao conectar com servico externo"}
+        except httpx.ConnectError:
+            logger.error(f"Erro de conexao com servico externo")
+            return False, {"error": "Erro de conexao com servico externo"}
+        except Exception as e:
+            logger.error(f"Erro inesperado ao validar cartao: {str(e)}")
+            return False, {"error": str(e)}
 
     def cobrar(
         self,
         valor: float,
         id_ciclista: int,
         descricao: str = "Aluguel SCB"
-    ) -> Dict[str, Any]:
+    ) -> Tuple[bool, Dict[str, Any]]:
         """
-        UC03: Cobrança imediata
+        UC03: Cobranca imediata
 
-        Mock: Sempre aprovado (exceto valores > 1000)
+        Args:
+            valor: Valor a ser cobrado
+            id_ciclista: ID do ciclista
+            descricao: Descricao da cobranca
+
+        Returns:
+            Tupla (sucesso, dados_cobranca/erro)
         """
-        logger.info(f"💰 [MOCK] Cobrando R$ {valor:.2f} do ciclista {id_ciclista}")
+        try:
+            logger.info(f"Cobrando R$ {valor:.2f} do ciclista {id_ciclista}")
 
-        if valor > 1000:
-            return {
-                "id": None,
-                "status": "FALHA",
-                "motivo": "Limite de crédito excedido",
-                "horaSolicitacao": datetime.now().isoformat()
+            payload = {
+                "valor": valor,
+                "ciclista": id_ciclista,
+                "status": "PAGA",
+                "horaSolicitacao": datetime.now().isoformat(),
+                "horaFinalizacao": datetime.now().isoformat()
             }
 
-        return {
-            "id": 1,
-            "status": "PAGA",
-            "valor": valor,
-            "ciclista": id_ciclista,
-            "horaSolicitacao": datetime.now().isoformat(),
-            "horaFinalizacao": datetime.now().isoformat()
-        }
+            with httpx.Client(timeout=self.timeout) as client:
+                response = client.post(
+                    f"{self.base_url}/cobranca",
+                    json=payload
+                )
+
+                if response.status_code == 200:
+                    resultado = response.json()
+                    logger.info(f"Cobranca realizada com sucesso: ID {resultado.get('id')}")
+                    return True, resultado
+                else:
+                    logger.warning(f"Erro ao realizar cobranca: status {response.status_code}")
+                    return False, {"error": response.text, "status_code": response.status_code}
+
+        except httpx.TimeoutException:
+            logger.error(f"Timeout ao realizar cobranca")
+            return False, {"error": "Timeout ao conectar com servico externo"}
+        except httpx.ConnectError:
+            logger.error(f"Erro de conexao com servico externo")
+            return False, {"error": "Erro de conexao com servico externo"}
+        except Exception as e:
+            logger.error(f"Erro inesperado ao realizar cobranca: {str(e)}")
+            return False, {"error": str(e)}
 
     def adicionar_fila_cobranca(
         self,
         valor: float,
         id_ciclista: int
-    ) -> Dict[str, Any]:
+    ) -> Tuple[bool, Dict[str, Any]]:
         """
-        UC04, UC16: Adiciona cobrança na fila
+        UC04, UC16: Adiciona cobranca na fila
 
-        Mock: Sempre aceita na fila
+        Args:
+            valor: Valor a ser cobrado
+            id_ciclista: ID do ciclista
+
+        Returns:
+            Tupla (sucesso, dados_cobranca/erro)
         """
-        logger.info(f"📋 [MOCK] Adicionando R$ {valor:.2f} na fila de cobrança do ciclista {id_ciclista}")
+        try:
+            logger.info(f"Adicionando R$ {valor:.2f} na fila de cobranca do ciclista {id_ciclista}")
 
-        return {
-            "id": 1,
-            "status": "PENDENTE",
-            "valor": valor,
-            "ciclista": id_ciclista,
-            "horaSolicitacao": datetime.now().isoformat(),
-            "mensagem": "Cobrança adicionada à fila (será processada em breve)"
-        }
+            payload = {
+                "valor": valor,
+                "ciclista": id_ciclista,
+                "status": "PENDENTE",
+                "horaSolicitacao": datetime.now().isoformat()
+            }
 
-    def processar_fila_cobrancas(self) -> Dict[str, Any]:
-        """
-        UC16: Processa cobranças pendentes
+            with httpx.Client(timeout=self.timeout) as client:
+                response = client.post(
+                    f"{self.base_url}/cobranca",
+                    json=payload
+                )
 
-        Mock: Simula processamento bem-sucedido
-        """
-        logger.info("⚙️  [MOCK] Processando fila de cobranças...")
+                if response.status_code == 200:
+                    resultado = response.json()
+                    logger.info(f"Cobranca adicionada a fila: ID {resultado.get('id')}")
+                    return True, resultado
+                else:
+                    logger.warning(f"Erro ao adicionar cobranca na fila: status {response.status_code}")
+                    return False, {"error": response.text, "status_code": response.status_code}
 
-        return {
-            "processadas": 0,
-            "sucesso": 0,
-            "falhas": 0,
-            "mensagem": "Nenhuma cobrança pendente (MOCK)"
-        }
+        except httpx.TimeoutException:
+            logger.error(f"Timeout ao adicionar cobranca na fila")
+            return False, {"error": "Timeout ao conectar com servico externo"}
+        except httpx.ConnectError:
+            logger.error(f"Erro de conexao com servico externo")
+            return False, {"error": "Erro de conexao com servico externo"}
+        except Exception as e:
+            logger.error(f"Erro inesperado ao adicionar cobranca na fila: {str(e)}")
+            return False, {"error": str(e)}
+
 
 pagamento_service = PagamentoService()

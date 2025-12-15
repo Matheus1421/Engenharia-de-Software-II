@@ -47,14 +47,14 @@ def cadastrar_cartao(cartao: NovoCartaoDeCredito, idCiclista: int = QueryParam(.
     repo = CartaoRepository(db)
 
     # Validar cartão com administradora
-    validacao = pagamento_service.validar_cartao(
+    sucesso_validacao, validacao = pagamento_service.validar_cartao(
         cartao.numero,
         cartao.nomeTitular,
         cartao.validade,
         cartao.cvv
     )
 
-    if not validacao.get("valido"):
+    if not sucesso_validacao or not validacao.get("valido"):
         raise HTTPException(status_code=422, detail="Cartão inválido")
 
     return repo.criar(idCiclista, cartao)
@@ -66,14 +66,14 @@ def alterar_cartao_por_id(id: int, cartao: NovoCartaoDeCredito):
     repo = CartaoRepository(db)
 
     # Validar novo cartão
-    validacao = pagamento_service.validar_cartao(
+    sucesso_validacao, validacao = pagamento_service.validar_cartao(
         cartao.numero,
         cartao.nomeTitular,
         cartao.validade,
         cartao.cvv
     )
 
-    if not validacao.get("valido"):
+    if not sucesso_validacao or not validacao.get("valido"):
         raise HTTPException(status_code=422, detail="Cartão inválido")
 
     cartao_atualizado = repo.atualizar(cartao, id=id)
