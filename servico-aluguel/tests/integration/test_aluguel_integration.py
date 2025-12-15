@@ -1,11 +1,6 @@
 """
 Testes de Integração - UC03: Alugar Bicicleta
 
-Conforme Cap. 8 - Engenharia de Software Moderna:
-- Testes de integração exercitam funcionalidades de maior granularidade
-- Usamos mocks HTTP para simular microsserviços externos
-- Seguimos princípios FIRST (Fast, Independent, Repeatable, Self-validating, Timely)
-
 Integrações testadas:
 - equipamento_service.obter_bicicleta_tranca()
 - pagamento_service.cobrar()
@@ -24,10 +19,6 @@ from tests.integration.conftest import EQUIPAMENTO_URL, EXTERNO_URL
 client = TestClient(app)
 
 
-# ============================================================
-# TESTES DE FLUXO COMPLETO (Happy Path)
-# ============================================================
-
 @respx.mock
 def test_aluguel_sucesso_fluxo_completo(
     setup_db,
@@ -40,13 +31,6 @@ def test_aluguel_sucesso_fluxo_completo(
     """
     UC03 - Testa o fluxo completo de aluguel com sucesso.
 
-    Passos:
-    1. Ciclista ativo no banco (fixture)
-    2. Bicicleta disponível na tranca (mock equipamento)
-    3. Cobrança aprovada (mock pagamento)
-    4. Tranca destrancada (mock equipamento)
-    5. Email enviado (mock email)
-    6. Aluguel registrado no banco
     """
     # Mock: GET /tranca/{id}/bicicleta - retorna bicicleta disponível
     respx.get(f"{EQUIPAMENTO_URL}/tranca/1/bicicleta").mock(

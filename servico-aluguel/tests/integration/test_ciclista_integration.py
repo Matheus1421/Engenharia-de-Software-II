@@ -1,14 +1,7 @@
 """
 Testes de Integração - UC01: Cadastrar Ciclista
 
-Conforme Cap. 8 - Engenharia de Software Moderna:
-- Testes de integração exercitam funcionalidades de maior granularidade
-- Usamos mocks HTTP para simular microsserviços externos
-- Seguimos princípios FIRST (Fast, Independent, Repeatable, Self-validating, Timely)
 
-Integrações testadas:
-- pagamento_service.validar_cartao()
-- email_service.enviar_confirmacao_cadastro()
 """
 import pytest
 import respx
@@ -105,7 +98,6 @@ def test_cadastro_ciclista_registra_no_banco(
     """
     UC01 - Verifica se o ciclista é corretamente persistido no banco.
 
-    Princípio: Self-validating - valida estado do banco após operação.
     """
     from tinydb import Query
     Ciclista = Query()

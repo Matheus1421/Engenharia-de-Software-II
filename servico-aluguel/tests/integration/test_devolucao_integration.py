@@ -1,11 +1,6 @@
 """
 Testes de Integração - UC04: Devolver Bicicleta
 
-Conforme Cap. 8 - Engenharia de Software Moderna:
-- Testes de integração exercitam funcionalidades de maior granularidade
-- Usamos mocks HTTP para simular microsserviços externos
-- Seguimos princípios FIRST (Fast, Independent, Repeatable, Self-validating, Timely)
-
 Integrações testadas:
 - equipamento_service.trancar()
 - email_service.enviar_recibo_devolucao()
@@ -239,7 +234,6 @@ def test_devolucao_atualiza_banco(setup_db, db, mock_tranca_trancada, mock_email
     """
     UC04 - Verifica se a devolução atualiza corretamente o banco.
 
-    Princípio: Self-validating - valida estado do banco após operação.
     """
     from tinydb import Query
     Aluguel = Query()

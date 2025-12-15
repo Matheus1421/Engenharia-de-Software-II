@@ -1,9 +1,6 @@
 """
 Fixtures compartilhadas para testes de integração.
 
-Conforme Cap. 8 - Engenharia de Software Moderna:
-- Cada teste deve ser independente (Independent)
-- Resultados devem ser determinísticos (Repeatable)
 """
 import pytest
 from fastapi.testclient import TestClient
@@ -24,7 +21,7 @@ def client():
 def setup_db():
     """
     Fixture que reseta o banco antes de cada teste.
-    Garante independência entre testes (princípio FIRST).
+
     """
     reset_db()
     db = get_db()
