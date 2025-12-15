@@ -6,10 +6,13 @@ from fastapi import APIRouter, Response, status
 from database.database import get_db
 from database.init_data import init_db
 
-router = APIRouter(tags=["Externo"])
+router = APIRouter(tags=["Aluguel", "Equipamento", "Externo"])
 
 
-@router.get("/restaurarBanco", summary="Restaurar dados iniciais do banco de dados")
+@router.get(
+    "/restaurarBanco",
+    summary="Restaurar dados iniciais do banco de dados do microsserviço",
+)
 def restaurar_banco():
     """
     Restaura o banco de dados para o estado inicial com dados de exemplo.

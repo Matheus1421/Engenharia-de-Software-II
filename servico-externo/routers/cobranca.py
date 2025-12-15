@@ -9,178 +9,114 @@ from datetime import datetime, timezone
 
 from database.database import get_db
 from repositories.cobranca_repository import CobrancaRepository
-from models.cobranca_model import Cobranca, NovaCobranca, StatusCobranca, ProcessarPagamentoRequest
-from models.erro_model import Erro
+from models.cobranca_model import Cobranca, NovaCobranca, StatusCobranca
 
 
-router = APIRouter(prefix="/cobranca", tags=["Externo"])
+# Router apenas com as rotas do contrato externo
+contrato_router = APIRouter(tags=["Externo"])
 
 
-@router.get("", summary="Listar cobranças", response_model=List[Cobranca])
-def listar_cobrancas():
-    """
-    Lista todas as cobranças cadastradas no sistema.
-    
-    Returns:
-        Lista de cobranças
-    """
-    db = get_db()
-    cobranca_repo = CobrancaRepository(db)
-    return cobranca_repo.get_all()
-
-
-@router.post("", summary="Criar cobrança", response_model=Cobranca, status_code=status.HTTP_200_OK)
+@contrato_router.post(
+    "/cobranca",
+    summary="Realizar cobrança",
+    response_model=Cobranca,
+    status_code=status.HTTP_200_OK,
+)
 def criar_cobranca(cobranca: NovaCobranca):
     """
-    Cria uma nova cobrança no sistema.
-    
-    Args:
-        cobranca: Dados da nova cobrança
-        
-    Returns:
-        Cobrança criada com ID gerado
-        
-    Raises:
-        HTTPException 422: Dados inválidos
+    Cria uma nova cobrança no sistema conforme contrato externo.
     """
     try:
         db = get_db()
         cobranca_repo = CobrancaRepository(db)
-        
         return cobranca_repo.create(cobranca)
-        
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=[{
-                "codigo": "DADOS_INVALIDOS",
-                "mensagem": str(e)
-            }]
+            detail=[
+                {
+                    "codigo": "DADOS_INVALIDOS",
+                    "mensagem": str(e),
+                }
+            ],
         )
 
 
-@router.get("/{id_cobranca}", summary="Obter cobrança", response_model=Cobranca)
-def obter_cobranca(id_cobranca: int):
+@contrato_router.get(
+    "/cobranca/{idCobranca}",
+    summary="Obter cobrança",
+    response_model=Cobranca,
+)
+def obter_cobranca(idCobranca: int):
     """
-    Obtém os dados de uma cobrança específica.
-    
-    Args:
-        id_cobranca: ID da cobrança
-        
-    Returns:
-        Dados da cobrança
-        
-    Raises:
-        HTTPException 404: Cobrança não encontrada
+    Obtém os dados de uma cobrança específica, usando o ID informado no caminho.
     """
     db = get_db()
     cobranca_repo = CobrancaRepository(db)
-    cobranca = cobranca_repo.get_by_id(id_cobranca)
-    
+    cobranca = cobranca_repo.get_by_id(idCobranca)
+
     if not cobranca:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={
                 "codigo": "COBRANCA_NAO_ENCONTRADA",
-                "mensagem": f"Cobrança com ID {id_cobranca} não encontrada"
-            }
+                "mensagem": f"Cobrança com ID {idCobranca} não encontrada",
+            },
         )
-    
+
     return cobranca
 
 
-@router.get("/{id_cobranca}/status", summary="Consultar status da cobrança", response_model=Cobranca)
-def consultar_status_cobranca(id_cobranca: int):
+@contrato_router.post(
+    "/filaCobranca",
+    summary=(
+        "Inclui cobrança na fila de cobrança. Cobranças na fila serão "
+        "cobradas de tempos em tempos."
+    ),
+    response_model=Cobranca,
+    status_code=status.HTTP_200_OK,
+)
+def incluir_cobranca_na_fila(cobranca: NovaCobranca):
     """
-    Consulta o status atual de uma cobrança.
-    
-    Args:
-        id_cobranca: ID da cobrança
-        
-    Returns:
-        Dados da cobrança com status atual
-        
-    Raises:
-        HTTPException 404: Cobrança não encontrada
+    Inclui uma cobrança na 'fila'. No contexto atual, fila é representada
+    pelas cobranças pendentes no banco.
+    """
+    # Reutiliza a mesma lógica de criação de cobrança
+    return criar_cobranca(cobranca)
+
+
+@contrato_router.post(
+    "/processaCobrancasEmFila",
+    summary="Processa todas as cobranças atrasadas colocadas em fila previamente.",
+    response_model=List[Cobranca],
+    status_code=status.HTTP_200_OK,
+)
+def processar_cobrancas_em_fila():
+    """
+    Processa todas as cobranças pendentes cujo vencimento já passou,
+    marcando-as como VENCIDA.
     """
     db = get_db()
     cobranca_repo = CobrancaRepository(db)
-    cobranca = cobranca_repo.get_by_id(id_cobranca)
-    
-    if not cobranca:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={
-                "codigo": "COBRANCA_NAO_ENCONTRADA",
-                "mensagem": f"Cobrança com ID {id_cobranca} não encontrada"
-            }
-        )
-    
-    return cobranca
 
+    todas = cobranca_repo.get_all()
+    agora = datetime.now(timezone.utc)
+    processadas: List[Cobranca] = []
 
-@router.post("/{id_cobranca}/processar", summary="Processar pagamento", response_model=Cobranca, status_code=status.HTTP_200_OK)
-def processar_pagamento(id_cobranca: int, request: ProcessarPagamentoRequest):
-    """
-    Processa o pagamento de uma cobrança.
-    
-    Args:
-        id_cobranca: ID da cobrança
-        request: Dados do pagamento
-        
-    Returns:
-        Cobrança atualizada com status PAGA
-        
-    Raises:
-        HTTPException 404: Cobrança não encontrada
-        HTTPException 422: Dados inválidos ou valor incorreto
-    """
-    db = get_db()
-    cobranca_repo = CobrancaRepository(db)
-    
-    # Verifica se a cobrança existe
-    cobranca = cobranca_repo.get_by_id(id_cobranca)
-    if not cobranca:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={
-                "codigo": "COBRANCA_NAO_ENCONTRADA",
-                "mensagem": f"Cobrança com ID {id_cobranca} não encontrada"
-            }
-        )
-    
-    # Valida se o ID da cobrança no request corresponde ao da URL
-    if request.id_cobranca != id_cobranca:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=[{
-                "codigo": "ID_INCONSISTENTE",
-                "mensagem": "O ID da cobrança no request deve corresponder ao ID da URL"
-            }]
-        )
-    
-    # Valida o valor pago
-    if abs(request.valor_pago - cobranca.valor) > 0.01:  # Permite pequena diferença de arredondamento
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=[{
-                "codigo": "VALOR_INCORRETO",
-                "mensagem": f"O valor pago (R$ {request.valor_pago:.2f}) não corresponde ao valor da cobrança (R$ {cobranca.valor:.2f})"
-            }]
-        )
-    
-    # Verifica se já está paga
-    if cobranca.status == StatusCobranca.PAGA:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=[{
-                "codigo": "COBRANCA_JA_PAGA",
-                "mensagem": "Esta cobrança já foi paga"
-            }]
-        )
-    
-    # Processa o pagamento
-    cobranca_atualizada = cobranca_repo.update_status(id_cobranca, StatusCobranca.PAGA)
-    
-    return cobranca_atualizada
+    for cobranca in todas:
+        # Considera "em fila e atrasada" se está PENDENTE e data de vencimento já passou
+        try:
+            vencimento = datetime.fromisoformat(cobranca.data_vencimento)
+        except Exception:
+            # Se a data estiver em formato inesperado, ignora esta cobrança
+            continue
+
+        if cobranca.status == StatusCobranca.PENDENTE and vencimento <= agora:
+            atualizada = cobranca_repo.update_status(
+                cobranca.id, StatusCobranca.VENCIDA
+            )
+            if atualizada:
+                processadas.append(atualizada)
+
+    return processadas
 

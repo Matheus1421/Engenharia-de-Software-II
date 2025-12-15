@@ -1,0 +1,187 @@
+{
+	"info": {
+		"_postman_id": "servico-externo-2024-v1",
+		"name": "Serviço Externo - API",
+		"description": "Collection com todas as rotas do microserviço de Serviços Externos (E-mail, Cobranças, Validação de Cartão)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Status & Health",
+			"item": [
+				{
+					"name": "GET /health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": ["{{base_url}}"],
+							"path": ["health"]
+						}
+					}
+				},
+				{
+					"name": "GET /status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/status",
+							"host": ["{{base_url}}"],
+							"path": ["status"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "E-mail",
+			"item": [
+				{
+					"name": "POST /enviarEmail - Notificar via email",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"usuario@example.com\",\n  \"assunto\": \"Bem-vindo ao Sistema\",\n  \"mensagem\": \"Olá! Bem-vindo ao nosso sistema de bicicletário.\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/enviarEmail",
+							"host": ["{{base_url}}"],
+							"path": ["enviarEmail"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Cobrança",
+			"item": [
+				{
+					"name": "POST /cobranca - Criar cobrança",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"idCiclista\": 1,\n  \"valor\": 50.00,\n  \"dataVencimento\": \"2024-02-15T10:00:00Z\",\n  \"descricao\": \"Mensalidade do mês de janeiro\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/cobranca",
+							"host": ["{{base_url}}"],
+							"path": ["cobranca"]
+						}
+					}
+				},
+				{
+					"name": "GET /cobranca/{idCobranca} - Obter por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/cobranca/1",
+							"host": ["{{base_url}}"],
+							"path": ["cobranca", "1"]
+						}
+					}
+				},
+				{
+					"name": "POST /filaCobranca - Incluir cobrança na fila",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"idCiclista\": 1,\n  \"valor\": 30.00,\n  \"dataVencimento\": \"2024-03-15T10:00:00Z\",\n  \"descricao\": \"Cobrança em fila\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/filaCobranca",
+							"host": ["{{base_url}}"],
+							"path": ["filaCobranca"]
+						}
+					}
+				},
+				{
+					"name": "POST /processaCobrancasEmFila - Processar fila",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/processaCobrancasEmFila",
+							"host": ["{{base_url}}"],
+							"path": ["processaCobrancasEmFila"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Cartão",
+			"item": [
+				{
+					"name": "POST /validaCartaoDeCredito - Validar cartão",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"numeroCartao\": \"4111111111111111\",\n  \"nomePortador\": \"João Silva\",\n  \"validade\": \"12/25\",\n  \"cvv\": \"123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/validaCartaoDeCredito",
+							"host": ["{{base_url}}"],
+							"path": ["validaCartaoDeCredito"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "GET /restaurarBanco",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/restaurarBanco",
+							"host": ["{{base_url}}"],
+							"path": ["restaurarBanco"]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		}
+	]
+}
+

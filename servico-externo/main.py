@@ -2,9 +2,9 @@ from fastapi import FastAPI
 from dotenv import load_dotenv
 from routers.status import router as status_router
 from routers.admin import router as admin_router
-from routers.email import router as email_router
-from routers.cobranca import router as cobranca_router
-from routers.cartao import router as cartao_router
+from routers.email import contrato_router as email_contrato_router
+from routers.cobranca import contrato_router as cobranca_contrato_router
+from routers.cartao import contrato_router as cartao_contrato_router
 from database.database import get_db
 from database.init_data import init_db
 
@@ -33,12 +33,11 @@ def startup_event():
 app.include_router(status_router)
 # Registra o endpoint de admin
 app.include_router(admin_router)
-# Registra os endpoints de e-mail
-app.include_router(email_router)
-# Registra os endpoints de cobranças
-app.include_router(cobranca_router)
-# Registra os endpoints de validação de cartão
-app.include_router(cartao_router)
+# Endpoints do contrato externo
+app.include_router(email_contrato_router)          # /enviarEmail
+app.include_router(cobranca_contrato_router)       # /filaCobranca, /processaCobrancasEmFila
+app.include_router(cartao_contrato_router)         # /validaCartaoDeCredito
+
 
 # Health-check simples (opcional)
 @app.get("/health")
