@@ -75,54 +75,7 @@ def novo_cartao_invalido():
     }
 
 
-# ==================== TESTES GET /cartao ====================
-
-def test_listar_validacoes_sucesso():
-    """Testa listagem de todas as validações - sucesso"""
-    with patch('routers.cartao.get_db'), \
-         patch('routers.cartao.CartaoRepository') as mock_repo:
-        
-        # Setup
-        mock_repo_instance = Mock()
-        mock_repo.return_value = mock_repo_instance
-        mock_repo_instance.get_all.return_value = [
-            ValidacaoCartao(id=1, numero_cartao="4111********1111", nome_portador="João", 
-                          validade="12/25", cvv="123", valido=True, 
-                          data_validacao="2024-01-15T11:00:00Z", mensagem="Cartão válido"),
-            ValidacaoCartao(id=2, numero_cartao="1234********5678", nome_portador="Maria", 
-                          validade="12/25", cvv="456", valido=False, 
-                          data_validacao="2024-01-15T11:00:00Z", mensagem="Cartão inválido")
-        ]
-        
-        # Executa
-        response = client.get("/cartao")
-        
-        # Verifica
-        assert response.status_code == 200
-        assert len(response.json()) == 2
-        assert response.json()[0]["id"] == 1
-        assert response.json()[0]["valido"] is True
-        assert response.json()[1]["id"] == 2
-        assert response.json()[1]["valido"] is False
-        mock_repo_instance.get_all.assert_called_once()
-
-
-def test_listar_validacoes_lista_vazia():
-    """Testa listagem quando não há validações cadastradas"""
-    with patch('routers.cartao.get_db'), \
-         patch('routers.cartao.CartaoRepository') as mock_repo:
-        
-        mock_repo_instance = Mock()
-        mock_repo.return_value = mock_repo_instance
-        mock_repo_instance.get_all.return_value = []
-        
-        response = client.get("/cartao")
-        
-        assert response.status_code == 200
-        assert response.json() == []
-
-
-# ==================== TESTES POST /cartao/validar ====================
+# ==================== TESTES POST /validaCartaoDeCredito ====================
 
 def test_validar_cartao_valido_sucesso(novo_cartao_valido):
     """Testa validação de cartão válido - sucesso"""
@@ -142,7 +95,7 @@ def test_validar_cartao_valido_sucesso(novo_cartao_valido):
             mensagem="Cartão válido"
         )
         
-        response = client.post("/cartao/validar", json=novo_cartao_valido)
+        response = client.post("/validaCartaoDeCredito", json=novo_cartao_valido)
         
         assert response.status_code == 200
         assert response.json()["id"] == 1
@@ -169,7 +122,7 @@ def test_validar_cartao_invalido_luhn(novo_cartao_invalido):
             mensagem="Número do cartão inválido (falha no algoritmo de Luhn)"
         )
         
-        response = client.post("/cartao/validar", json=novo_cartao_invalido)
+        response = client.post("/validaCartaoDeCredito", json=novo_cartao_invalido)
         
         assert response.status_code == 200
         assert response.json()["valido"] is False
@@ -186,7 +139,7 @@ def test_validar_cartao_numero_muito_curto():
     }
     
     # O Pydantic valida o min_length antes de chegar no endpoint
-    response = client.post("/cartao/validar", json=cartao_invalido)
+    response = client.post("/validaCartaoDeCredito", json=cartao_invalido)
     
     # Deve falhar na validação do Pydantic
     assert response.status_code == 422
@@ -201,7 +154,7 @@ def test_validar_cartao_numero_muito_longo():
         "cvv": "123"
     }
     
-    response = client.post("/cartao/validar", json=cartao_invalido)
+    response = client.post("/validaCartaoDeCredito", json=cartao_invalido)
     
     # Deve falhar na validação do Pydantic
     assert response.status_code == 422
@@ -236,7 +189,7 @@ def test_validar_cartao_validade_expirada():
             mensagem="Cartão expirado"
         )
         
-        response = client.post("/cartao/validar", json=cartao_expirado)
+        response = client.post("/validaCartaoDeCredito", json=cartao_expirado)
         
         assert response.status_code == 200
         assert response.json()["valido"] is False
@@ -252,7 +205,7 @@ def test_validar_cartao_cvv_invalido():
         "cvv": "12"  # CVV muito curto
     }
     
-    response = client.post("/cartao/validar", json=cartao_cvv_invalido)
+    response = client.post("/validaCartaoDeCredito", json=cartao_cvv_invalido)
     
     # Deve falhar na validação do Pydantic ou na validação do CVV
     assert response.status_code in [200, 422]
@@ -267,7 +220,7 @@ def test_validar_cartao_validade_formato_invalido():
         "cvv": "123"
     }
     
-    response = client.post("/cartao/validar", json=cartao_validade_invalida)
+    response = client.post("/validaCartaoDeCredito", json=cartao_validade_invalida)
     
     # Deve falhar na validação do Pydantic
     assert response.status_code == 422
@@ -280,44 +233,9 @@ def test_validar_cartao_campos_faltando():
         # Faltam outros campos
     }
     
-    response = client.post("/cartao/validar", json=cartao_incompleto)
+    response = client.post("/validaCartaoDeCredito", json=cartao_incompleto)
     
     assert response.status_code == 422
-
-
-# ==================== TESTES GET /cartao/{id_validacao} ====================
-
-def test_obter_validacao_sucesso(validacao_cartao_valido):
-    """Testa obtenção de validação por ID - sucesso"""
-    with patch('routers.cartao.get_db'), \
-         patch('routers.cartao.CartaoRepository') as mock_repo:
-        
-        mock_repo_instance = Mock()
-        mock_repo.return_value = mock_repo_instance
-        mock_repo_instance.get_by_id.return_value = validacao_cartao_valido
-        
-        response = client.get("/cartao/1")
-        
-        assert response.status_code == 200
-        assert response.json()["id"] == 1
-        assert response.json()["valido"] is True
-        assert response.json()["numeroCartao"] == "4111********1111"
-        mock_repo_instance.get_by_id.assert_called_once_with(1)
-
-
-def test_obter_validacao_nao_encontrada():
-    """Testa erro ao buscar validação inexistente"""
-    with patch('routers.cartao.get_db'), \
-         patch('routers.cartao.CartaoRepository') as mock_repo:
-        
-        mock_repo_instance = Mock()
-        mock_repo.return_value = mock_repo_instance
-        mock_repo_instance.get_by_id.return_value = None
-        
-        response = client.get("/cartao/999")
-        
-        assert response.status_code == 404
-        assert "VALIDACAO_NAO_ENCONTRADA" in str(response.json())
 
 
 # ==================== TESTES DE VALIDAÇÃO DE ALGORITMO DE LUHN ====================
@@ -347,7 +265,7 @@ def test_validar_cartao_com_espacos_e_hifens():
             mensagem="Cartão válido"
         )
         
-        response = client.post("/cartao/validar", json=cartao_com_formatacao)
+        response = client.post("/validaCartaoDeCredito", json=cartao_com_formatacao)
         
         assert response.status_code == 200
         assert response.json()["valido"] is True
@@ -378,7 +296,7 @@ def test_validar_cartao_mes_invalido():
             mensagem="Mês inválido na validade do cartão"
         )
         
-        response = client.post("/cartao/validar", json=cartao_mes_invalido)
+        response = client.post("/validaCartaoDeCredito", json=cartao_mes_invalido)
         
         assert response.status_code == 200
         assert response.json()["valido"] is False
@@ -419,7 +337,7 @@ def test_validar_cartao_numero_com_caracteres_nao_digitos():
             mensagem="Número do cartão deve conter apenas dígitos"
         )
         
-        response = client.post("/cartao/validar", json=cartao_com_letras)
+        response = client.post("/validaCartaoDeCredito", json=cartao_com_letras)
         
         assert response.status_code == 200
         assert response.json()["valido"] is False
@@ -453,7 +371,7 @@ def test_validar_cartao_cvv_muito_curto():
     }
     
     # O Pydantic valida min_length antes de chegar no endpoint
-    response = client.post("/cartao/validar", json=cartao_cvv_curto)
+    response = client.post("/validaCartaoDeCredito", json=cartao_cvv_curto)
     
     assert response.status_code == 422
 
@@ -468,7 +386,7 @@ def test_validar_cartao_cvv_muito_longo():
     }
     
     # O Pydantic valida max_length antes de chegar no endpoint
-    response = client.post("/cartao/validar", json=cartao_cvv_longo)
+    response = client.post("/validaCartaoDeCredito", json=cartao_cvv_longo)
     
     assert response.status_code == 422
 
@@ -483,7 +401,7 @@ def test_validar_cartao_numero_curto_mascaramento():
     }
     
     # O Pydantic valida min_length antes de chegar no endpoint
-    response = client.post("/cartao/validar", json=cartao_curto)
+    response = client.post("/validaCartaoDeCredito", json=cartao_curto)
     
     assert response.status_code == 422
 
@@ -499,7 +417,7 @@ def test_validar_cartao_exception_generica(novo_cartao_valido):
         mock_repo.return_value = mock_repo_instance
         mock_repo_instance.create.side_effect = Exception("Erro no banco")
         
-        response = client.post("/cartao/validar", json=novo_cartao_valido)
+        response = client.post("/validaCartaoDeCredito", json=novo_cartao_valido)
         
         assert response.status_code == 422
         assert "DADOS_INVALIDOS" in str(response.json())

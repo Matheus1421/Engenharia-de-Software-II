@@ -58,49 +58,7 @@ def novo_email_valido():
     }
 
 
-# ==================== TESTES GET /email ====================
-
-def test_listar_emails_sucesso():
-    """Testa listagem de todos os e-mails - sucesso"""
-    with patch('routers.email.get_db'), \
-         patch('routers.email.EmailRepository') as mock_repo:
-        
-        # Setup
-        mock_repo_instance = Mock()
-        mock_repo.return_value = mock_repo_instance
-        mock_repo_instance.get_all.return_value = [
-            Email(id=1, destinatario="user1@example.com", assunto="Assunto 1", corpo="Corpo 1", enviado=True, data_envio="2024-01-15T10:00:00Z"),
-            Email(id=2, destinatario="user2@example.com", assunto="Assunto 2", corpo="Corpo 2", enviado=False, data_envio=None)
-        ]
-        
-        # Executa
-        response = client.get("/email")
-        
-        # Verifica
-        assert response.status_code == 200
-        assert len(response.json()) == 2
-        assert response.json()[0]["id"] == 1
-        assert response.json()[0]["destinatario"] == "user1@example.com"
-        assert response.json()[1]["id"] == 2
-        mock_repo_instance.get_all.assert_called_once()
-
-
-def test_listar_emails_lista_vazia():
-    """Testa listagem quando não há e-mails cadastrados"""
-    with patch('routers.email.get_db'), \
-         patch('routers.email.EmailRepository') as mock_repo:
-        
-        mock_repo_instance = Mock()
-        mock_repo.return_value = mock_repo_instance
-        mock_repo_instance.get_all.return_value = []
-        
-        response = client.get("/email")
-        
-        assert response.status_code == 200
-        assert response.json() == []
-
-
-# ==================== TESTES POST /email/enviar ====================
+# ==================== TESTES POST /enviarEmail ====================
 
 def test_enviar_email_sucesso(novo_email_valido):
     """Testa envio de e-mail - sucesso"""
@@ -134,7 +92,7 @@ def test_enviar_email_sucesso(novo_email_valido):
         mock_repo_instance.marcar_como_enviado.return_value = email_enviado
         mock_service.enviar_email.return_value = (True, None)
         
-        response = client.post("/email/enviar", json=novo_email_valido)
+        response = client.post("/enviarEmail", json=novo_email_valido)
         
         assert response.status_code == 200
         assert response.json()["id"] == 1
@@ -166,7 +124,7 @@ def test_enviar_email_erro_envio(novo_email_valido):
         mock_repo_instance.create.return_value = email_criado
         mock_service.enviar_email.return_value = (False, "Erro de conexão SMTP")
         
-        response = client.post("/email/enviar", json=novo_email_valido)
+        response = client.post("/enviarEmail", json=novo_email_valido)
         
         assert response.status_code == 500
         assert "ERRO_ENVIO_EMAIL" in str(response.json())
@@ -180,7 +138,7 @@ def test_enviar_email_dados_invalidos():
         "corpo": "Corpo"
     }
     
-    response = client.post("/email/enviar", json=email_invalido)
+    response = client.post("/enviarEmail", json=email_invalido)
     
     assert response.status_code == 422
 
@@ -192,44 +150,9 @@ def test_enviar_email_campos_faltando():
         # Faltam assunto e corpo
     }
     
-    response = client.post("/email/enviar", json=email_incompleto)
+    response = client.post("/enviarEmail", json=email_incompleto)
     
     assert response.status_code == 422
-
-
-# ==================== TESTES GET /email/{id_email} ====================
-
-def test_obter_email_sucesso(email_exemplo):
-    """Testa obtenção de e-mail por ID - sucesso"""
-    with patch('routers.email.get_db'), \
-         patch('routers.email.EmailRepository') as mock_repo:
-        
-        mock_repo_instance = Mock()
-        mock_repo.return_value = mock_repo_instance
-        mock_repo_instance.get_by_id.return_value = email_exemplo
-        
-        response = client.get("/email/1")
-        
-        assert response.status_code == 200
-        assert response.json()["id"] == 1
-        assert response.json()["destinatario"] == "usuario@example.com"
-        assert response.json()["assunto"] == "Teste"
-        mock_repo_instance.get_by_id.assert_called_once_with(1)
-
-
-def test_obter_email_nao_encontrado():
-    """Testa erro ao buscar e-mail inexistente"""
-    with patch('routers.email.get_db'), \
-         patch('routers.email.EmailRepository') as mock_repo:
-        
-        mock_repo_instance = Mock()
-        mock_repo.return_value = mock_repo_instance
-        mock_repo_instance.get_by_id.return_value = None
-        
-        response = client.get("/email/999")
-        
-        assert response.status_code == 404
-        assert "EMAIL_NAO_ENCONTRADO" in str(response.json())
 
 
 # ==================== TESTES DE COBERTURA ADICIONAL ====================
@@ -251,7 +174,7 @@ def test_enviar_email_exception_generica(novo_email_valido):
         mock_repo.return_value = mock_repo_instance
         mock_repo_instance.create.side_effect = Exception("Erro no banco")
         
-        response = client.post("/email/enviar", json=novo_email_valido)
+        response = client.post("/enviarEmail", json=novo_email_valido)
         
         assert response.status_code == 422
         assert "DADOS_INVALIDOS" in str(response.json())
