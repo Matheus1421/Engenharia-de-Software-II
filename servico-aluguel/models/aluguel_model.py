@@ -46,7 +46,7 @@ class Aluguel(BaseModel):
     id: Optional[int] = Field(default=None, description="ID do aluguel")
     ciclista: int = Field(..., description="ID do ciclista")
     trancaInicio: int = Field(..., description="Tranca onde retirou a bicicleta")
-    bicicleta: int = Field(..., description="ID da bicicleta alugada")
+    idBicicleta: int = Field(..., description="ID da bicicleta alugada")
     horaInicio: datetime = Field(..., description="Data/hora do aluguel")
     trancaFim: Optional[int] = Field(default=None, description="Tranca onde devolveu")
     horaFim: Optional[datetime] = Field(default=None, description="Data/hora da devolução")
@@ -61,7 +61,7 @@ class Aluguel(BaseModel):
                 "id": 1,
                 "ciclista": 1,
                 "trancaInicio": 1,
-                "bicicleta": 1,
+                "idBicicleta": 1,
                 "horaInicio": "2025-11-10T10:00:00",
                 "trancaFim": 2,
                 "horaFim": "2025-11-10T12:30:00",
@@ -101,7 +101,7 @@ class Devolucao(BaseModel):
                 "aluguel": {
                     "id": 1,
                     "ciclista": 1,
-                    "bicicleta": 1,
+                    "idBicicleta": 1,
                     "horaInicio": "2025-11-10T10:00:00",
                     "horaFim": "2025-11-10T13:45:00",
                     "cobranca": 1,

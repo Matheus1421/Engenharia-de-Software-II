@@ -131,7 +131,7 @@ def bicicleta_alugada(idCiclista: int):
     aluguel = aluguel_repo.buscar_aluguel_ativo(idCiclista)
 
     if aluguel:
-        return {"id": aluguel.bicicleta, "numero": aluguel.bicicleta}
+        return {"id": aluguel.idBicicleta, "numero": aluguel.idBicicleta}
 
     return {}
 

@@ -127,10 +127,14 @@ def test_buscar_cartao_nao_encontrado():
 def test_cadastrar_cartao_sucesso(dados_cartao_valido):
     """UC07 - Testa cadastro de novo cartão - sucesso"""
     with patch('routers.cartao.get_db'), \
-         patch('routers.cartao.CartaoRepository') as mock_repo:
+         patch('routers.cartao.CartaoRepository') as mock_repo, \
+         patch('routers.cartao.pagamento_service') as mock_pagamento:
 
         mock_instance = Mock()
         mock_repo.return_value = mock_instance
+
+        # Mock do serviço de pagamento - validação bem sucedida
+        mock_pagamento.validar_cartao.return_value = (True, {"valido": True})
 
         # Cartão criado
         mock_instance.criar.return_value = CartaoDeCredito(
@@ -239,11 +243,15 @@ def test_cadastrar_cartao_campos_faltando():
 def test_atualizar_cartao_nao_encontrado():
     """UC07 - Testa erro ao atualizar cartão inexistente"""
     with patch('routers.cartao.get_db'), \
-         patch('routers.cartao.CartaoRepository') as mock_repo:
+         patch('routers.cartao.CartaoRepository') as mock_repo, \
+         patch('routers.cartao.pagamento_service') as mock_pagamento:
 
         mock_instance = Mock()
         mock_repo.return_value = mock_instance
         mock_instance.atualizar.return_value = None
+
+        # Mock do serviço de pagamento - validação bem sucedida
+        mock_pagamento.validar_cartao.return_value = (True, {"valido": True})
 
         dados_atualizacao = {
             "nomeTitular": "João Silva",

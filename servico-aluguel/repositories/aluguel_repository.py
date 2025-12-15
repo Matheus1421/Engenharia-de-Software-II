@@ -19,7 +19,7 @@ class AluguelRepository:
             "id": proximo_id,
             "ciclista": ciclista,
             "trancaInicio": tranca,
-            "bicicleta": bicicleta,
+            "idBicicleta": bicicleta,
             "horaInicio": datetime.now().isoformat(),
             "trancaFim": None,
             "horaFim": None,

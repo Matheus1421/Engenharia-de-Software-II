@@ -1,5 +1,5 @@
-from pydantic import BaseModel, Field
-from typing import Optional
+from pydantic import BaseModel, Field, model_serializer
+from typing import Optional, Any
 from enum import Enum
 
 
@@ -28,6 +28,13 @@ class Tranca(NovaTranca):
     bicicleta: Optional[int] = Field(None, description="ID da bicicleta associada à tranca")
     totem: Optional[int] = Field(None, description="ID do totem associado à tranca")
 
+    @model_serializer(mode='wrap')
+    def serialize_model(self, handler: Any) -> dict:
+        """Adiciona bicicleta_id como alias de bicicleta na serialização"""
+        data = handler(self)
+        data['bicicleta_id'] = data.get('bicicleta')
+        return data
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -38,6 +45,7 @@ class Tranca(NovaTranca):
                 "modelo": "Tranca Modelo X",
                 "status": "LIVRE",
                 "bicicleta": None,
+                "bicicleta_id": None,
                 "totem": 1
             }
         }

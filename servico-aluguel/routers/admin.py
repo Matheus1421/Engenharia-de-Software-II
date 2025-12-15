@@ -19,3 +19,12 @@ def restaurar_banco():
         "status": "success",
         "message": "Banco de dados restaurado com dados iniciais"
     }
+
+
+@router.get("/restaurarDados")
+def restaurar_dados():
+    """
+    Alias para /restaurarBanco - usado pelos testes do Postman.
+    Restaura o banco de dados para o estado inicial com dados de exemplo.
+    """
+    return restaurar_banco()

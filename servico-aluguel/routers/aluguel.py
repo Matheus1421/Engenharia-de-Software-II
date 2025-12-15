@@ -80,7 +80,7 @@ def devolver_bicicleta(dados: NovaDevolucao):
     aluguel_dict = None
 
     for a in todos_alugueis:
-        if a['bicicleta'] == dados.idBicicleta and a['status'] == 'EM_ANDAMENTO':
+        if a['idBicicleta'] == dados.idBicicleta and a['status'] == 'EM_ANDAMENTO':
             aluguel_dict = a
             break
 

@@ -21,8 +21,8 @@ class CiclistaRepository:
         todos = self.table.all()
         proximo_id = max([c.get('id', 0) for c in todos], default=0) + 1
 
-        # Converte modelo para dict
-        dados = ciclista.model_dump()
+        # Converte modelo para dict (mode='json' garante serialização correta de datas)
+        dados = ciclista.model_dump(mode='json')
         dados['id'] = proximo_id
         dados['status'] = StatusCiclista.AGUARDANDO_CONFIRMACAO.value
         dados['senha'] = senha  # TODO: hash em produção
