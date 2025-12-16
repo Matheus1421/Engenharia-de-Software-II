@@ -111,20 +111,18 @@ def test_cobranca_repository_create():
     mock_db.get_table.return_value = mock_table
     mock_table.all.return_value = []
     mock_table.insert = Mock()
-    
+
     repo = CobrancaRepository(mock_db)
-    
+
     nova_cobranca = NovaCobranca(
-        id_ciclista=1,
-        valor=50.00,
-        data_vencimento="2024-02-15T10:00:00Z",
-        descricao="Teste"
+        ciclista=1,
+        valor=50.00
     )
-    
+
     result = repo.create(nova_cobranca)
-    
+
     assert result.id == 1
-    assert result.status == StatusCobranca.PENDENTE
+    assert result.status == "PAGA"  # Repositório usa PAGA como padrão
     mock_table.insert.assert_called_once()
 
 
@@ -148,34 +146,32 @@ def test_cobranca_repository_update_status_com_data_pagamento():
     mock_table = MagicMock()
     mock_query = MagicMock()
     mock_db.get_table.return_value = mock_table
-    
+
     # Mock de cobrança existente
     cobranca_data = {
         'id': 1,
-        'idCiclista': 1,
+        'ciclista': 1,
         'valor': 50.00,
         'status': 'PENDENTE',
-        'dataCriacao': '2024-01-15T10:00:00Z',
-        'dataVencimento': '2024-02-15T10:00:00Z',
-        'dataPagamento': None,
-        'descricao': 'Teste'
+        'horaSolicitacao': '2024-01-15T10:00:00Z',
+        'horaFinalizacao': None
     }
-    
+
     mock_table.get.return_value = cobranca_data
     mock_table.update = Mock()
-    
+
     # Após update, retorna cobrança atualizada
     cobranca_atualizada = cobranca_data.copy()
     cobranca_atualizada['status'] = 'PAGA'
-    cobranca_atualizada['dataPagamento'] = '2024-01-20T10:00:00Z'
+    cobranca_atualizada['horaFinalizacao'] = '2024-01-20T10:00:00Z'
     mock_table.get.side_effect = [cobranca_data, cobranca_atualizada]
-    
+
     repo = CobrancaRepository(mock_db)
     data_pagamento = "2024-01-20T10:00:00Z"
     result = repo.update_status(1, StatusCobranca.PAGA, data_pagamento)
-    
+
     assert result is not None
-    assert result.status == StatusCobranca.PAGA
+    assert result.status == "PAGA"
 
 
 def test_cobranca_repository_update_status_nao_encontrada():

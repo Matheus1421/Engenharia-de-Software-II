@@ -35,17 +35,20 @@ def enviar_email_contrato(
     - Formato novo (utilizado pelos outros microsserviços): {\"email\", \"assunto\", \"mensagem\"}
     """
     # Normaliza o payload para o modelo NovoEmail esperado internamente
-    if "destinatario" in payload or "corpo" in payload:
-        dados_email = payload
-    else:
-        dados_email = {
-            "destinatario": payload.get("email"),
-            "assunto": payload.get("assunto"),
-            "corpo": payload.get("mensagem"),
-        }
-
     try:
-        email_model = NovoEmail(**dados_email)
+        if isinstance(payload, NovoEmail):
+            email_model = payload
+        elif isinstance(payload, dict):
+            if "destinatario" in payload or "corpo" in payload:
+                email_model = NovoEmail(**payload)
+            else:
+                email_model = NovoEmail(
+                    destinatario=payload.get("email"),
+                    assunto=payload.get("assunto"),
+                    corpo=payload.get("mensagem"),
+                )
+        else:
+            raise ValueError("Payload inválido")
 
         db = get_db()
         email_repo = EmailRepository(db)

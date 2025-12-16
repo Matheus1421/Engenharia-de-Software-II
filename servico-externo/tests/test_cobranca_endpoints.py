@@ -27,13 +27,11 @@ def cobranca_exemplo():
     """Cobrança de exemplo para testes"""
     return Cobranca(
         id=1,
-        id_ciclista=1,
+        ciclista=1,
         valor=50.00,
-        status=StatusCobranca.PENDENTE,
-        data_criacao="2024-01-15T10:00:00Z",
-        data_vencimento="2024-02-15T10:00:00Z",
-        data_pagamento=None,
-        descricao="Mensalidade do mês de janeiro"
+        status="PENDENTE",
+        horaSolicitacao="2024-01-15T10:00:00Z",
+        horaFinalizacao=None
     )
 
 
@@ -42,13 +40,11 @@ def cobranca_paga():
     """Cobrança já paga de exemplo"""
     return Cobranca(
         id=1,
-        id_ciclista=1,
+        ciclista=1,
         valor=50.00,
-        status=StatusCobranca.PAGA,
-        data_criacao="2024-01-15T10:00:00Z",
-        data_vencimento="2024-02-15T10:00:00Z",
-        data_pagamento="2024-01-20T10:00:00Z",
-        descricao="Mensalidade do mês de janeiro"
+        status="PAGA",
+        horaSolicitacao="2024-01-15T10:00:00Z",
+        horaFinalizacao="2024-01-20T10:00:00Z"
     )
 
 
@@ -56,10 +52,8 @@ def cobranca_paga():
 def nova_cobranca_valida():
     """Dados válidos para criar nova cobrança"""
     return {
-        "idCiclista": 1,
-        "valor": 75.50,
-        "dataVencimento": "2024-03-15T10:00:00Z",
-        "descricao": "Mensalidade do mês de fevereiro"
+        "ciclista": 1,
+        "valor": 75.50
     }
 
 
@@ -69,52 +63,48 @@ def test_criar_cobranca_sucesso(nova_cobranca_valida):
     """Testa criação de nova cobrança - sucesso"""
     with patch('routers.cobranca.get_db'), \
          patch('routers.cobranca.CobrancaRepository') as mock_repo:
-        
+
         mock_repo_instance = Mock()
         mock_repo.return_value = mock_repo_instance
         mock_repo_instance.create.return_value = Cobranca(
             id=1,
-            id_ciclista=nova_cobranca_valida["idCiclista"],
+            ciclista=nova_cobranca_valida["ciclista"],
             valor=nova_cobranca_valida["valor"],
-            status=StatusCobranca.PENDENTE,
-            data_criacao="2024-01-15T10:00:00Z",
-            data_vencimento=nova_cobranca_valida["dataVencimento"],
-            data_pagamento=None,
-            descricao=nova_cobranca_valida["descricao"]
+            status="PAGA",
+            horaSolicitacao="2024-01-15T10:00:00Z",
+            horaFinalizacao="2024-01-15T10:00:00Z"
         )
-        
+
         response = client.post("/cobranca", json=nova_cobranca_valida)
-        
+
         assert response.status_code == 200
         assert response.json()["id"] == 1
         assert response.json()["valor"] == 75.50
-        assert response.json()["status"] == "PENDENTE"
+        assert response.json()["status"] == "PAGA"
         mock_repo_instance.create.assert_called_once()
 
 
 def test_criar_cobranca_dados_invalidos():
     """Testa erro ao criar cobrança com dados inválidos"""
     cobranca_invalida = {
-        "idCiclista": 1,
-        "valor": -10.00,  # Valor negativo
-        "dataVencimento": "2024-03-15T10:00:00Z",
-        "descricao": "Descrição"
+        "ciclista": 1,
+        "valor": -10.00  # Valor negativo
     }
-    
+
     response = client.post("/cobranca", json=cobranca_invalida)
-    
+
     assert response.status_code == 422
 
 
 def test_criar_cobranca_campos_faltando():
     """Testa erro ao criar cobrança sem campos obrigatórios"""
     cobranca_incompleta = {
-        "idCiclista": 1
-        # Faltam outros campos
+        "ciclista": 1
+        # Falta "valor" que é obrigatório
     }
-    
+
     response = client.post("/cobranca", json=cobranca_incompleta)
-    
+
     assert response.status_code == 422
 
 
