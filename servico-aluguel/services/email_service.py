@@ -8,6 +8,7 @@ import httpx
 logger = logging.getLogger(__name__)
 
 BASE_URL_EXTERNO = os.getenv("SERVICO_EXTERNO_URL", "http://localhost:8002")
+BASE_URL = os.getenv("BASE_URL", "http://localhost:8001")
 
 
 class EmailService:
@@ -91,7 +92,7 @@ class EmailService:
         Returns:
             Tupla (sucesso, resposta/erro)
         """
-        link_confirmacao = f"http://localhost:8001/ciclista/{id_ciclista}/ativar"
+        link_confirmacao = f"{BASE_URL}/ciclista/{id_ciclista}/ativar"
 
         mensagem = f"""
         Ola {nome}!

@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
@@ -27,7 +28,7 @@ def startup_event():
     if len(ciclistas_table.all()) == 0:
         init_db(db)
         print("✓ Banco de dados inicializado com dados padrão")
-        print("  - Acesse http://localhost:8001/docs para ver a documentação")
+        print("  - Acesse /docs para ver a documentação")
         print("  - Use GET /funcionario para ver funcionários de exemplo")
     else:
         print("✓ Banco de dados já contém dados")
@@ -46,7 +47,7 @@ def root():
         "message": "Microsserviço de Aluguel",
         "status": "online",
         "version": "0.1.0",
-        "docs": "http://localhost:8001/docs"
+        "docs": "/docs"
     }
 
 @app.get("/health", tags=["Health"])
