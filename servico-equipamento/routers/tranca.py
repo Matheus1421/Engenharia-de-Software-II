@@ -415,8 +415,14 @@ def integrar_tranca_na_rede(request: IntegrarNaRedeRequest):
     # Valida funcionário via serviço de aluguel
     funcionario_valido, email_funcionario = aluguel_service.validar_funcionario(request.id_funcionario)
     if not funcionario_valido:
-        logger.warning(f"Funcionário {request.id_funcionario} não encontrado ou inválido - continuando operação")
-        email_funcionario = None
+        logger.warning(f"Funcionário {request.id_funcionario} não encontrado ou inválido")
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=[{
+                "codigo": "FUNCIONARIO_NAO_ENCONTRADO",
+                "mensagem": f"Funcionário {request.id_funcionario} não encontrado"
+            }]
+        )
     
     # Busca e valida tranca
     tranca = tranca_repo.get_by_id(request.id_tranca)
@@ -519,8 +525,14 @@ def retirar_tranca_da_rede(request: RetirarDaRedeRequest):
     # Valida funcionário via serviço de aluguel
     funcionario_valido, email_funcionario = aluguel_service.validar_funcionario(request.id_funcionario)
     if not funcionario_valido:
-        logger.warning(f"Funcionário {request.id_funcionario} não encontrado ou inválido - continuando operação")
-        email_funcionario = None
+        logger.warning(f"Funcionário {request.id_funcionario} não encontrado ou inválido")
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=[{
+                "codigo": "FUNCIONARIO_NAO_ENCONTRADO",
+                "mensagem": f"Funcionário {request.id_funcionario} não encontrado"
+            }]
+        )
     
     # Busca e valida tranca
     tranca = tranca_repo.get_by_id(request.id_tranca)

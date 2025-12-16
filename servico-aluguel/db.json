@@ -11,7 +11,7 @@
             "senha": "ABC123",
             "urlFotoDocumento": "https://exemplo.com/foto.jpg",
             "status": "ATIVO",
-            "dataConfirmacao": "2025-12-16T16:16:43.854651"
+            "dataConfirmacao": "2025-12-15T15:54:34.006353"
         },
         "2": {
             "id": 2,
@@ -37,7 +37,7 @@
             "senha": "ABC123",
             "urlFotoDocumento": "https://exemplo.com/foto.jpg",
             "status": "ATIVO",
-            "dataConfirmacao": "2025-12-16T16:16:43.854651"
+            "dataConfirmacao": "2025-12-15T15:54:34.006382"
         },
         "4": {
             "id": 4,
@@ -50,7 +50,7 @@
             "senha": "ABC123",
             "urlFotoDocumento": "https://exemplo.com/foto.jpg",
             "status": "ATIVO",
-            "dataConfirmacao": "2025-12-16T16:16:43.854651"
+            "dataConfirmacao": "2025-12-15T15:54:34.006391"
         }
     },
     "cartoes": {
@@ -106,9 +106,9 @@
             "ciclista": 3,
             "trancaInicio": 2,
             "idBicicleta": 3,
-            "horaInicio": "2025-12-16T16:16:43.863706",
-            "trancaFim": null,
-            "horaFim": null,
+            "horaInicio": "2025-12-15T15:54:34.018822",
+            "trancaFim": 2,
+            "horaFim": "2025-12-15T15:54:34.928513",
             "cobranca": 1,
             "cobrancaExtra": null,
             "status": "EM_ANDAMENTO"
@@ -118,7 +118,7 @@
             "ciclista": 4,
             "trancaInicio": 4,
             "idBicicleta": 5,
-            "horaInicio": "2025-12-16T14:16:43.863706",
+            "horaInicio": "2025-12-15T13:54:34.018822",
             "trancaFim": null,
             "horaFim": null,
             "cobranca": 2,
@@ -130,9 +130,9 @@
             "ciclista": 3,
             "trancaInicio": 1,
             "idBicicleta": 1,
-            "horaInicio": "2025-12-16T14:16:43.863706",
+            "horaInicio": "2025-12-15T13:54:34.018822",
             "trancaFim": 2,
-            "horaFim": "2025-12-16T16:16:43.863706",
+            "horaFim": "2025-12-15T15:54:34.018822",
             "cobranca": 3,
             "cobrancaExtra": 4,
             "status": "FINALIZADO"
@@ -144,8 +144,8 @@
             "valor": 10.0,
             "ciclista": 3,
             "status": "PAGA",
-            "horaSolicitacao": "2025-12-16T16:16:43.863706",
-            "horaFinalizacao": "2025-12-16T16:16:43.863706",
+            "horaSolicitacao": "2025-12-15T15:54:34.018822",
+            "horaFinalizacao": "2025-12-15T15:54:34.018822",
             "tipo": "ALUGUEL_INICIAL"
         },
         "2": {
@@ -153,8 +153,8 @@
             "valor": 10.0,
             "ciclista": 4,
             "status": "PAGA",
-            "horaSolicitacao": "2025-12-16T14:16:43.863706",
-            "horaFinalizacao": "2025-12-16T14:16:43.863706",
+            "horaSolicitacao": "2025-12-15T13:54:34.018822",
+            "horaFinalizacao": "2025-12-15T13:54:34.018822",
             "tipo": "ALUGUEL_INICIAL"
         },
         "3": {
@@ -162,8 +162,8 @@
             "valor": 10.0,
             "ciclista": 3,
             "status": "PAGA",
-            "horaSolicitacao": "2025-12-16T14:16:43.863706",
-            "horaFinalizacao": "2025-12-16T14:16:43.863706",
+            "horaSolicitacao": "2025-12-15T13:54:34.018822",
+            "horaFinalizacao": "2025-12-15T13:54:34.018822",
             "tipo": "ALUGUEL_INICIAL"
         },
         "4": {

@@ -50,7 +50,7 @@ class AluguelService:
                     return True, funcionario
                 elif response.status_code == 404:
                     logger.warning(f"⚠️ Funcionário {id_funcionario} não encontrado")
-                    return False, {"error": "Funcionário não encontrado", "status_code": 404}
+                    return False, {"error": "Funcionário não encontrado", "status_code": 422}
                 else:
                     logger.warning(f"⚠️ Erro ao buscar funcionário: {response.status_code}")
                     return False, {"error": response.text, "status_code": response.status_code}
