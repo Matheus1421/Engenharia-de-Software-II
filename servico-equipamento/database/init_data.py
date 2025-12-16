@@ -52,7 +52,7 @@ BICICLETAS_INICIAIS = [
         "modelo": "Caloi",
         "ano": "2020",
         "numero": 12345,
-        "status": StatusBicicleta.DISPONIVEL.value
+        "status": StatusBicicleta.EM_USO.value
     }
 ]
 

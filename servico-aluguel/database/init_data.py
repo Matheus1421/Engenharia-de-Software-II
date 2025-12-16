@@ -157,6 +157,15 @@ def init_db(db: TinyDB):
             "horaSolicitacao": duas_horas_atras.isoformat(),
             "horaFinalizacao": duas_horas_atras.isoformat(),
             "tipo": "ALUGUEL_INICIAL"
+        },
+        {
+            "id": 4,
+            "valor": 5.00,
+            "ciclista": 3,
+            "status": "PENDENTE",
+            "horaSolicitacao": agora.isoformat(),
+            "horaFinalizacao": None,
+            "tipo": "TAXA_EXTRA"
         }
     ]
     cobrancas_table.insert_multiple(cobrancas_iniciais)
@@ -198,7 +207,7 @@ def init_db(db: TinyDB):
             "trancaFim": 2,
             "horaFim": agora.isoformat(),
             "cobranca": 3,
-            "cobrancaExtra": None,
+            "cobrancaExtra": 4,
             "status": "FINALIZADO"
         }
     ]
