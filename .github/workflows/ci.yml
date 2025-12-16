@@ -32,24 +32,27 @@ jobs:
           echo "==> Rodando testes do servico-equipamento"
           cd servico-equipamento
           pytest tests/ -q \
+            --cov=. \
             --cov-report=xml:coverage.xml \
-            --cov-report=term || true
+            --cov-report=term
           cd ..
 
           # 2) servico-aluguel
           echo "==> Rodando testes do servico-aluguel"
           cd servico-aluguel
           pytest tests/ -q \
+            --cov=. \
             --cov-report=xml:coverage.xml \
-            --cov-report=term || true
+            --cov-report=term
           cd ..
 
           # 3) servico-externo
           echo "==> Rodando testes do servico-externo"
           cd servico-externo
           pytest tests/ -q \
+            --cov=. \
             --cov-report=xml:coverage.xml \
-            --cov-report=term || true
+            --cov-report=term
           cd ..
 
           echo "==> coverage.xml gerados:"
