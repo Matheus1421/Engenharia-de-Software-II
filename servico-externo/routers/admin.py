@@ -20,9 +20,20 @@ def restaurar_banco():
     """
     db = get_db()
     result = init_db(db)
-    
+
     return {
         "mensagem": "Banco de dados restaurado com sucesso",
         "dados_inseridos": result
     }
+
+
+@router.get(
+    "/restaurarDados",
+    summary="Restaurar dados iniciais do banco de dados (alias)",
+)
+def restaurar_dados():
+    """
+    Alias para /restaurarBanco - usado pelos testes automatizados do Postman.
+    """
+    return restaurar_banco()
 
