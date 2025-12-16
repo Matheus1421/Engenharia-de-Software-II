@@ -93,27 +93,20 @@ def incluir_cobranca_na_fila(cobranca: NovaCobranca):
 )
 def processar_cobrancas_em_fila():
     """
-    Processa todas as cobranças pendentes cujo vencimento já passou,
-    marcando-as como VENCIDA.
+    Processa todas as cobranças pendentes, marcando-as como PAGA.
+    Simula o processamento de pagamentos em fila.
     """
     db = get_db()
     cobranca_repo = CobrancaRepository(db)
 
     todas = cobranca_repo.get_all()
-    agora = datetime.now(timezone.utc)
     processadas: List[Cobranca] = []
 
     for cobranca in todas:
-        # Considera "em fila e atrasada" se está PENDENTE e data de vencimento já passou
-        try:
-            vencimento = datetime.fromisoformat(cobranca.data_vencimento)
-        except Exception:
-            # Se a data estiver em formato inesperado, ignora esta cobrança
-            continue
-
-        if cobranca.status == StatusCobranca.PENDENTE and vencimento <= agora:
+        # Processa cobranças PENDENTE, marcando como PAGA
+        if cobranca.status == StatusCobranca.PENDENTE.value:
             atualizada = cobranca_repo.update_status(
-                cobranca.id, StatusCobranca.VENCIDA
+                cobranca.id, StatusCobranca.PAGA
             )
             if atualizada:
                 processadas.append(atualizada)

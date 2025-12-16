@@ -26,35 +26,31 @@ EMAILS_INICIAIS = [
 ]
 
 
-# Dados iniciais para cobranças
+# Dados iniciais para cobranças (formato compatível com Postman e servico-aluguel)
 COBRANCAS_INICIAIS = [
     {
         "id": 1,
-        "id_ciclista": 1,
+        "ciclista": 1,
         "valor": 50.00,
         "status": StatusCobranca.PENDENTE.value,
-        "data_criacao": "2024-01-15T10:00:00Z",
-        "data_vencimento": "2024-02-15T10:00:00Z",
-        "descricao": "Mensalidade do mês de janeiro"
+        "horaSolicitacao": "2024-01-15T10:00:00Z",
+        "horaFinalizacao": None
     },
     {
         "id": 2,
-        "id_ciclista": 2,
+        "ciclista": 2,
         "valor": 75.50,
         "status": StatusCobranca.PAGA.value,
-        "data_criacao": "2024-01-10T09:00:00Z",
-        "data_vencimento": "2024-02-10T09:00:00Z",
-        "data_pagamento": "2024-01-12T15:30:00Z",
-        "descricao": "Mensalidade do mês de janeiro"
+        "horaSolicitacao": "2024-01-10T09:00:00Z",
+        "horaFinalizacao": "2024-01-12T15:30:00Z"
     },
     {
         "id": 3,
-        "id_ciclista": 1,
+        "ciclista": 1,
         "valor": 30.00,
         "status": StatusCobranca.VENCIDA.value,
-        "data_criacao": "2023-12-01T10:00:00Z",
-        "data_vencimento": "2024-01-01T10:00:00Z",
-        "descricao": "Mensalidade do mês de dezembro"
+        "horaSolicitacao": "2023-12-01T10:00:00Z",
+        "horaFinalizacao": None
     }
 ]
 
