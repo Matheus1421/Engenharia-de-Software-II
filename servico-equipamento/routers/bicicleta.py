@@ -10,7 +10,9 @@ from pydantic import BaseModel
 from database.database import get_db
 from repositories.bicicleta_repository import BicicletaRepository
 from repositories.tranca_repository import TrancaRepository
+from repositories.auditoria_repository import AuditoriaRepository
 from models.bicicleta_model import Bicicleta, NovaBicicleta, StatusBicicleta
+from models.auditoria_model import RegistroAuditoria, TipoAcao, TipoEquipamento
 from models.tranca_model import StatusTranca
 from models.erro_model import Erro
 from utils.error_handler import handle_api_errors
@@ -278,6 +280,24 @@ def integrar_bicicleta_na_rede(request: IntegrarNaRedeRequest):
     if not sucesso_email:
         logger.warning(f"Falha ao enviar email de notificação para inclusão da bicicleta {request.id_bicicleta}")
     
+    # 5. Registra ação de auditoria (UC08)
+    auditoria_repo = AuditoriaRepository(db)
+    registro_auditoria = RegistroAuditoria(
+        tipo_acao=TipoAcao.INTEGRAR_BICICLETA,
+        tipo_equipamento=TipoEquipamento.BICICLETA,
+        id_equipamento=request.id_bicicleta,
+        numero_equipamento=bicicleta.numero,
+        id_funcionario=request.id_funcionario,
+        id_tranca=request.id_tranca,
+        status_destino="DISPONIVEL",
+        detalhes={
+            "status_anterior": bicicleta.status.value,
+            "marca": bicicleta.marca,
+            "modelo": bicicleta.modelo
+        }
+    )
+    auditoria_repo.create(registro_auditoria)
+    
     return {
         "mensagem": "Bicicleta integrada na rede com sucesso",
         "idBicicleta": request.id_bicicleta,
@@ -358,6 +378,26 @@ def retirar_bicicleta_da_rede(request: RetirarDaRedeRequest):
     )
     if not sucesso_email:
         logger.warning(f"Falha ao enviar email de notificação para retirada da bicicleta {request.id_bicicleta}")
+    
+    # 5. Registra ação de auditoria (UC09)
+    # R1 – Devem ser registrados: a data/hora da retirada da tranca, o reparador e o número da bicicleta
+    auditoria_repo = AuditoriaRepository(db)
+    registro_auditoria = RegistroAuditoria(
+        tipo_acao=TipoAcao.RETIRAR_BICICLETA,
+        tipo_equipamento=TipoEquipamento.BICICLETA,
+        id_equipamento=request.id_bicicleta,
+        numero_equipamento=bicicleta.numero,
+        id_funcionario=request.id_funcionario,
+        id_tranca=request.id_tranca,
+        status_destino=novo_status.value,
+        detalhes={
+            "status_anterior": bicicleta.status.value,
+            "marca": bicicleta.marca,
+            "modelo": bicicleta.modelo,
+            "motivo": "APOSENTADORIA" if novo_status == StatusBicicleta.APOSENTADA else "REPARO"
+        }
+    )
+    auditoria_repo.create(registro_auditoria)
     
     return {
         "mensagem": "Bicicleta retirada da rede com sucesso",

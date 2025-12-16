@@ -12,7 +12,9 @@ from database.database import get_db
 from repositories.tranca_repository import TrancaRepository
 from repositories.totem_repository import TotemRepository
 from repositories.bicicleta_repository import BicicletaRepository
+from repositories.auditoria_repository import AuditoriaRepository
 from models.tranca_model import Tranca, NovaTranca, StatusTranca
+from models.auditoria_model import RegistroAuditoria, TipoAcao, TipoEquipamento
 from models.bicicleta_model import Bicicleta, StatusBicicleta
 from models.erro_model import Erro
 from utils.error_handler import handle_api_errors
@@ -434,6 +436,22 @@ def integrar_tranca_na_rede(request: IntegrarNaRedeRequest):
             }]
         )
     
+    # UC11-R3: Verifica se o funcionário que está devolvendo a tranca é o mesmo que retirou para reparo
+    if tranca.status == StatusTranca.EM_REPARO:
+        auditoria_repo = AuditoriaRepository(db)
+        if not auditoria_repo.verificar_reparador_original(
+            TipoEquipamento.TRANCA,
+            request.id_tranca,
+            request.id_funcionario
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=[{
+                    "codigo": "REPARADOR_DIFERENTE",
+                    "mensagem": f"O funcionário {request.id_funcionario} não foi quem retirou a tranca {request.id_tranca} para reparo"
+                }]
+            )
+    
     # Integra na rede
     # 1. Associa tranca ao totem
     tranca_repo.associar_totem(request.id_tranca, request.id_totem)
@@ -442,6 +460,7 @@ def integrar_tranca_na_rede(request: IntegrarNaRedeRequest):
     tranca_repo.update_status(request.id_tranca, StatusTranca.LIVRE)
     
     # 3. Envia notificação por email via serviço externo
+    # UC11-R2 – Deve ser enviado um email para o reparador com todos os dados da inclusão da tranca na rede de totens
     sucesso_email, _ = email_service.notificar_inclusao_tranca(
         id_tranca=request.id_tranca,
         id_totem=request.id_totem,
@@ -450,6 +469,25 @@ def integrar_tranca_na_rede(request: IntegrarNaRedeRequest):
     )
     if not sucesso_email:
         logger.warning(f"Falha ao enviar email de notificação para inclusão da tranca {request.id_tranca}")
+    
+    # 4. Registra ação de auditoria (UC11)
+    # UC11-R1 – O sistema deve registrar: a data/hora da inserção no totem, a matrícula do reparador e o número da tranca
+    auditoria_repo = AuditoriaRepository(db)
+    registro_auditoria = RegistroAuditoria(
+        tipo_acao=TipoAcao.INTEGRAR_TRANCA,
+        tipo_equipamento=TipoEquipamento.TRANCA,
+        id_equipamento=request.id_tranca,
+        numero_equipamento=tranca.numero,
+        id_funcionario=request.id_funcionario,
+        id_totem=request.id_totem,
+        status_destino="LIVRE",
+        detalhes={
+            "status_anterior": tranca.status.value,
+            "modelo": tranca.modelo,
+            "localizacao": tranca.localizacao
+        }
+    )
+    auditoria_repo.create(registro_auditoria)
     
     return {
         "mensagem": "Tranca integrada na rede com sucesso",
@@ -539,6 +577,26 @@ def retirar_tranca_da_rede(request: RetirarDaRedeRequest):
     )
     if not sucesso_email:
         logger.warning(f"Falha ao enviar email de notificação para retirada da tranca {request.id_tranca}")
+    
+    # 4. Registra ação de auditoria (UC12)
+    # UC12-R1 – Devem ser registrados: a data/hora da retirada da tranca, o número da tranca e o reparador
+    auditoria_repo = AuditoriaRepository(db)
+    registro_auditoria = RegistroAuditoria(
+        tipo_acao=TipoAcao.RETIRAR_TRANCA,
+        tipo_equipamento=TipoEquipamento.TRANCA,
+        id_equipamento=request.id_tranca,
+        numero_equipamento=tranca.numero,
+        id_funcionario=request.id_funcionario,
+        id_totem=request.id_totem,
+        status_destino=novo_status.value,
+        detalhes={
+            "status_anterior": tranca.status.value,
+            "modelo": tranca.modelo,
+            "localizacao": tranca.localizacao,
+            "motivo": "APOSENTADORIA" if novo_status == StatusTranca.APOSENTADA else "REPARO"
+        }
+    )
+    auditoria_repo.create(registro_auditoria)
     
     return {
         "mensagem": "Tranca retirada da rede com sucesso",

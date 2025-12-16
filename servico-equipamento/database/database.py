@@ -64,7 +64,7 @@ class Database:
     def truncate_all(self):
         """Remove todos os dados de todas as tabelas"""
         self._db.truncate()
-        for table in ['bicicletas', 'trancas', 'totems', 'tranca_totem']:
+        for table in ['bicicletas', 'trancas', 'totems', 'tranca_totem', 'auditorias']:
             self._db.table(table).truncate()
     
     def reset(self):

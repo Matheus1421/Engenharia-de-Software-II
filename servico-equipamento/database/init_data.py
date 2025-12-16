@@ -3,6 +3,7 @@ Arquivo para inicializar o banco de dados com dados de exemplo.
 Dados conforme especificação dos testes automatizados do Postman.
 """
 
+from datetime import datetime
 from models.bicicleta_model import StatusBicicleta
 from models.tranca_model import StatusTranca
 
@@ -26,7 +27,7 @@ BICICLETAS_INICIAIS = [
         "marca": "Caloi",
         "modelo": "Caloi",
         "ano": "2020",
-        "numero": 12346,
+        "numero": 12345,
         "status": StatusBicicleta.REPARO_SOLICITADO.value
     },
     {
@@ -34,7 +35,7 @@ BICICLETAS_INICIAIS = [
         "marca": "Caloi",
         "modelo": "Caloi",
         "ano": "2020",
-        "numero": 12347,
+        "numero": 12345,
         "status": StatusBicicleta.EM_USO.value
     },
     {
@@ -42,7 +43,7 @@ BICICLETAS_INICIAIS = [
         "marca": "Caloi",
         "modelo": "Caloi",
         "ano": "2020",
-        "numero": 12348,
+        "numero": 12345,
         "status": StatusBicicleta.EM_REPARO.value
     },
     {
@@ -50,7 +51,7 @@ BICICLETAS_INICIAIS = [
         "marca": "Caloi",
         "modelo": "Caloi",
         "ano": "2020",
-        "numero": 12349,
+        "numero": 12345,
         "status": StatusBicicleta.DISPONIVEL.value
     }
 ]
@@ -70,7 +71,7 @@ TRANCAS_INICIAIS = [
     },
     {
         "id": 2,
-        "numero": 12346,
+        "numero": 12345,
         "localizacao": DEFAULT_LOCALIZACAO,
         "anoDeFabricacao": "2020",
         "modelo": "Caloi",
@@ -80,7 +81,7 @@ TRANCAS_INICIAIS = [
     },
     {
         "id": 3,
-        "numero": 12347,
+        "numero": 12345,
         "localizacao": DEFAULT_LOCALIZACAO,
         "anoDeFabricacao": "2020",
         "modelo": "Caloi",
@@ -90,7 +91,7 @@ TRANCAS_INICIAIS = [
     },
     {
         "id": 4,
-        "numero": 12348,
+        "numero": 12345,
         "localizacao": DEFAULT_LOCALIZACAO,
         "anoDeFabricacao": "2020",
         "modelo": "Caloi",
@@ -100,7 +101,7 @@ TRANCAS_INICIAIS = [
     },
     {
         "id": 5,
-        "numero": 12349,
+        "numero": 12345,
         "localizacao": DEFAULT_LOCALIZACAO,
         "anoDeFabricacao": "2020",
         "modelo": "Caloi",
@@ -110,7 +111,7 @@ TRANCAS_INICIAIS = [
     },
     {
         "id": 6,
-        "numero": 12350,
+        "numero": 12345,
         "localizacao": DEFAULT_LOCALIZACAO,
         "anoDeFabricacao": "2020",
         "modelo": "Caloi",
@@ -141,6 +142,40 @@ TRANCA_TOTEM_INICIAIS = [
 ]
 
 
+# Dados iniciais de auditoria (movimentações)
+AUDITORIAS_INICIAIS = [
+    {
+        "id": 1,
+        "tipo_acao": "RETIRAR_BICICLETA",
+        "tipo_equipamento": "BICICLETA",
+        "id_equipamento": 4,
+        "numero_equipamento": "12345",
+        "id_funcionario": 1,
+        "data_hora": "2024-01-15T10:30:00Z",
+        "status_origem": "DISPONIVEL",
+        "status_destino": "EM_REPARO",
+        "detalhes": {
+            "motivo": "Manutenção preventiva",
+            "id_tranca_origem": 4
+        }
+    },
+    {
+        "id": 2,
+        "tipo_acao": "RETIRAR_TRANCA",
+        "tipo_equipamento": "TRANCA",
+        "id_equipamento": 5,
+        "numero_equipamento": "12345",
+        "id_funcionario": 1,
+        "data_hora": "2024-01-15T11:00:00Z",
+        "status_origem": "DISPONIVEL",
+        "status_destino": "EM_REPARO",
+        "detalhes": {
+            "motivo": "Reparo de mecanismo de travamento"
+        }
+    }
+]
+
+
 def init_db(db_instance):
     """
     Inicializa o banco de dados com dados de exemplo.
@@ -154,6 +189,7 @@ def init_db(db_instance):
     trancas_table = db_instance.get_table('trancas')
     totems_table = db_instance.get_table('totems')
     tranca_totem_table = db_instance.get_table('tranca_totem')
+    auditorias_table = db_instance.get_table('auditorias')
     
     # Insere bicicletas
     for bicicleta in BICICLETAS_INICIAIS:
@@ -171,9 +207,14 @@ def init_db(db_instance):
     for rel in TRANCA_TOTEM_INICIAIS:
         tranca_totem_table.insert(rel)
     
+    # Insere registros de auditoria
+    for auditoria in AUDITORIAS_INICIAIS:
+        auditorias_table.insert(auditoria)
+    
     return {
         "bicicletas": len(BICICLETAS_INICIAIS),
         "trancas": len(TRANCAS_INICIAIS),
         "totems": len(TOTEMS_INICIAIS),
-        "relacionamentos": len(TRANCA_TOTEM_INICIAIS)
+        "relacionamentos": len(TRANCA_TOTEM_INICIAIS),
+        "auditorias": len(AUDITORIAS_INICIAIS)
     }
