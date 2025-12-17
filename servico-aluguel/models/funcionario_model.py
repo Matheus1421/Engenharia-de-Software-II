@@ -69,9 +69,7 @@ class Funcionario(BaseModel):
 
     matricula: str = Field(
         ...,
-        description="Matrícula única (ex: F001, F002)",
-        pattern=r"^F\d{3,}$",
-        examples=["F001", "F042", "F123"]
+        description="Matrícula única do funcionário"
     )
 
     nome: str

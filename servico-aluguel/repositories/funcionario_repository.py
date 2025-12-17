@@ -10,8 +10,8 @@ class FuncionarioRepository:
     def criar(self, func: NovoFuncionario) -> Funcionario:
         """UC15: Cadastrar funcionário com matrícula auto-gerada (R2)"""
         todos = self.table.all()
-        proximo_num = max([int(f.get('matricula', 'F0')[1:]) for f in todos], default=0) + 1
-        matricula = f"F{proximo_num:03d}"
+        proximo_num = max([int(f.get('matricula', '0')) for f in todos], default=0) + 1
+        matricula = str(proximo_num)
 
         dados = func.model_dump(exclude={'confirmacaoSenha'})
         dados['matricula'] = matricula
