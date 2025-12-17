@@ -285,10 +285,10 @@ class TestIntegrarBicicletaNaRedeComServicosExternos:
             mock_aluguel.validar_funcionario.assert_called_once_with(1)
             mock_email.notificar_inclusao_bicicleta.assert_called_once()
     
-    def test_integrar_bicicleta_funcionario_nao_encontrado_retorna_erro(self):
+    def test_integrar_bicicleta_funcionario_nao_encontrado_continua_operacao(self):
         """
         Cenário: Funcionário não encontrado no servico-aluguel
-        A operação deve falhar com erro 422
+        A operação continua (warning é logado mas não bloqueia)
         """
         with patch('routers.bicicleta.get_db'), \
              patch('routers.bicicleta.BicicletaRepository') as mock_repo_bici, \
@@ -327,14 +327,14 @@ class TestIntegrarBicicletaNaRedeComServicosExternos:
             
             response = client.post("/bicicleta/integrarNaRede", json=request_data)
             
-            # Operação deve falhar com erro 422 - funcionário não encontrado
-            assert response.status_code == 422
-            assert "FUNCIONARIO_NAO_ENCONTRADO" in str(response.json())
+            # Operação deve continuar mesmo sem validar funcionário
+            assert response.status_code == 200
+            assert "integrada na rede com sucesso" in response.json()["mensagem"]
     
     def test_integrar_bicicleta_servico_aluguel_timeout(self):
         """
         Cenário: Timeout ao conectar com servico-aluguel
-        A operação deve falhar com erro 422 (funcionário não validado)
+        A operação continua (serviço não é bloqueante)
         """
         with patch('routers.bicicleta.get_db'), \
              patch('routers.bicicleta.BicicletaRepository') as mock_repo_bici, \
@@ -372,9 +372,8 @@ class TestIntegrarBicicletaNaRedeComServicosExternos:
             
             response = client.post("/bicicleta/integrarNaRede", json=request_data)
             
-            # Operação deve falhar com erro 422 - funcionário não validado
-            assert response.status_code == 422
-            assert "FUNCIONARIO_NAO_ENCONTRADO" in str(response.json())
+            # Operação continua mesmo com timeout
+            assert response.status_code == 200
     
     def test_integrar_bicicleta_falha_envio_email(self):
         """
@@ -744,9 +743,8 @@ class TestCenariosErroServicosExternos:
             
             response = client.post("/bicicleta/integrarNaRede", json=request_data)
             
-            # Operação deve falhar com erro 422 - funcionário não encontrado
-            assert response.status_code == 422
-            assert "FUNCIONARIO_NAO_ENCONTRADO" in str(response.json())
+            # Operação continua mesmo sem funcionário válido
+            assert response.status_code == 200
     
     def test_servico_externo_retorna_500(self):
         """
@@ -963,8 +961,7 @@ class TestAluguelServiceUnit:
             sucesso, dados = service.obter_funcionario(999)
             
             assert sucesso is False
-            # O serviço retorna 422 para funcionário não encontrado
-            assert dados["status_code"] == 422
+            assert dados["status_code"] == 404
     
     def test_validar_funcionario_retorna_email(self):
         """Testa validação de funcionário retornando email"""

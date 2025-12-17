@@ -468,16 +468,12 @@ def test_integrar_bicicleta_na_rede_sucesso_status_nova(tranca_livre):
     """Testa integração de bicicleta NOVA na rede - sucesso"""
     with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo_bici, \
-         patch('routers.bicicleta.TrancaRepository') as mock_repo_tranca, \
-         patch('routers.bicicleta.aluguel_service') as mock_aluguel:
+         patch('routers.bicicleta.TrancaRepository') as mock_repo_tranca:
         
         mock_repo_bici_instance = Mock()
         mock_repo_bici.return_value = mock_repo_bici_instance
         mock_repo_tranca_instance = Mock()
         mock_repo_tranca.return_value = mock_repo_tranca_instance
-        
-        # Mock do serviço de aluguel - funcionário válido
-        mock_aluguel.validar_funcionario.return_value = (True, "funcionario@test.com")
         
         bicicleta_nova = Bicicleta(
             id=1, marca="Caloi", modelo="X", ano="2023", numero=100, status=StatusBicicleta.NOVA
@@ -509,16 +505,12 @@ def test_integrar_bicicleta_na_rede_sucesso_status_em_reparo(tranca_livre):
     """Testa integração de bicicleta EM_REPARO na rede - sucesso"""
     with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo_bici, \
-         patch('routers.bicicleta.TrancaRepository') as mock_repo_tranca, \
-         patch('routers.bicicleta.aluguel_service') as mock_aluguel:
+         patch('routers.bicicleta.TrancaRepository') as mock_repo_tranca:
         
         mock_repo_bici_instance = Mock()
         mock_repo_bici.return_value = mock_repo_bici_instance
         mock_repo_tranca_instance = Mock()
         mock_repo_tranca.return_value = mock_repo_tranca_instance
-        
-        # Mock do serviço de aluguel - funcionário válido
-        mock_aluguel.validar_funcionario.return_value = (True, "funcionario@test.com")
         
         bicicleta_reparo = Bicicleta(
             id=1, marca="Caloi", modelo="X", ano="2023", numero=100, status=StatusBicicleta.EM_REPARO
@@ -542,15 +534,11 @@ def test_integrar_bicicleta_nao_encontrada(tranca_livre):
     """Testa erro ao integrar bicicleta inexistente"""
     with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo_bici, \
-         patch('routers.bicicleta.TrancaRepository'), \
-         patch('routers.bicicleta.aluguel_service') as mock_aluguel:
+         patch('routers.bicicleta.TrancaRepository'):
         
         mock_repo_bici_instance = Mock()
         mock_repo_bici.return_value = mock_repo_bici_instance
         mock_repo_bici_instance.get_by_id.return_value = None
-        
-        # Mock do serviço de aluguel - funcionário válido
-        mock_aluguel.validar_funcionario.return_value = (True, "funcionario@test.com")
         
         request_data = {
             "idTranca": 1,
@@ -568,16 +556,12 @@ def test_integrar_tranca_nao_encontrada():
     """Testa erro ao integrar com tranca inexistente"""
     with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo_bici, \
-         patch('routers.bicicleta.TrancaRepository') as mock_repo_tranca, \
-         patch('routers.bicicleta.aluguel_service') as mock_aluguel:
+         patch('routers.bicicleta.TrancaRepository') as mock_repo_tranca:
         
         mock_repo_bici_instance = Mock()
         mock_repo_bici.return_value = mock_repo_bici_instance
         mock_repo_tranca_instance = Mock()
         mock_repo_tranca.return_value = mock_repo_tranca_instance
-        
-        # Mock do serviço de aluguel - funcionário válido
-        mock_aluguel.validar_funcionario.return_value = (True, "funcionario@test.com")
         
         bicicleta_nova = Bicicleta(
             id=1, marca="Caloi", modelo="X", ano="2023", numero=100, status=StatusBicicleta.NOVA
@@ -601,16 +585,12 @@ def test_integrar_bicicleta_status_invalido(tranca_livre):
     """Testa erro ao integrar bicicleta com status inválido"""
     with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo_bici, \
-         patch('routers.bicicleta.TrancaRepository') as mock_repo_tranca, \
-         patch('routers.bicicleta.aluguel_service') as mock_aluguel:
+         patch('routers.bicicleta.TrancaRepository') as mock_repo_tranca:
         
         mock_repo_bici_instance = Mock()
         mock_repo_bici.return_value = mock_repo_bici_instance
         mock_repo_tranca_instance = Mock()
         mock_repo_tranca.return_value = mock_repo_tranca_instance
-        
-        # Mock do serviço de aluguel - funcionário válido
-        mock_aluguel.validar_funcionario.return_value = (True, "funcionario@test.com")
         
         # Bicicleta com status DISPONIVEL (não permitido para integração)
         bicicleta_disponivel = Bicicleta(
@@ -635,16 +615,12 @@ def test_integrar_tranca_ocupada():
     """Testa erro ao integrar em tranca ocupada"""
     with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo_bici, \
-         patch('routers.bicicleta.TrancaRepository') as mock_repo_tranca, \
-         patch('routers.bicicleta.aluguel_service') as mock_aluguel:
+         patch('routers.bicicleta.TrancaRepository') as mock_repo_tranca:
         
         mock_repo_bici_instance = Mock()
         mock_repo_bici.return_value = mock_repo_bici_instance
         mock_repo_tranca_instance = Mock()
         mock_repo_tranca.return_value = mock_repo_tranca_instance
-        
-        # Mock do serviço de aluguel - funcionário válido
-        mock_aluguel.validar_funcionario.return_value = (True, "funcionario@test.com")
         
         bicicleta_nova = Bicicleta(
             id=1, marca="Caloi", modelo="X", ano="2023", numero=100, status=StatusBicicleta.NOVA
@@ -675,16 +651,12 @@ def test_retirar_bicicleta_da_rede_para_reparo(tranca_ocupada_com_bicicleta):
     """Testa retirada de bicicleta da rede para reparo - sucesso"""
     with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo_bici, \
-         patch('routers.bicicleta.TrancaRepository') as mock_repo_tranca, \
-         patch('routers.bicicleta.aluguel_service') as mock_aluguel:
+         patch('routers.bicicleta.TrancaRepository') as mock_repo_tranca:
         
         mock_repo_bici_instance = Mock()
         mock_repo_bici.return_value = mock_repo_bici_instance
         mock_repo_tranca_instance = Mock()
         mock_repo_tranca.return_value = mock_repo_tranca_instance
-        
-        # Mock do serviço de aluguel - funcionário válido
-        mock_aluguel.validar_funcionario.return_value = (True, "funcionario@test.com")
         
         bicicleta = Bicicleta(
             id=1, marca="Caloi", modelo="X", ano="2023", numero=100, status=StatusBicicleta.DISPONIVEL
@@ -715,16 +687,12 @@ def test_retirar_bicicleta_da_rede_para_aposentar(tranca_ocupada_com_bicicleta):
     """Testa retirada de bicicleta da rede para aposentadoria - sucesso"""
     with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo_bici, \
-         patch('routers.bicicleta.TrancaRepository') as mock_repo_tranca, \
-         patch('routers.bicicleta.aluguel_service') as mock_aluguel:
+         patch('routers.bicicleta.TrancaRepository') as mock_repo_tranca:
         
         mock_repo_bici_instance = Mock()
         mock_repo_bici.return_value = mock_repo_bici_instance
         mock_repo_tranca_instance = Mock()
         mock_repo_tranca.return_value = mock_repo_tranca_instance
-        
-        # Mock do serviço de aluguel - funcionário válido
-        mock_aluguel.validar_funcionario.return_value = (True, "funcionario@test.com")
         
         bicicleta = Bicicleta(
             id=1, marca="Caloi", modelo="X", ano="2023", numero=100, status=StatusBicicleta.DISPONIVEL
@@ -749,15 +717,11 @@ def test_retirar_bicicleta_da_rede_para_aposentar(tranca_ocupada_com_bicicleta):
 def test_retirar_bicicleta_nao_encontrada():
     """Testa erro ao retirar bicicleta inexistente"""
     with patch('routers.bicicleta.get_db'), \
-         patch('routers.bicicleta.BicicletaRepository') as mock_repo_bici, \
-         patch('routers.bicicleta.aluguel_service') as mock_aluguel:
+         patch('routers.bicicleta.BicicletaRepository') as mock_repo_bici:
         
         mock_repo_bici_instance = Mock()
         mock_repo_bici.return_value = mock_repo_bici_instance
         mock_repo_bici_instance.get_by_id.return_value = None
-        
-        # Mock do serviço de aluguel - funcionário válido
-        mock_aluguel.validar_funcionario.return_value = (True, "funcionario@test.com")
         
         request_data = {
             "idTranca": 1,
@@ -776,16 +740,12 @@ def test_retirar_tranca_nao_encontrada():
     """Testa erro ao retirar de tranca inexistente"""
     with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo_bici, \
-         patch('routers.bicicleta.TrancaRepository') as mock_repo_tranca, \
-         patch('routers.bicicleta.aluguel_service') as mock_aluguel:
+         patch('routers.bicicleta.TrancaRepository') as mock_repo_tranca:
         
         mock_repo_bici_instance = Mock()
         mock_repo_bici.return_value = mock_repo_bici_instance
         mock_repo_tranca_instance = Mock()
         mock_repo_tranca.return_value = mock_repo_tranca_instance
-        
-        # Mock do serviço de aluguel - funcionário válido
-        mock_aluguel.validar_funcionario.return_value = (True, "funcionario@test.com")
         
         bicicleta = Bicicleta(
             id=1, marca="Caloi", modelo="X", ano="2023", numero=100, status=StatusBicicleta.DISPONIVEL
@@ -810,16 +770,12 @@ def test_retirar_bicicleta_nao_esta_na_tranca():
     """Testa erro ao retirar bicicleta que não está na tranca informada"""
     with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo_bici, \
-         patch('routers.bicicleta.TrancaRepository') as mock_repo_tranca, \
-         patch('routers.bicicleta.aluguel_service') as mock_aluguel:
+         patch('routers.bicicleta.TrancaRepository') as mock_repo_tranca:
         
         mock_repo_bici_instance = Mock()
         mock_repo_bici.return_value = mock_repo_bici_instance
         mock_repo_tranca_instance = Mock()
         mock_repo_tranca.return_value = mock_repo_tranca_instance
-        
-        # Mock do serviço de aluguel - funcionário válido
-        mock_aluguel.validar_funcionario.return_value = (True, "funcionario@test.com")
         
         bicicleta = Bicicleta(
             id=1, marca="Caloi", modelo="X", ano="2023", numero=100, status=StatusBicicleta.DISPONIVEL
@@ -849,16 +805,12 @@ def test_retirar_status_destino_invalido(tranca_ocupada_com_bicicleta):
     """Testa erro ao usar status de destino inválido"""
     with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo_bici, \
-         patch('routers.bicicleta.TrancaRepository') as mock_repo_tranca, \
-         patch('routers.bicicleta.aluguel_service') as mock_aluguel:
+         patch('routers.bicicleta.TrancaRepository') as mock_repo_tranca:
         
         mock_repo_bici_instance = Mock()
         mock_repo_bici.return_value = mock_repo_bici_instance
         mock_repo_tranca_instance = Mock()
         mock_repo_tranca.return_value = mock_repo_tranca_instance
-        
-        # Mock do serviço de aluguel - funcionário válido
-        mock_aluguel.validar_funcionario.return_value = (True, "funcionario@test.com")
         
         bicicleta = Bicicleta(
             id=1, marca="Caloi", modelo="X", ano="2023", numero=100, status=StatusBicicleta.DISPONIVEL
@@ -883,16 +835,12 @@ def test_retirar_status_case_insensitive(tranca_ocupada_com_bicicleta):
     """Testa que statusAcaoReparador aceita minúsculas"""
     with patch('routers.bicicleta.get_db'), \
          patch('routers.bicicleta.BicicletaRepository') as mock_repo_bici, \
-         patch('routers.bicicleta.TrancaRepository') as mock_repo_tranca, \
-         patch('routers.bicicleta.aluguel_service') as mock_aluguel:
+         patch('routers.bicicleta.TrancaRepository') as mock_repo_tranca:
         
         mock_repo_bici_instance = Mock()
         mock_repo_bici.return_value = mock_repo_bici_instance
         mock_repo_tranca_instance = Mock()
         mock_repo_tranca.return_value = mock_repo_tranca_instance
-        
-        # Mock do serviço de aluguel - funcionário válido
-        mock_aluguel.validar_funcionario.return_value = (True, "funcionario@test.com")
         
         bicicleta = Bicicleta(
             id=1, marca="Caloi", modelo="X", ano="2023", numero=100, status=StatusBicicleta.DISPONIVEL
