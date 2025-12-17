@@ -912,7 +912,8 @@ def test_integrar_tranca_na_rede_sucesso(tranca_nova, totem_exemplo):
     
     with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo_tranca, \
-         patch('routers.tranca.TotemRepository') as mock_repo_totem:
+         patch('routers.tranca.TotemRepository') as mock_repo_totem, \
+         patch('routers.tranca.aluguel_service') as mock_aluguel:
         
         mock_repo_tranca_instance = MagicMock()
         mock_repo_tranca_instance.get_by_id.return_value = tranca_nova
@@ -923,6 +924,9 @@ def test_integrar_tranca_na_rede_sucesso(tranca_nova, totem_exemplo):
         mock_repo_totem_instance = MagicMock()
         mock_repo_totem_instance.get_by_id.return_value = totem_exemplo
         mock_repo_totem.return_value = mock_repo_totem_instance
+        
+        # Mock do serviço de aluguel - funcionário válido
+        mock_aluguel.validar_funcionario.return_value = (True, "funcionario@test.com")
         
         request_data = {
             "idTotem": 1,
@@ -949,7 +953,8 @@ def test_integrar_tranca_em_reparo(tranca_em_reparo, totem_exemplo):
     
     with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo_tranca, \
-         patch('routers.tranca.TotemRepository') as mock_repo_totem:
+         patch('routers.tranca.TotemRepository') as mock_repo_totem, \
+         patch('routers.tranca.aluguel_service') as mock_aluguel:
         
         mock_repo_tranca_instance = MagicMock()
         mock_repo_tranca_instance.get_by_id.return_value = tranca_em_reparo
@@ -960,6 +965,9 @@ def test_integrar_tranca_em_reparo(tranca_em_reparo, totem_exemplo):
         mock_repo_totem_instance = MagicMock()
         mock_repo_totem_instance.get_by_id.return_value = totem_exemplo
         mock_repo_totem.return_value = mock_repo_totem_instance
+        
+        # Mock do serviço de aluguel - funcionário válido
+        mock_aluguel.validar_funcionario.return_value = (True, "funcionario@test.com")
         
         request_data = {
             "idTotem": 1,
@@ -976,7 +984,8 @@ def test_integrar_tranca_nao_encontrada(totem_exemplo):
     """Testa erro quando tranca não existe"""
     with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo_tranca, \
-         patch('routers.tranca.TotemRepository') as mock_repo_totem:
+         patch('routers.tranca.TotemRepository') as mock_repo_totem, \
+         patch('routers.tranca.aluguel_service') as mock_aluguel:
         
         mock_repo_tranca_instance = MagicMock()
         mock_repo_tranca_instance.get_by_id.return_value = None
@@ -985,6 +994,9 @@ def test_integrar_tranca_nao_encontrada(totem_exemplo):
         mock_repo_totem_instance = MagicMock()
         mock_repo_totem_instance.get_by_id.return_value = totem_exemplo
         mock_repo_totem.return_value = mock_repo_totem_instance
+        
+        # Mock do serviço de aluguel - funcionário válido
+        mock_aluguel.validar_funcionario.return_value = (True, "funcionario@test.com")
         
         request_data = {
             "idTotem": 1,
@@ -1001,7 +1013,8 @@ def test_integrar_totem_nao_encontrado(tranca_nova):
     """Testa erro quando totem não existe"""
     with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo_tranca, \
-         patch('routers.tranca.TotemRepository') as mock_repo_totem:
+         patch('routers.tranca.TotemRepository') as mock_repo_totem, \
+         patch('routers.tranca.aluguel_service') as mock_aluguel:
         
         mock_repo_tranca_instance = MagicMock()
         mock_repo_tranca_instance.get_by_id.return_value = tranca_nova
@@ -1010,6 +1023,9 @@ def test_integrar_totem_nao_encontrado(tranca_nova):
         mock_repo_totem_instance = MagicMock()
         mock_repo_totem_instance.get_by_id.return_value = None
         mock_repo_totem.return_value = mock_repo_totem_instance
+        
+        # Mock do serviço de aluguel - funcionário válido
+        mock_aluguel.validar_funcionario.return_value = (True, "funcionario@test.com")
         
         request_data = {
             "idTotem": 999,
@@ -1026,7 +1042,8 @@ def test_integrar_status_invalido(tranca_exemplo, totem_exemplo):
     """Testa erro ao integrar tranca com status inválido"""
     with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo_tranca, \
-         patch('routers.tranca.TotemRepository') as mock_repo_totem:
+         patch('routers.tranca.TotemRepository') as mock_repo_totem, \
+         patch('routers.tranca.aluguel_service') as mock_aluguel:
         
         mock_repo_tranca_instance = MagicMock()
         mock_repo_tranca_instance.get_by_id.return_value = tranca_exemplo  # Status LIVRE
@@ -1035,6 +1052,9 @@ def test_integrar_status_invalido(tranca_exemplo, totem_exemplo):
         mock_repo_totem_instance = MagicMock()
         mock_repo_totem_instance.get_by_id.return_value = totem_exemplo
         mock_repo_totem.return_value = mock_repo_totem_instance
+        
+        # Mock do serviço de aluguel - funcionário válido
+        mock_aluguel.validar_funcionario.return_value = (True, "funcionario@test.com")
         
         request_data = {
             "idTotem": 1,
@@ -1061,7 +1081,8 @@ def test_retirar_tranca_da_rede_para_reparo(tranca_exemplo, totem_exemplo):
     
     with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo_tranca, \
-         patch('routers.tranca.TotemRepository') as mock_repo_totem:
+         patch('routers.tranca.TotemRepository') as mock_repo_totem, \
+         patch('routers.tranca.aluguel_service') as mock_aluguel:
         
         mock_repo_tranca_instance = MagicMock()
         mock_repo_tranca_instance.get_by_id.return_value = tranca_exemplo
@@ -1073,6 +1094,9 @@ def test_retirar_tranca_da_rede_para_reparo(tranca_exemplo, totem_exemplo):
         mock_repo_totem_instance = MagicMock()
         mock_repo_totem_instance.get_by_id.return_value = totem_exemplo
         mock_repo_totem.return_value = mock_repo_totem_instance
+        
+        # Mock do serviço de aluguel - funcionário válido
+        mock_aluguel.validar_funcionario.return_value = (True, "funcionario@test.com")
         
         request_data = {
             "idTotem": 1,
@@ -1099,7 +1123,8 @@ def test_retirar_tranca_da_rede_para_aposentadoria(tranca_exemplo, totem_exemplo
     
     with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo_tranca, \
-         patch('routers.tranca.TotemRepository') as mock_repo_totem:
+         patch('routers.tranca.TotemRepository') as mock_repo_totem, \
+         patch('routers.tranca.aluguel_service') as mock_aluguel:
         
         mock_repo_tranca_instance = MagicMock()
         mock_repo_tranca_instance.get_by_id.return_value = tranca_exemplo
@@ -1111,6 +1136,9 @@ def test_retirar_tranca_da_rede_para_aposentadoria(tranca_exemplo, totem_exemplo
         mock_repo_totem_instance = MagicMock()
         mock_repo_totem_instance.get_by_id.return_value = totem_exemplo
         mock_repo_totem.return_value = mock_repo_totem_instance
+        
+        # Mock do serviço de aluguel - funcionário válido
+        mock_aluguel.validar_funcionario.return_value = (True, "funcionario@test.com")
         
         request_data = {
             "idTotem": 1,
@@ -1130,7 +1158,8 @@ def test_retirar_tranca_nao_encontrada(totem_exemplo):
     """Testa erro quando tranca não existe"""
     with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo_tranca, \
-         patch('routers.tranca.TotemRepository') as mock_repo_totem:
+         patch('routers.tranca.TotemRepository') as mock_repo_totem, \
+         patch('routers.tranca.aluguel_service') as mock_aluguel:
         
         mock_repo_tranca_instance = MagicMock()
         mock_repo_tranca_instance.get_by_id.return_value = None
@@ -1139,6 +1168,9 @@ def test_retirar_tranca_nao_encontrada(totem_exemplo):
         mock_repo_totem_instance = MagicMock()
         mock_repo_totem_instance.get_by_id.return_value = totem_exemplo
         mock_repo_totem.return_value = mock_repo_totem_instance
+        
+        # Mock do serviço de aluguel - funcionário válido
+        mock_aluguel.validar_funcionario.return_value = (True, "funcionario@test.com")
         
         request_data = {
             "idTotem": 1,
@@ -1156,7 +1188,8 @@ def test_retirar_totem_nao_encontrado(tranca_exemplo):
     """Testa erro quando totem não existe"""
     with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo_tranca, \
-         patch('routers.tranca.TotemRepository') as mock_repo_totem:
+         patch('routers.tranca.TotemRepository') as mock_repo_totem, \
+         patch('routers.tranca.aluguel_service') as mock_aluguel:
         
         mock_repo_tranca_instance = MagicMock()
         mock_repo_tranca_instance.get_by_id.return_value = tranca_exemplo
@@ -1165,6 +1198,9 @@ def test_retirar_totem_nao_encontrado(tranca_exemplo):
         mock_repo_totem_instance = MagicMock()
         mock_repo_totem_instance.get_by_id.return_value = None
         mock_repo_totem.return_value = mock_repo_totem_instance
+        
+        # Mock do serviço de aluguel - funcionário válido
+        mock_aluguel.validar_funcionario.return_value = (True, "funcionario@test.com")
         
         request_data = {
             "idTotem": 999,
@@ -1182,7 +1218,8 @@ def test_retirar_tranca_nao_esta_no_totem(tranca_exemplo, totem_exemplo):
     """Testa erro quando tranca não está no totem informado"""
     with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo_tranca, \
-         patch('routers.tranca.TotemRepository') as mock_repo_totem:
+         patch('routers.tranca.TotemRepository') as mock_repo_totem, \
+         patch('routers.tranca.aluguel_service') as mock_aluguel:
         
         mock_repo_tranca_instance = MagicMock()
         mock_repo_tranca_instance.get_by_id.return_value = tranca_exemplo
@@ -1192,6 +1229,9 @@ def test_retirar_tranca_nao_esta_no_totem(tranca_exemplo, totem_exemplo):
         mock_repo_totem_instance = MagicMock()
         mock_repo_totem_instance.get_by_id.return_value = totem_exemplo
         mock_repo_totem.return_value = mock_repo_totem_instance
+        
+        # Mock do serviço de aluguel - funcionário válido
+        mock_aluguel.validar_funcionario.return_value = (True, "funcionario@test.com")
         
         request_data = {
             "idTotem": 1,  # Tentando retirar de totem 1
@@ -1211,7 +1251,8 @@ def test_retirar_status_destino_invalido(tranca_exemplo, totem_exemplo):
     """Testa erro com status de destino inválido"""
     with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo_tranca, \
-         patch('routers.tranca.TotemRepository') as mock_repo_totem:
+         patch('routers.tranca.TotemRepository') as mock_repo_totem, \
+         patch('routers.tranca.aluguel_service') as mock_aluguel:
         
         mock_repo_tranca_instance = MagicMock()
         mock_repo_tranca_instance.get_by_id.return_value = tranca_exemplo
@@ -1221,6 +1262,9 @@ def test_retirar_status_destino_invalido(tranca_exemplo, totem_exemplo):
         mock_repo_totem_instance = MagicMock()
         mock_repo_totem_instance.get_by_id.return_value = totem_exemplo
         mock_repo_totem.return_value = mock_repo_totem_instance
+        
+        # Mock do serviço de aluguel - funcionário válido
+        mock_aluguel.validar_funcionario.return_value = (True, "funcionario@test.com")
         
         request_data = {
             "idTotem": 1,
@@ -1246,7 +1290,8 @@ def test_retirar_case_insensitive_status(tranca_exemplo, totem_exemplo):
     
     with patch('routers.tranca.get_db'), \
          patch('routers.tranca.TrancaRepository') as mock_repo_tranca, \
-         patch('routers.tranca.TotemRepository') as mock_repo_totem:
+         patch('routers.tranca.TotemRepository') as mock_repo_totem, \
+         patch('routers.tranca.aluguel_service') as mock_aluguel:
         
         mock_repo_tranca_instance = MagicMock()
         mock_repo_tranca_instance.get_by_id.return_value = tranca_exemplo
@@ -1258,6 +1303,9 @@ def test_retirar_case_insensitive_status(tranca_exemplo, totem_exemplo):
         mock_repo_totem_instance = MagicMock()
         mock_repo_totem_instance.get_by_id.return_value = totem_exemplo
         mock_repo_totem.return_value = mock_repo_totem_instance
+        
+        # Mock do serviço de aluguel - funcionário válido
+        mock_aluguel.validar_funcionario.return_value = (True, "funcionario@test.com")
         
         request_data = {
             "idTotem": 1,
